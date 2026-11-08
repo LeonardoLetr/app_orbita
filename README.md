@@ -7,7 +7,8 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 ## Como funciona
 
 - Cada partida sorteia **5 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
-- O jogador digita uma resposta por categoria, com **cronômetro opcional**.
+- As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
+- A pontuação de cada resposta aparece logo depois de responder.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
 | Nível        | Pontos | Significado              |
@@ -91,8 +92,8 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 ## Roadmap
 
 - [x] **Etapa 1** — Setup do Angular com Tailwind, estrutura de pastas e base JSON com pelo menos 20 categorias
-- [ ] **Etapa 2** — Tela de jogo: sorteio das categorias, campos de resposta e cronômetro opcional
-- [ ] **Etapa 3** — Pontuação e tela de resultado com planeta e animação
+- [x] **Etapa 2** — Tela de jogo: sorteio das categorias, uma categoria por vez, cronômetro opcional e pontuação
+- [ ] **Etapa 3** — Tela de resultado com planeta, animação de viagem e respostas mais raras
 - [ ] **Etapa 4** — Histórico e recorde no `localStorage`, e botão de jogar de novo
 - [ ] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
 
