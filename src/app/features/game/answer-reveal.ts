@@ -75,6 +75,7 @@ const ZERO_TONES: Record<Exclude<AnswerOutcome, 'scored'>, Tone> = {
           [class]="scored() ? tone().text : tone().text + ' motion-safe:animate-shake'"
         >
           {{ scored() ? '+' + result().points : '0' }}
+          <span class="sr-only">pontos</span>
         </p>
         <p class="text-2xl font-extrabold sm:text-3xl short:text-xl">{{ tone().headline }}</p>
         @if (alias(); as alias) {

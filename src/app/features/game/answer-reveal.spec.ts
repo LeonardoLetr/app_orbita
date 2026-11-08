@@ -18,7 +18,7 @@ describe('AnswerReveal', () => {
       match: { text: 'Narval', rarity: 'supernova' },
     });
 
-    expect(element.textContent).toContain('+30');
+    expect(element.textContent).toMatch(/\+30\s*pontos/);
     expect(element.textContent).toContain('Supernova!');
     expect(element.querySelector('app-star-burst')).not.toBeNull();
   });
