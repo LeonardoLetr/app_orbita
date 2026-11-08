@@ -12,6 +12,7 @@ import {
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
 import { PlanetArt } from '../../shared/components/planet-art';
+import { RocketArt } from '../../shared/components/rocket-art';
 
 /** Keep in sync with --travel in journey-scene.css. */
 export const TRAVEL_MS = 1300;
@@ -75,7 +76,7 @@ interface GainEvent {
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt],
+  imports: [PlanetArt, RocketArt],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },

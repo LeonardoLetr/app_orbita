@@ -166,10 +166,6 @@
 }
 
 .rocket-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
   filter: drop-shadow(0 0 0.5rem rgb(79 224 245 / 0.35));
 }
 
@@ -180,15 +176,6 @@
 
 .is-traveling .rocket-tilt {
   rotate: -7deg;
-}
-
-.flame {
-  transform-origin: 15px 18px;
-  transition: transform 250ms ease-out;
-}
-
-.is-traveling .flame {
-  transform: scale(2.3, 1.35);
 }
 
 .trail {

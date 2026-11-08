@@ -19,13 +19,13 @@ describe('JourneyTrack', () => {
   });
 
   it('moves the ship to the planet reached', () => {
-    const ship = render('pluto').querySelector<SVGElement>('svg.w-10')!;
+    const ship = render('pluto').querySelector<HTMLElement>('app-rocket-art')!;
 
     expect(ship.style.left).toBe('100%');
   });
 
   it('keeps the ship at Earth when nothing was scored', () => {
-    const ship = render('earth-orbit').querySelector<SVGElement>('svg.w-10')!;
+    const ship = render('earth-orbit').querySelector<HTMLElement>('app-rocket-art')!;
 
     expect(ship.style.left).toBe('0%');
   });
