@@ -1,0 +1,153 @@
+@let status = game.status();
+
+<main class="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-5 py-6 sm:py-10">
+  <header class="flex items-center justify-between gap-4">
+    <a
+      routerLink="/"
+      class="rounded-full px-1 py-1 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"
+    >
+      ← Início
+    </a>
+    @if (status === 'playing' || status === 'revealing') {
+      <p class="font-display text-xl font-bold text-star-400">{{ game.totalPoints() }} pts</p>
+    }
+  </header>
+
+  @if (status === 'error') {
+    <div class="m-auto flex flex-col items-center gap-4 text-center">
+      <p class="text-xl">Não foi possível carregar as categorias.</p>
+      <button
+        type="button"
+        class="rounded-2xl bg-star-400 px-6 py-3 font-extrabold text-space-950 hover:bg-star-300"
+        (click)="newRound()"
+      >
+        Tentar de novo
+      </button>
+    </div>
+  } @else if (status === 'finished') {
+    <section class="flex flex-col gap-8" aria-labelledby="summary-title">
+      <div class="mt-4 space-y-2 text-center">
+        <p class="text-sm font-bold tracking-widest text-space-200 uppercase">Fim da partida</p>
+        <h1 id="summary-title" class="text-6xl font-bold text-star-400 sm:text-7xl">
+          {{ game.totalPoints() }} pts
+        </h1>
+      </div>
+
+      <ol class="divide-y divide-space-800 rounded-3xl border border-space-800 bg-space-900/70">
+        @for (entry of game.entries(); track entry.category.id) {
+          <li class="flex items-center justify-between gap-4 px-5 py-4">
+            <div class="min-w-0">
+              <p class="text-sm text-space-200">{{ entry.category.title }}</p>
+              <p class="truncate text-lg font-bold">{{ entry.result?.input || '—' }}</p>
+            </div>
+            @if (entry.result; as result) {
+              <app-rarity-badge class="shrink-0 text-sm" [result]="result" />
+            }
+          </li>
+        }
+      </ol>
+
+      <div class="flex flex-col gap-3 sm:flex-row">
+        <button
+          type="button"
+          class="flex-1 rounded-2xl bg-star-400 px-6 py-4 text-lg font-extrabold text-space-950 hover:bg-star-300"
+          (click)="newRound()"
+        >
+          Jogar de novo
+        </button>
+        <a
+          routerLink="/"
+          class="flex-1 rounded-2xl border-2 border-space-600 px-6 py-4 text-center text-lg font-bold hover:border-space-400"
+        >
+          Início
+        </a>
+      </div>
+    </section>
+  } @else if (status === 'playing' || status === 'revealing') {
+    @let entry = game.current()!;
+
+    <section class="flex flex-1 flex-col gap-6" aria-labelledby="category-title">
+      <div class="flex items-center justify-between gap-4">
+        <p class="text-sm font-bold tracking-widest text-space-200 uppercase">
+          Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+        </p>
+        <ol class="flex gap-1.5" aria-hidden="true">
+          @for (item of game.entries(); track item.category.id; let i = $index) {
+            <li
+              class="h-2 w-6 rounded-full"
+              [class]="
+                i < game.index()
+                  ? 'bg-nebula-400'
+                  : i === game.index()
+                    ? 'bg-space-50'
+                    : 'bg-space-700'
+              "
+            ></li>
+          }
+        </ol>
+      </div>
+
+      @if (game.timerEnabled()) {
+        <div class="flex items-center gap-3">
+          <div class="h-2.5 flex-1 overflow-hidden rounded-full bg-space-800">
+            <div
+              class="h-full rounded-full transition-[width] duration-100 ease-linear"
+              [class]="countdown.seconds() <= 5 ? 'bg-flare-500' : 'bg-aurora-400'"
+              [style.width.%]="countdown.progress() * 100"
+            ></div>
+          </div>
+          <p
+            role="timer"
+            class="w-14 text-right font-display text-lg font-bold tabular-nums"
+            [class.text-flare-400]="countdown.seconds() <= 5"
+          >
+            {{ countdown.seconds() }} s
+          </p>
+        </div>
+      }
+
+      <h1 id="category-title" class="mt-6 text-4xl leading-tight font-bold sm:text-6xl">
+        {{ entry.category.title }}
+      </h1>
+
+      <form class="flex flex-col gap-3 sm:flex-row" (submit)="submit($event)">
+        <label for="answer" class="sr-only">Sua resposta</label>
+        <input
+          #answerInput
+          id="answer"
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          enterkeyhint="send"
+          maxlength="60"
+          placeholder="Digite sua resposta"
+          class="min-w-0 flex-1 rounded-2xl border-2 border-space-600 bg-space-900/80 px-5 py-4 text-2xl text-space-50 placeholder:text-space-400 focus:border-aurora-400 focus:outline-none sm:text-3xl"
+          [value]="draft()"
+          [readOnly]="status === 'revealing'"
+          (input)="draft.set(answerInput.value)"
+        />
+        <button
+          type="submit"
+          class="rounded-2xl bg-star-400 px-6 py-4 text-lg font-extrabold text-space-950 transition hover:bg-star-300 disabled:opacity-40"
+          [disabled]="status === 'revealing'"
+        >
+          {{ draft().trim() ? 'Confirmar' : 'Pular' }}
+        </button>
+      </form>
+
+      <div class="min-h-24" aria-live="polite">
+        @if (entry.result; as result) {
+          <div class="flex flex-col items-start gap-2 motion-safe:animate-pop">
+            <app-rarity-badge class="text-2xl" [result]="result" />
+            @if (result.match && result.match.text.toLowerCase() !== result.input.toLowerCase()) {
+              <p class="text-space-200">Aceita como “{{ result.match.text }}”</p>
+            }
+          </div>
+        }
+      </div>
+    </section>
+  } @else {
+    <p role="status" class="m-auto text-lg text-space-200">Preparando a decolagem…</p>
+  }
+</main>
