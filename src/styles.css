@@ -70,4 +70,9 @@
   h3 {
     @apply font-display;
   }
+
+  :focus-visible {
+    outline: 3px solid var(--color-aurora-400);
+    outline-offset: 3px;
+  }
 }
