@@ -2,7 +2,8 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
-import { GameService, RANDOM } from '../../core/services/game-service';
+import { GameService } from '../../core/services/game-service';
+import { RANDOM } from '../../core/utils/random';
 import { Game } from './game';
 
 describe('Game', () => {

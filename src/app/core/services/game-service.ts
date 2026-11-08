@@ -1,17 +1,12 @@
-import { Injectable, InjectionToken, PendingTasks, computed, inject, signal } from '@angular/core';
+import { Injectable, PendingTasks, computed, inject, signal } from '@angular/core';
 import { CategoryRepository } from '../data/category-repository';
 import { Category } from '../models/category';
 import { pickRandom } from '../utils/pick-random';
+import { RANDOM } from '../utils/random';
 import { AnswerResult, ScoringService } from './scoring-service';
 
 export const CATEGORIES_PER_ROUND = 5;
 export const SECONDS_PER_CATEGORY = 30;
-
-/** Random source used to draw categories. Replace it in tests for predictable rounds. */
-export const RANDOM = new InjectionToken<() => number>('RANDOM', {
-  providedIn: 'root',
-  factory: () => Math.random,
-});
 
 export interface RoundEntry {
   category: Category;
