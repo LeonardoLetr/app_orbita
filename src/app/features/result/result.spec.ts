@@ -90,4 +90,11 @@ describe('Result', () => {
     expect(element.textContent).toContain('Seu recorde: 90 pts');
     expect(element.textContent).not.toContain('Novo destino');
   });
+
+  it('moves focus to the result heading', async () => {
+    const fixture = render([answered('Tubarão')], 10);
+    await fixture.whenStable();
+
+    expect(document.activeElement?.id).toBe('result-title');
+  });
 });

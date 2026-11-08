@@ -20,7 +20,14 @@
       <p class="mt-2 text-sm font-bold tracking-widest text-space-200 uppercase">
         Destino alcançado
       </p>
-      <h1 id="result-title" class="text-5xl font-bold sm:text-6xl">{{ destination().name }}</h1>
+      <h1
+        #heading
+        id="result-title"
+        tabindex="-1"
+        class="text-5xl font-bold focus:outline-none sm:text-6xl"
+      >
+        {{ destination().name }}
+      </h1>
     </div>
     <p class="font-display text-3xl font-bold text-star-400">
       <span class="sr-only">{{ points() }}</span>

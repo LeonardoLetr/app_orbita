@@ -1,4 +1,13 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterNextRender,
+  computed,
+  inject,
+  input,
+  output,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
@@ -21,6 +30,13 @@ export class Result {
   readonly entries = input.required<RoundEntry[]>();
   readonly points = input.required<number>();
   readonly playAgain = output<void>();
+
+  private readonly heading = viewChild.required<ElementRef<HTMLElement>>('heading');
+
+  constructor() {
+    // The answer field disappears when the round ends; move focus to the result instead.
+    afterNextRender(() => this.heading().nativeElement.focus());
+  }
 
   protected readonly destination = computed(() => this.scoring.destinationFor(this.points()));
   protected readonly next = computed(() => this.scoring.nextDestination(this.points()));
