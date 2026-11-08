@@ -18,7 +18,10 @@ describe('PreferencesService', () => {
     TestBed.inject(PreferencesService).timerEnabled.set(false);
     TestBed.tick();
 
-    expect(JSON.parse(store.getItem('orbita:preferences')!)).toEqual({ timerEnabled: false });
+    expect(JSON.parse(store.getItem('orbita:preferences')!)).toEqual({
+      timerEnabled: false,
+      soundEnabled: false,
+    });
   });
 
   it('restores the saved timer choice', () => {
@@ -31,5 +34,21 @@ describe('PreferencesService', () => {
     store.setItem('orbita:preferences', JSON.stringify({ timerEnabled: 'no' }));
 
     expect(TestBed.inject(PreferencesService).timerEnabled()).toBe(true);
+  });
+
+  it('keeps sound off by default and remembers when it is turned on', () => {
+    const preferences = TestBed.inject(PreferencesService);
+    expect(preferences.soundEnabled()).toBe(false);
+
+    preferences.soundEnabled.set(true);
+    TestBed.tick();
+
+    expect(JSON.parse(store.getItem('orbita:preferences')!).soundEnabled).toBe(true);
+  });
+
+  it('restores the saved sound choice', () => {
+    store.setItem('orbita:preferences', JSON.stringify({ soundEnabled: true }));
+
+    expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(true);
   });
 });
