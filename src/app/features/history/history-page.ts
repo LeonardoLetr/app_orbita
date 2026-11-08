@@ -8,7 +8,13 @@ import { PlanetArt } from '../../shared/components/planet-art';
 import { RarityBadge } from '../../shared/components/rarity-badge';
 
 const PLANET_NAMES = new Map(PLANETS.map((planet) => [planet.id, planet.name]));
-const DATE_FORMAT = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
+const SHORT_DATE = new Intl.DateTimeFormat('pt-BR', {
+  day: '2-digit',
+  month: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+});
+const FULL_DATE = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
 
 /** List of past rounds saved on this device, with each answer. */
 @Component({
@@ -24,8 +30,11 @@ export class HistoryPage {
     return PLANET_NAMES.get(id) ?? '';
   }
 
+  /** Short date for this year's rounds ("08/11, 21:24"), with the year for older ones. */
   protected formatDate(iso: string): string {
-    return DATE_FORMAT.format(new Date(iso));
+    const date = new Date(iso);
+    const format = date.getFullYear() === new Date().getFullYear() ? SHORT_DATE : FULL_DATE;
+    return format.format(date);
   }
 
   protected async clear(): Promise<void> {

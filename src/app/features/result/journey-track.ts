@@ -25,7 +25,7 @@ const STOPS = PLANETS.map((planet, index) => ({
 
       @for (stop of stops; track stop.id; let i = $index) {
         <app-planet-art
-          class="absolute top-13 size-8 -translate-x-1/2 -translate-y-1/2"
+          class="absolute top-13 size-[clamp(1.5rem,8.5vw,2.5rem)] -translate-x-1/2 -translate-y-1/2"
           [class]="i <= reachedIndex() ? 'motion-safe:animate-light-up' : 'opacity-35 grayscale'"
           [style.left.%]="stop.percent"
           [style.animation-delay.ms]="lightUpDelay(i)"

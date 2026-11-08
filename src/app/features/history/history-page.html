@@ -1,8 +1,8 @@
-<main class="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-5 py-6 sm:py-10">
+<main class="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-4 py-4 sm:px-5 sm:py-10">
   <header>
     <a
       routerLink="/"
-      class="rounded-full px-1 py-1 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"
+      class="-ml-3 inline-flex min-h-11 items-center rounded-full px-3 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"
     >
       ← Início
     </a>
@@ -24,18 +24,24 @@
       @for (round of progress.rounds(); track round.id) {
         <li class="rounded-3xl border border-space-800 bg-space-900/70">
           <details class="group">
-            <summary class="flex cursor-pointer list-none items-center gap-4 rounded-3xl px-5 py-4">
-              <app-planet-art class="size-12 shrink-0" [planet]="round.planetId" />
+            <summary
+              class="flex cursor-pointer list-none items-center gap-3 rounded-3xl px-4 py-3 sm:gap-4 sm:px-5 sm:py-4"
+            >
+              <app-planet-art class="size-10 shrink-0 sm:size-12" [planet]="round.planetId" />
               <div class="min-w-0 flex-1">
-                <p class="text-lg font-bold">{{ planetName(round.planetId) }}</p>
+                <p class="flex items-baseline justify-between gap-2">
+                  <span class="truncate text-lg font-bold">{{ planetName(round.planetId) }}</span>
+                  <span
+                    class="font-display text-lg font-bold whitespace-nowrap text-star-400 sm:text-xl"
+                  >
+                    {{ round.points }} pts
+                  </span>
+                </p>
                 <p class="text-sm text-space-200">
                   {{ formatDate(round.playedAt) }} ·
-                  {{ round.timerEnabled ? 'com cronômetro' : 'sem cronômetro' }}
+                  {{ round.timerEnabled ? 'com tempo' : 'sem tempo' }}
                 </p>
               </div>
-              <p class="font-display text-xl font-bold whitespace-nowrap text-star-400">
-                {{ round.points }} pts
-              </p>
               <svg
                 viewBox="0 0 24 24"
                 class="size-5 shrink-0 fill-none stroke-space-200 stroke-2 transition group-open:rotate-180"
@@ -47,7 +53,7 @@
 
             <ol class="divide-y divide-space-800 border-t border-space-800">
               @for (answer of round.answers; track $index) {
-                <li class="flex items-center justify-between gap-4 px-5 py-3">
+                <li class="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
                   <div class="min-w-0">
                     <p class="text-sm text-space-200">{{ answer.categoryTitle }}</p>
                     <p class="truncate font-bold">{{ answer.result.input || '—' }}</p>

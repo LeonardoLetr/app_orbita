@@ -1,7 +1,7 @@
 <main
-  class="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-8 px-6 py-12 text-center"
+  class="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-8 px-5 py-12 text-center short:gap-5 short:py-6"
 >
-  <svg viewBox="0 0 120 120" class="size-36 sm:size-44" aria-hidden="true">
+  <svg viewBox="0 0 120 120" class="size-32 sm:size-44 short:size-24" aria-hidden="true">
     <defs>
       <radialGradient id="home-planet" cx="35%" cy="30%" r="75%">
         <stop offset="0%" style="stop-color: var(--color-nebula-300)" />
@@ -59,7 +59,7 @@
       Começar partida
     </a>
 
-    <label class="flex cursor-pointer items-center gap-3 text-space-200">
+    <label class="flex cursor-pointer items-center gap-3 text-left text-space-200">
       <input
         #timer
         type="checkbox"
@@ -99,12 +99,12 @@
         <p class="text-sm text-space-200">
           Destinos alcançados: {{ progress.reachedPlanets().size }} de {{ planets.length }}
         </p>
-        <ul class="flex justify-between">
+        <ul class="grid grid-cols-8 gap-1">
           @for (planet of planets; track planet.id) {
             @let reached = progress.reachedPlanets().has(planet.id);
-            <li [title]="reached ? planet.name : 'Ainda não alcançado'">
+            <li class="flex justify-center" [title]="reached ? planet.name : 'Ainda não alcançado'">
               <app-planet-art
-                class="size-9"
+                class="aspect-square w-full max-w-10"
                 [class]="reached ? '' : 'opacity-25 grayscale'"
                 [planet]="planet.id"
               />
