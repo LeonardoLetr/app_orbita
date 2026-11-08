@@ -82,7 +82,7 @@ O jogo só conhece a classe `CategoryRepository`. Para trocar o JSON por uma API
 
 ## Roadmap
 
-- [ ] **Etapa 1** — Setup do Angular com Tailwind, estrutura de pastas e base JSON com pelo menos 20 categorias
+- [x] **Etapa 1** — Setup do Angular com Tailwind, estrutura de pastas e base JSON com pelo menos 20 categorias
 - [ ] **Etapa 2** — Tela de jogo: sorteio das categorias, campos de resposta e cronômetro opcional
 - [ ] **Etapa 3** — Pontuação e tela de resultado com planeta e animação
 - [ ] **Etapa 4** — Histórico e recorde no `localStorage`, e botão de jogar de novo
