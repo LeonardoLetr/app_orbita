@@ -1,3 +1,73 @@
-/* You can add global styles to this file, and also import other style files */
-
 @import 'tailwindcss';
+
+@theme {
+  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+
+  /* Deep space backgrounds and text */
+  --color-space-50: #eef0ff;
+  --color-space-200: #b8bfe8;
+  --color-space-400: #6f78b3;
+  --color-space-600: #2e3880;
+  --color-space-700: #1f2760;
+  --color-space-800: #141a45;
+  --color-space-900: #0b1030;
+  --color-space-950: #060818;
+
+  /* Accents */
+  --color-nebula-300: #c9b8ff;
+  --color-nebula-400: #a98bff;
+  --color-nebula-500: #8b63f5;
+  --color-nebula-600: #6d45d9;
+
+  --color-star-300: #ffe08a;
+  --color-star-400: #ffcf4d;
+  --color-star-500: #f5b421;
+
+  --color-aurora-300: #8ff3ff;
+  --color-aurora-400: #4fe0f5;
+  --color-aurora-500: #1fc2dc;
+
+  --color-flare-400: #ff8f6b;
+  --color-flare-500: #ff6b4a;
+
+  /* Answer rarity levels */
+  --color-satellite: #4fe0f5;
+  --color-comet: #a98bff;
+  --color-supernova: #ff8f6b;
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+  }
+
+  body {
+    @apply min-h-dvh bg-space-950 font-sans text-space-50 antialiased;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, var(--color-space-50) 50%, transparent 51%),
+      radial-gradient(1px 1px at 68% 9%, var(--color-space-200) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 84% 42%, var(--color-star-300) 50%, transparent 51%),
+      radial-gradient(1px 1px at 33% 64%, var(--color-space-200) 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 52% 87%, var(--color-aurora-300) 50%, transparent 51%),
+      radial-gradient(1px 1px at 6% 78%, var(--color-space-50) 50%, transparent 51%),
+      radial-gradient(1px 1px at 92% 81%, var(--color-space-200) 50%, transparent 51%),
+      radial-gradient(
+        ellipse at 80% -10%,
+        color-mix(in oklab, var(--color-nebula-600) 35%, transparent),
+        transparent 60%
+      ),
+      radial-gradient(
+        ellipse at 0% 110%,
+        color-mix(in oklab, var(--color-aurora-500) 18%, transparent),
+        transparent 55%
+      );
+    background-attachment: fixed;
+  }
+
+  h1,
+  h2,
+  h3 {
+    @apply font-display;
+  }
+}
