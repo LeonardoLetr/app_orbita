@@ -3,6 +3,7 @@ import { CategoryRepository } from '../data/category-repository';
 import { Category } from '../models/category';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
+import { PreferencesService } from './preferences-service';
 import { AnswerResult, ScoringService } from './scoring-service';
 
 export const CATEGORIES_PER_ROUND = 5;
@@ -33,8 +34,8 @@ export class GameService {
   private readonly entriesState = signal<RoundEntry[]>([]);
   private readonly indexState = signal(0);
 
-  /** Player preference: whether each category has a countdown. */
-  readonly timerEnabled = signal(true);
+  /** Player preference, remembered on this device: whether each category has a countdown. */
+  readonly timerEnabled = inject(PreferencesService).timerEnabled;
 
   readonly entries = this.entriesState.asReadonly();
   readonly index = this.indexState.asReadonly();
