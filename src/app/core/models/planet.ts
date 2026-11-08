@@ -5,6 +5,8 @@ export type PlanetId =
 export interface Planet {
   id: PlanetId;
   name: string;
+  /** Name with the right preposition, as in "chegar à Lua" or "chegar a Marte". */
+  toName: string;
   minPoints: number;
   /** Short curiosity shown on the result screen. */
   fact: string;

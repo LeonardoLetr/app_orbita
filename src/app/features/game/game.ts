@@ -10,6 +10,7 @@ import {
 import { RouterLink } from '@angular/router';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
 import { RarityBadge } from '../../shared/components/rarity-badge';
+import { Result } from '../result/result';
 import { Countdown } from './countdown';
 
 /** How long the score of an answer stays on screen before the next category. */
@@ -17,7 +18,7 @@ export const REVEAL_MS = 1400;
 
 @Component({
   selector: 'app-game',
-  imports: [RouterLink, RarityBadge],
+  imports: [RouterLink, RarityBadge, Result],
   templateUrl: './game.html',
 })
 export class Game {

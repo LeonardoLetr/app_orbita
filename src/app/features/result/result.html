@@ -1,0 +1,72 @@
+<section class="flex flex-col gap-8" aria-labelledby="result-title">
+  <app-journey-track [reached]="destination().id" />
+
+  <div class="flex flex-col items-center gap-2 text-center">
+    <app-planet-art
+      class="size-40 motion-safe:animate-pop sm:size-52"
+      style="animation-delay: 1.9s"
+      [planet]="destination().id"
+    />
+    <p class="mt-2 text-sm font-bold tracking-widest text-space-200 uppercase">Destino alcançado</p>
+    <h1 id="result-title" class="text-5xl font-bold sm:text-6xl">{{ destination().name }}</h1>
+    <p class="font-display text-3xl font-bold text-star-400">
+      <span class="sr-only">{{ points() }}</span>
+      <span aria-hidden="true" class="count-up" [style.--count]="points()"></span>
+      pts
+    </p>
+    @if (next(); as next) {
+      <p class="text-lg text-space-200">
+        Faltaram <strong class="text-space-50">{{ next.minPoints - points() }} pts</strong> para
+        chegar {{ next.toName }}.
+      </p>
+    } @else {
+      <p class="text-lg text-space-200">Você chegou ao ponto mais distante da viagem!</p>
+    }
+  </div>
+
+  <aside class="rounded-3xl border border-nebula-500/40 bg-nebula-600/15 px-5 py-4">
+    <p class="text-sm font-bold tracking-widest text-nebula-300 uppercase">Curiosidade</p>
+    <p class="mt-1 text-lg">{{ destination().fact }}</p>
+  </aside>
+
+  <div class="flex flex-col gap-3">
+    <h2 class="text-xl font-bold">Suas respostas</h2>
+    <ol class="divide-y divide-space-800 rounded-3xl border border-space-800 bg-space-900/70">
+      @for (row of rows(); track row.entry.category.id) {
+        <li class="flex flex-col gap-2 px-5 py-4">
+          <div class="flex items-center justify-between gap-4">
+            <div class="min-w-0">
+              <p class="text-sm text-space-200">{{ row.entry.category.title }}</p>
+              <p class="truncate text-lg font-bold">{{ row.entry.result?.input || '—' }}</p>
+            </div>
+            @if (row.entry.result; as result) {
+              <app-rarity-badge class="shrink-0 text-sm" [result]="result" />
+            }
+          </div>
+          @if (row.ideas.length) {
+            <p class="text-sm text-space-200">
+              <span class="font-bold text-supernova">Para ir mais longe:</span>
+              {{ row.ideas.join(', ') }}
+            </p>
+          }
+        </li>
+      }
+    </ol>
+  </div>
+
+  <div class="flex flex-col gap-3 sm:flex-row">
+    <button
+      type="button"
+      class="flex-1 rounded-2xl bg-star-400 px-6 py-4 text-lg font-extrabold text-space-950 hover:bg-star-300"
+      (click)="playAgain.emit()"
+    >
+      Jogar de novo
+    </button>
+    <a
+      routerLink="/"
+      class="flex-1 rounded-2xl border-2 border-space-600 px-6 py-4 text-center text-lg font-bold hover:border-space-400"
+    >
+      Início
+    </a>
+  </div>
+</section>

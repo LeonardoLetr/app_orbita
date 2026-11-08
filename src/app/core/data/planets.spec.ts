@@ -16,6 +16,7 @@ describe('PLANETS', () => {
     for (const planet of PLANETS) {
       expect(planet.name.trim(), planet.id).not.toBe('');
       expect(planet.fact.trim(), planet.id).not.toBe('');
+      expect(planet.toName.toLowerCase(), planet.id).toContain(planet.name.toLowerCase());
     }
   });
 });
