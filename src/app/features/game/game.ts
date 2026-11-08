@@ -29,6 +29,12 @@ export class Game {
   protected readonly sound = inject(SoundService);
   protected readonly countdown = new Countdown();
   protected readonly draft = signal('');
+  /** Spoken to screen reader users when time is about to run out. */
+  protected readonly timeWarning = computed(() => {
+    const seconds = this.countdown.seconds();
+    const counting = this.game.status() === 'playing' && this.game.timerEnabled();
+    return counting && (seconds === 10 || seconds === 5) ? `Faltam ${seconds} segundos` : '';
+  });
   protected readonly answered = computed(
     () => this.game.entries().filter((entry) => entry.result).length,
   );
