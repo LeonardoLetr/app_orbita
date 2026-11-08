@@ -1,7 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
 import { Category } from '../models/category';
-import { CATEGORIES_PER_ROUND, GameService, RANDOM } from './game-service';
+import { RANDOM } from '../utils/random';
+import { CATEGORIES_PER_ROUND, GameService } from './game-service';
 
 function makeCategory(id: string): Category {
   return {

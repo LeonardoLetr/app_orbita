@@ -63,4 +63,58 @@ describe('ScoringService', () => {
   it('still scores what was typed when time ran out', () => {
     expect(scoring.score(category, 'narval', true).points).toBe(30);
   });
+
+  describe('destinations', () => {
+    it('starts in Earth orbit', () => {
+      expect(scoring.destinationFor(0).id).toBe('earth-orbit');
+      expect(scoring.destinationFor(19).id).toBe('earth-orbit');
+    });
+
+    it('reaches a planet once its minimum is hit', () => {
+      expect(scoring.destinationFor(20).id).toBe('moon');
+      expect(scoring.destinationFor(50).id).toBe('mars');
+      expect(scoring.destinationFor(100).id).toBe('uranus');
+      expect(scoring.destinationFor(150).id).toBe('pluto');
+    });
+
+    it('points to the next planet', () => {
+      expect(scoring.nextDestination(45)?.id).toBe('jupiter');
+      expect(scoring.nextDestination(0)?.minPoints).toBe(20);
+    });
+
+    it('has no next planet at the end of the journey', () => {
+      expect(scoring.nextDestination(140)).toBeUndefined();
+    });
+  });
+
+  describe('rarest answers', () => {
+    const fruit: Category = {
+      id: 'fruit',
+      title: 'Fruta',
+      answers: [
+        { text: 'Banana', rarity: 'satellite' },
+        { text: 'Maçã', rarity: 'satellite' },
+        { text: 'Goiaba', rarity: 'comet' },
+        { text: 'Lichia', rarity: 'supernova' },
+        { text: 'Cupuaçu', rarity: 'supernova' },
+      ],
+    };
+
+    it('puts the rarest answers first', () => {
+      const texts = scoring.rarestAnswers(fruit, 3).map((answer) => answer.text);
+
+      expect(texts.slice(0, 2).sort()).toEqual(['Cupuaçu', 'Lichia']);
+      expect(texts[2]).toBe('Goiaba');
+    });
+
+    it('respects the limit', () => {
+      expect(scoring.rarestAnswers(fruit, 1)).toHaveLength(1);
+    });
+
+    it('leaves out the answer the player already gave', () => {
+      const lichia = fruit.answers[3];
+
+      expect(scoring.rarestAnswers(fruit, 3, lichia)).not.toContain(lichia);
+    });
+  });
 });

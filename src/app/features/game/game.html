@@ -25,44 +25,7 @@
       </button>
     </div>
   } @else if (status === 'finished') {
-    <section class="flex flex-col gap-8" aria-labelledby="summary-title">
-      <div class="mt-4 space-y-2 text-center">
-        <p class="text-sm font-bold tracking-widest text-space-200 uppercase">Fim da partida</p>
-        <h1 id="summary-title" class="text-6xl font-bold text-star-400 sm:text-7xl">
-          {{ game.totalPoints() }} pts
-        </h1>
-      </div>
-
-      <ol class="divide-y divide-space-800 rounded-3xl border border-space-800 bg-space-900/70">
-        @for (entry of game.entries(); track entry.category.id) {
-          <li class="flex items-center justify-between gap-4 px-5 py-4">
-            <div class="min-w-0">
-              <p class="text-sm text-space-200">{{ entry.category.title }}</p>
-              <p class="truncate text-lg font-bold">{{ entry.result?.input || '—' }}</p>
-            </div>
-            @if (entry.result; as result) {
-              <app-rarity-badge class="shrink-0 text-sm" [result]="result" />
-            }
-          </li>
-        }
-      </ol>
-
-      <div class="flex flex-col gap-3 sm:flex-row">
-        <button
-          type="button"
-          class="flex-1 rounded-2xl bg-star-400 px-6 py-4 text-lg font-extrabold text-space-950 hover:bg-star-300"
-          (click)="newRound()"
-        >
-          Jogar de novo
-        </button>
-        <a
-          routerLink="/"
-          class="flex-1 rounded-2xl border-2 border-space-600 px-6 py-4 text-center text-lg font-bold hover:border-space-400"
-        >
-          Início
-        </a>
-      </div>
-    </section>
+    <app-result [entries]="game.entries()" [points]="game.totalPoints()" (playAgain)="newRound()" />
   } @else if (status === 'playing' || status === 'revealing') {
     @let entry = game.current()!;
 
