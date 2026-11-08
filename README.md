@@ -8,7 +8,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 - Cada partida sorteia **5 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
-- A pontuação de cada resposta aparece logo depois de responder.
+- A pontuação de cada resposta aparece logo depois de responder, e o foguete avança pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
 | Nível        | Pontos | Significado              |
