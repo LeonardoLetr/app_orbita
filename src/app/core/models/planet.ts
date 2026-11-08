@@ -8,6 +8,8 @@ export interface Planet {
   /** Name with the right preposition, as in "chegar à Lua" or "chegar a Marte". */
   toName: string;
   minPoints: number;
+  /** Approximate average distance from Earth, in km. */
+  distanceKm: number;
   /** Short curiosity shown on the result screen. */
   fact: string;
 }
