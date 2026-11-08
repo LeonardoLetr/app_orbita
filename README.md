@@ -31,6 +31,48 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - Base de categorias em JSON dentro do projeto (sem backend)
 - Deploy estático (Vercel, Netlify ou GitHub Pages)
 
+## Como rodar
+
+Requer Node.js 22 ou superior.
+
+```bash
+npm install
+npm start          # abre em http://localhost:4200
+npm test           # testes unitários (Vitest)
+npm run build      # build de produção em dist/orbita/browser
+```
+
+## Estrutura
+
+```
+src/app/
+  core/
+    models/   tipos do domínio (Category, Answer, Rarity)
+    data/     acesso às categorias (CategoryRepository e versão JSON)
+    utils/    funções puras, como a normalização de respostas
+  features/   telas do jogo (home, game, result, history)
+  shared/     componentes e ilustrações reutilizáveis
+public/data/categories.json   base de categorias
+```
+
+O jogo só conhece a classe `CategoryRepository`. Para trocar o JSON por uma API, basta criar outra implementação e registrá-la em `src/app/app.config.ts`.
+
+### Formato da base
+
+```json
+{
+  "id": "sea-animal",
+  "title": "Animal que vive no mar",
+  "answers": [
+    { "text": "Tubarão", "rarity": "satellite" },
+    { "text": "Peixe-boi", "rarity": "comet", "synonyms": ["manati"] },
+    { "text": "Narval", "rarity": "supernova" }
+  ]
+}
+```
+
+`rarity` aceita `satellite`, `comet` ou `supernova`. O teste `categories-data.spec.ts` garante que cada categoria tenha os três níveis e nenhuma resposta repetida.
+
 ## Princípios
 
 - **Mobile-first** e legível em projetor.
