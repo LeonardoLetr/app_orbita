@@ -11,6 +11,7 @@ import {
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
+import { SoundService } from '../../core/services/sound-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
 
@@ -96,6 +97,7 @@ export class JourneyScene {
   protected readonly arrivingIndex = signal(-1);
   protected readonly gainEvents = signal<GainEvent[]>([]);
 
+  private readonly sound = inject(SoundService);
   private seenAnswers = 0;
   private seenPoints = 0;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -132,6 +134,7 @@ export class JourneyScene {
       this.later('arrive', TRAVEL_MS * 0.85, () => {
         this.litIndex.set(reached);
         this.arrivingIndex.set(reached);
+        this.sound.play('arrive');
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
     }

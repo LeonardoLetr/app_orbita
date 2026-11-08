@@ -10,6 +10,7 @@ import {
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
+import { SoundService } from '../../core/services/sound-service';
 import { Result } from '../result/result';
 import { AnswerReveal } from './answer-reveal';
 import { Countdown } from './countdown';
@@ -25,6 +26,7 @@ export const REVEAL_MS = 1800;
 })
 export class Game {
   protected readonly game = inject(GameService);
+  protected readonly sound = inject(SoundService);
   protected readonly countdown = new Countdown();
   protected readonly draft = signal('');
   protected readonly answered = computed(
@@ -50,6 +52,9 @@ export class Game {
   protected async newRound(): Promise<void> {
     this.stopTimers();
     await this.game.start();
+    if (this.game.status() === 'playing') {
+      this.sound.play('liftoff');
+    }
     this.beginCategory();
   }
 
@@ -66,12 +71,17 @@ export class Game {
   }
 
   private finishCategory(timedOut: boolean): void {
-    if (!this.game.answer(this.draft(), timedOut)) {
+    const result = this.game.answer(this.draft(), timedOut);
+    if (!result) {
       return;
     }
     this.countdown.stop();
+    this.sound.play(result.match ? result.match.rarity : 'miss');
     this.revealTimer = setTimeout(() => {
       this.game.next();
+      if (this.game.status() === 'finished') {
+        this.sound.play('finish');
+      }
       this.beginCategory();
     }, REVEAL_MS);
   }

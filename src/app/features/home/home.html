@@ -51,7 +51,7 @@
     </li>
   </ul>
 
-  <div class="flex w-full max-w-sm flex-col items-center gap-5">
+  <div class="flex w-full max-w-sm flex-col items-center gap-4">
     <a
       routerLink="/jogar"
       class="w-full rounded-2xl bg-star-400 px-8 py-4 text-xl font-extrabold text-space-950 shadow-[0_0_48px_-10px_var(--color-star-400)] transition hover:bg-star-300 sm:text-2xl"
@@ -73,6 +73,22 @@
         class="relative h-7 w-12 shrink-0 rounded-full bg-space-700 transition peer-checked:bg-aurora-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-aurora-400 after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-space-50 after:transition peer-checked:after:translate-x-5"
       ></span>
       Cronômetro de {{ secondsPerCategory }} s por categoria
+    </label>
+
+    <label class="flex cursor-pointer items-center gap-3 text-left text-space-200">
+      <input
+        #soundSwitch
+        type="checkbox"
+        role="switch"
+        class="peer sr-only"
+        [checked]="sound.enabled()"
+        (change)="sound.enabled.set(soundSwitch.checked)"
+      />
+      <span
+        aria-hidden="true"
+        class="relative h-7 w-12 shrink-0 rounded-full bg-space-700 transition peer-checked:bg-aurora-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-aurora-400 after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-space-50 after:transition peer-checked:after:translate-x-5"
+      ></span>
+      Sons
     </label>
   </div>
 
