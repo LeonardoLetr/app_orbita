@@ -1,0 +1,63 @@
+<main
+  class="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-8 px-6 py-12 text-center"
+>
+  <svg viewBox="0 0 120 120" class="size-36 sm:size-44" aria-hidden="true">
+    <defs>
+      <radialGradient id="home-planet" cx="35%" cy="30%" r="75%">
+        <stop offset="0%" style="stop-color: var(--color-nebula-300)" />
+        <stop offset="55%" style="stop-color: var(--color-nebula-600)" />
+        <stop offset="100%" style="stop-color: var(--color-space-800)" />
+      </radialGradient>
+    </defs>
+    <circle
+      cx="60"
+      cy="60"
+      r="50"
+      class="fill-none stroke-space-600"
+      stroke-width="1.2"
+      stroke-dasharray="2 5"
+    />
+    <circle cx="60" cy="60" r="26" fill="url(#home-planet)" />
+    <circle cx="51" cy="66" r="4" class="fill-space-800/40" />
+    <circle cx="68" cy="52" r="2.5" class="fill-space-800/30" />
+    <g
+      class="origin-center [transform-box:view-box] motion-safe:animate-[spin_14s_linear_infinite]"
+    >
+      <circle cx="60" cy="10" r="4.5" class="fill-aurora-400" />
+    </g>
+    <path
+      d="M18 22 l1.5 3.5 3.5 1.5 -3.5 1.5 -1.5 3.5 -1.5 -3.5 -3.5 -1.5 3.5 -1.5z"
+      class="fill-star-300"
+    />
+    <circle cx="102" cy="96" r="1.6" class="fill-space-200" />
+  </svg>
+
+  <div class="space-y-3">
+    <h1 class="text-5xl font-bold tracking-tight sm:text-7xl">Órbita</h1>
+    <p class="text-lg text-space-200 sm:text-2xl">
+      Quanto mais rara a resposta, mais longe você vai.
+    </p>
+  </div>
+
+  <ul class="flex flex-wrap justify-center gap-3 text-sm font-bold sm:text-base">
+    <li class="rounded-full border border-satellite/40 bg-satellite/10 px-4 py-1.5 text-satellite">
+      Satélite +10
+    </li>
+    <li class="rounded-full border border-comet/40 bg-comet/10 px-4 py-1.5 text-comet">
+      Cometa +20
+    </li>
+    <li class="rounded-full border border-supernova/40 bg-supernova/10 px-4 py-1.5 text-supernova">
+      Supernova +30
+    </li>
+  </ul>
+
+  <p class="text-space-200" role="status">
+    @if (categories.hasValue()) {
+      {{ categories.value().length }} categorias prontas para a decolagem.
+    } @else if (categories.error()) {
+      Não foi possível carregar as categorias.
+    } @else {
+      Carregando categorias…
+    }
+  </p>
+</main>
