@@ -2,11 +2,19 @@
   <app-journey-track [reached]="destination().id" />
 
   <div class="flex flex-col items-center gap-2 text-center">
-    <app-planet-art
-      class="size-40 motion-safe:animate-pop sm:size-52"
-      style="animation-delay: 1.9s"
-      [planet]="destination().id"
-    />
+    <div class="relative">
+      <app-star-burst
+        [count]="16"
+        [reach]="9"
+        [delay]="1900"
+        [colors]="['bg-star-300', 'bg-nebula-300', 'bg-aurora-300']"
+      />
+      <app-planet-art
+        class="size-40 motion-safe:animate-pop sm:size-52 short:size-28"
+        style="animation-delay: 1.9s"
+        [planet]="destination().id"
+      />
+    </div>
     <!-- Destination details stay hidden until the ship arrives (see journey track). -->
     <div class="motion-safe:animate-pop" style="animation-delay: 2s">
       <p class="mt-2 text-sm font-bold tracking-widest text-space-200 uppercase">
@@ -37,7 +45,10 @@
       style="animation-delay: 2.4s"
     >
       @if (outcome.isNewBest && !outcome.isFirstRound) {
-        <span class="rounded-full bg-star-400 px-4 py-1.5 text-space-950">Novo recorde!</span>
+        <span class="relative rounded-full bg-star-400 px-4 py-1.5 text-space-950">
+          <app-star-burst [count]="10" [reach]="4" [delay]="2400" [colors]="['bg-star-300']" />
+          Novo recorde!
+        </span>
       } @else if (!outcome.isNewBest) {
         <span class="rounded-full border border-space-600 px-4 py-1.5 text-space-200">
           Seu recorde: {{ progress.bestPoints() }} pts
