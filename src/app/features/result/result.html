@@ -31,6 +31,28 @@
     }
   </div>
 
+  @if (progress.lastOutcome(); as outcome) {
+    <div
+      class="-mt-4 flex flex-wrap justify-center gap-2 text-sm font-bold motion-safe:animate-pop"
+      style="animation-delay: 2.4s"
+    >
+      @if (outcome.isNewBest && !outcome.isFirstRound) {
+        <span class="rounded-full bg-star-400 px-4 py-1.5 text-space-950">Novo recorde!</span>
+      } @else if (!outcome.isNewBest) {
+        <span class="rounded-full border border-space-600 px-4 py-1.5 text-space-200">
+          Seu recorde: {{ progress.bestPoints() }} pts
+        </span>
+      }
+      @if (outcome.isNewPlanet) {
+        <span
+          class="rounded-full border border-nebula-400/60 bg-nebula-600/20 px-4 py-1.5 text-nebula-300"
+        >
+          Novo destino na coleção
+        </span>
+      }
+    </div>
+  }
+
   <aside
     class="rounded-3xl border border-nebula-500/40 bg-nebula-600/15 px-5 py-4 motion-safe:animate-pop"
     style="animation-delay: 2.3s"
