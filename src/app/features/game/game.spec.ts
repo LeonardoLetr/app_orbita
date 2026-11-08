@@ -5,7 +5,7 @@ import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
 import { RANDOM } from '../../core/utils/random';
-import { Game } from './game';
+import { Game, REVEAL_MS } from './game';
 
 describe('Game', () => {
   const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
@@ -55,8 +55,9 @@ describe('Game', () => {
 
     await answer(element, 'resposta 0');
 
-    expect(element.textContent).toContain('Cometa +20');
-    expect(element.textContent).toContain('20 pts');
+    expect(element.querySelector('app-answer-reveal')?.textContent).toContain('+20');
+    expect(element.textContent).toContain('Cometa!');
+    expect(element.querySelector('header')?.textContent).toMatch(/20\s*pts/);
   });
 
   it('shows when an answer is not in the base', async () => {
@@ -65,5 +66,23 @@ describe('Game', () => {
     await answer(element, 'Sereia');
 
     expect(element.textContent).toContain('Fora da base');
+  });
+
+  it('shows the journey scene while playing', async () => {
+    const element = await render();
+
+    expect(element.querySelector('app-journey-scene')).not.toBeNull();
+  });
+
+  it('keeps the same answer field between categories', async () => {
+    const element = await render();
+    const input = element.querySelector('#answer');
+
+    await answer(element, 'resposta 0');
+    await new Promise((resolve) => setTimeout(resolve, REVEAL_MS + 100));
+    await fixture.whenStable();
+
+    expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
+    expect(element.querySelector('#answer')).toBe(input);
   });
 });
