@@ -6,7 +6,8 @@
 .scene {
   --scene-h: 7.5rem;
   --stop-gap: calc(var(--scene-h) * 1.1);
-  --rocket-x: clamp(4.5rem, 27%, 20rem);
+  /* vw, not %: the same length is used inside the wider world, where % would differ. */
+  --rocket-x: clamp(4.5rem, 27vw, 20rem);
   --travel: 1300ms cubic-bezier(0.55, 0, 0.25, 1);
   position: relative;
   height: var(--scene-h);
