@@ -19,7 +19,19 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 | —            | 0      | fora da base ou em branco |
 
 - As respostas são **normalizadas** antes da comparação (minúsculas, sem acentos, sem espaços extras), e sinônimos definidos na base também são aceitos.
-- O total de pontos define o **planeta alcançado** (Lua, Marte, Júpiter, Saturno, Netuno...), com animação de viagem.
+- O total de pontos define o **destino alcançado**, com animação de viagem e uma curiosidade sobre o planeta:
+
+| Pontos  | Destino         |
+| ------- | --------------- |
+| 0–19    | Órbita da Terra |
+| 20–39   | Lua             |
+| 40–59   | Marte           |
+| 60–79   | Júpiter         |
+| 80–99   | Saturno         |
+| 100–119 | Urano           |
+| 120–139 | Netuno          |
+| 140–150 | Plutão          |
+
 - A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - Histórico, recorde e planetas já alcançados ficam salvos no `localStorage`.
@@ -93,7 +105,7 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 
 - [x] **Etapa 1** — Setup do Angular com Tailwind, estrutura de pastas e base JSON com pelo menos 20 categorias
 - [x] **Etapa 2** — Tela de jogo: sorteio das categorias, uma categoria por vez, cronômetro opcional e pontuação
-- [ ] **Etapa 3** — Tela de resultado com planeta, animação de viagem e respostas mais raras
+- [x] **Etapa 3** — Tela de resultado com planeta, animação de viagem e respostas mais raras
 - [ ] **Etapa 4** — Histórico e recorde no `localStorage`, e botão de jogar de novo
 - [ ] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
 
