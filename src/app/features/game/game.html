@@ -53,9 +53,7 @@
       <p
         class="w-20 shrink-0 text-right font-display text-2xl font-bold text-star-400 sm:w-24 sm:text-3xl"
       >
-        @for (points of [game.totalPoints()]; track points) {
-          <span class="inline-block motion-safe:animate-bump">{{ points }}</span>
-        }
+        <span #score class="inline-block">{{ game.totalPoints() }}</span>
         <span class="text-base sm:text-lg">pts</span>
       </p>
     }
