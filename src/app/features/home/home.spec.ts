@@ -2,11 +2,12 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { GameService } from '../../core/services/game-service';
+import { ProgressService } from '../../core/services/progress-service';
 import { provideTestProgress } from '../../testing/test-providers';
 import { Home } from './home';
 
 describe('Home', () => {
-  function render() {
+  beforeEach(() => {
     TestBed.configureTestingModule({
       imports: [Home],
       providers: [
@@ -15,6 +16,9 @@ describe('Home', () => {
         provideTestProgress(),
       ],
     });
+  });
+
+  function render() {
     const fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
@@ -42,5 +46,22 @@ describe('Home', () => {
 
     toggle.click();
     expect(game.timerEnabled()).toBe(true);
+  });
+
+  it('hides the progress before the first round', () => {
+    expect(render().textContent).not.toContain('Recorde');
+  });
+
+  it('shows the record and the planets reached', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 30, planetId: 'moon', timerEnabled: true, answers: [] });
+    await progress.record({ points: 75, planetId: 'jupiter', timerEnabled: false, answers: [] });
+
+    const element = render();
+
+    expect(element.textContent).toContain('75 pts');
+    expect(element.textContent).toContain('Destinos alcançados: 2 de 8');
+    expect(element.querySelectorAll('app-planet-art.grayscale')).toHaveLength(6);
+    expect(element.querySelector('a[href="/historico"]')).not.toBeNull();
   });
 });
