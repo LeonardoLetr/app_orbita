@@ -1,0 +1,61 @@
+import { Injectable } from '@angular/core';
+import { Answer, Category } from '../models/category';
+import { Rarity } from '../models/rarity';
+import { normalizeAnswer } from '../utils/normalize-answer';
+
+export const RARITY_POINTS: Record<Rarity, number> = {
+  satellite: 10,
+  comet: 20,
+  supernova: 30,
+};
+
+/**
+ * - scored: matched an accepted answer
+ * - unknown: typed something that is not in the category base
+ * - blank: confirmed without typing anything
+ * - timeout: time ran out with nothing typed
+ */
+export type AnswerOutcome = 'scored' | 'unknown' | 'blank' | 'timeout';
+
+export interface AnswerResult {
+  /** What the player typed, trimmed. */
+  input: string;
+  outcome: AnswerOutcome;
+  points: number;
+  /** Accepted answer that matched, when the outcome is "scored". */
+  match?: Answer;
+}
+
+@Injectable({ providedIn: 'root' })
+export class ScoringService {
+  private readonly lookups = new WeakMap<Category, Map<string, Answer>>();
+
+  score(category: Category, input: string, timedOut = false): AnswerResult {
+    const trimmed = input.trim();
+    const key = normalizeAnswer(trimmed);
+
+    if (!key) {
+      return { input: '', outcome: timedOut ? 'timeout' : 'blank', points: 0 };
+    }
+
+    const match = this.lookupFor(category).get(key);
+    return match
+      ? { input: trimmed, outcome: 'scored', points: RARITY_POINTS[match.rarity], match }
+      : { input: trimmed, outcome: 'unknown', points: 0 };
+  }
+
+  /** Maps every normalized answer and synonym of a category to its answer. */
+  private lookupFor(category: Category): Map<string, Answer> {
+    let lookup = this.lookups.get(category);
+    if (!lookup) {
+      lookup = new Map();
+      for (const answer of category.answers) {
+        for (const term of [answer.text, ...(answer.synonyms ?? [])]) {
+          lookup.set(normalizeAnswer(term), answer);
+        }
+      }
+      this.lookups.set(category, lookup);
+    }
+    return lookup;
+  }
+}

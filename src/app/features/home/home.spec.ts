@@ -1,39 +1,44 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
-import { Category } from '../../core/models/category';
+import { GameService } from '../../core/services/game-service';
 import { Home } from './home';
 
 describe('Home', () => {
-  function render(getAll: () => Promise<Category[]>) {
+  function render() {
     TestBed.configureTestingModule({
       imports: [Home],
-      providers: [{ provide: CategoryRepository, useValue: { getAll } }],
+      providers: [
+        provideRouter([]),
+        { provide: CategoryRepository, useValue: { getAll: () => Promise.resolve([]) } },
+      ],
     });
-    return TestBed.createComponent(Home);
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    return fixture.nativeElement as HTMLElement;
   }
 
   it('shows the game title', () => {
-    const fixture = render(() => Promise.resolve([]));
-    fixture.detectChanges();
-
-    expect(fixture.nativeElement.querySelector('h1')?.textContent).toContain('Órbita');
+    expect(render().querySelector('h1')?.textContent).toContain('Órbita');
   });
 
-  it('shows how many categories were loaded', async () => {
-    const categories: Category[] = [
-      { id: 'fruit', title: 'Fruta', answers: [] },
-      { id: 'color', title: 'Cor', answers: [] },
-    ];
-    const fixture = render(() => Promise.resolve(categories));
-    await fixture.whenStable();
+  it('links to a new round', () => {
+    const link = render().querySelector<HTMLAnchorElement>('a[href="/jogar"]');
 
-    expect(fixture.nativeElement.textContent).toContain('2 categorias prontas');
+    expect(link?.textContent).toContain('Começar partida');
   });
 
-  it('shows an error when categories fail to load', async () => {
-    const fixture = render(() => Promise.reject(new Error('offline')));
-    await fixture.whenStable();
+  it('turns the timer off and on', () => {
+    const element = render();
+    const game = TestBed.inject(GameService);
+    const toggle = element.querySelector<HTMLInputElement>('input[role="switch"]')!;
 
-    expect(fixture.nativeElement.textContent).toContain('Não foi possível carregar');
+    expect(toggle.checked).toBe(true);
+
+    toggle.click();
+    expect(game.timerEnabled()).toBe(false);
+
+    toggle.click();
+    expect(game.timerEnabled()).toBe(true);
   });
 });

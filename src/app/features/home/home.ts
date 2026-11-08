@@ -1,13 +1,13 @@
-import { Component, inject, resource } from '@angular/core';
-import { CategoryRepository } from '../../core/data/category-repository';
+import { Component, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
 
-/** Temporary landing screen until the game screen exists. */
 @Component({
   selector: 'app-home',
+  imports: [RouterLink],
   templateUrl: './home.html',
 })
 export class Home {
-  private readonly repository = inject(CategoryRepository);
-
-  protected readonly categories = resource({ loader: () => this.repository.getAll() });
+  protected readonly game = inject(GameService);
+  protected readonly secondsPerCategory = SECONDS_PER_CATEGORY;
 }

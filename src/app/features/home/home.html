@@ -51,13 +51,28 @@
     </li>
   </ul>
 
-  <p class="text-space-200" role="status">
-    @if (categories.hasValue()) {
-      {{ categories.value().length }} categorias prontas para a decolagem.
-    } @else if (categories.error()) {
-      Não foi possível carregar as categorias.
-    } @else {
-      Carregando categorias…
-    }
-  </p>
+  <div class="flex w-full max-w-sm flex-col items-center gap-5">
+    <a
+      routerLink="/jogar"
+      class="w-full rounded-2xl bg-star-400 px-8 py-4 text-xl font-extrabold text-space-950 shadow-[0_0_48px_-10px_var(--color-star-400)] transition hover:bg-star-300 sm:text-2xl"
+    >
+      Começar partida
+    </a>
+
+    <label class="flex cursor-pointer items-center gap-3 text-space-200">
+      <input
+        #timer
+        type="checkbox"
+        role="switch"
+        class="peer sr-only"
+        [checked]="game.timerEnabled()"
+        (change)="game.timerEnabled.set(timer.checked)"
+      />
+      <span
+        aria-hidden="true"
+        class="relative h-7 w-12 shrink-0 rounded-full bg-space-700 transition peer-checked:bg-aurora-500 peer-focus-visible:outline-3 peer-focus-visible:outline-offset-3 peer-focus-visible:outline-aurora-400 after:absolute after:top-1 after:left-1 after:size-5 after:rounded-full after:bg-space-50 after:transition peer-checked:after:translate-x-5"
+      ></span>
+      Cronômetro de {{ secondsPerCategory }} s por categoria
+    </label>
+  </div>
 </main>
