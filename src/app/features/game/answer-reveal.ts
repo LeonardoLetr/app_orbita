@@ -58,10 +58,10 @@ const ZERO_TONES: Record<Exclude<AnswerOutcome, 'scored'>, Tone> = {
 @Component({
   selector: 'app-answer-reveal',
   imports: [StarBurst],
-  host: { class: 'absolute inset-0 block' },
+  host: { class: 'absolute inset-0 block rounded-[inherit]' },
   template: `
     <div
-      class="absolute inset-0 overflow-hidden rounded-[inherit] bg-space-900/95 motion-safe:animate-pop"
+      class="absolute inset-0 overflow-hidden rounded-[inherit] bg-space-900 motion-safe:animate-pop"
     >
       <div
         class="absolute inset-0 flex flex-col items-center justify-center gap-1 rounded-[inherit] border-2 px-4 text-center"
