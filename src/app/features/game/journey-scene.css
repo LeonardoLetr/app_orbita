@@ -1,0 +1,357 @@
+:host {
+  display: block;
+}
+
+/* --pos is the rocket position on the route, in stops (set by the component). */
+.scene {
+  --scene-h: 7.5rem;
+  --stop-gap: calc(var(--scene-h) * 1.1);
+  /* vw, not %: the same length is used inside the wider world, where % would differ. */
+  --rocket-x: clamp(4.5rem, 27vw, 20rem);
+  --travel: 1300ms cubic-bezier(0.55, 0, 0.25, 1);
+  position: relative;
+  height: var(--scene-h);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 5%, #000 95%, transparent);
+}
+
+@media (min-width: 40rem) {
+  .scene {
+    --scene-h: 9.5rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .scene {
+    --scene-h: 11rem;
+  }
+}
+
+/* Landscape phones and Android with the keyboard open. */
+@media (max-height: 620px) {
+  .scene {
+    --scene-h: 5.25rem;
+  }
+
+  .stop-label {
+    display: none;
+  }
+}
+
+/* Two star layers moving at different speeds give a sense of depth. */
+.stars {
+  position: absolute;
+  inset: 0;
+  transition: background-position var(--travel);
+}
+
+.stars-far {
+  background-image:
+    radial-gradient(1px 1px at 15% 25%, rgb(255 255 255 / 0.7) 50%, transparent 51%),
+    radial-gradient(1px 1px at 55% 70%, rgb(184 191 232 / 0.6) 50%, transparent 51%),
+    radial-gradient(1px 1px at 85% 40%, rgb(255 255 255 / 0.5) 50%, transparent 51%);
+  background-size: 5.5rem 4.5rem;
+  background-position: calc(var(--pos) * var(--stop-gap) * -0.15) 0;
+}
+
+.stars-near {
+  background-image:
+    radial-gradient(1.5px 1.5px at 30% 20%, var(--color-star-300) 50%, transparent 51%),
+    radial-gradient(1.5px 1.5px at 75% 65%, var(--color-aurora-300) 50%, transparent 51%),
+    radial-gradient(1px 1px at 50% 90%, #fff 50%, transparent 51%);
+  background-size: 9rem 7rem;
+  background-position: calc(var(--pos) * var(--stop-gap) * -0.4) 0;
+}
+
+.speed-lines {
+  position: absolute;
+  inset: 8% 0 30%;
+  opacity: 0;
+  background-image:
+    radial-gradient(ellipse 2.5rem 1px at 30% 20%, rgb(255 255 255 / 0.6), transparent),
+    radial-gradient(ellipse 1.8rem 1px at 75% 70%, rgb(143 243 255 / 0.55), transparent);
+  background-size: 11rem 2.4rem;
+  transition: opacity 250ms;
+}
+
+.is-traveling .speed-lines {
+  opacity: 1;
+}
+
+/* The camera follows the rocket: the whole route slides under it. */
+.world {
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: calc(var(--stop-gap) * 8);
+  translate: calc(var(--rocket-x) - var(--pos) * var(--stop-gap)) 0;
+  transition: translate var(--travel);
+}
+
+.route {
+  position: absolute;
+  top: 62%;
+  left: 0;
+  width: calc(var(--stop-gap) * 7);
+  border-top: 2px dashed rgb(111 120 179 / 0.55);
+}
+
+.route-done {
+  position: absolute;
+  top: calc(62% - 1.5px);
+  left: 0;
+  width: calc(min(var(--pos), 7) * var(--stop-gap));
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(to right, rgb(255 207 77 / 0.1), var(--color-star-400));
+  box-shadow: 0 0 0.6rem rgb(255 207 77 / 0.6);
+  transition: width var(--travel);
+}
+
+.stop {
+  position: absolute;
+  top: 62%;
+  left: calc(var(--i) * var(--stop-gap));
+}
+
+.stop-art {
+  position: absolute;
+  width: calc(var(--scene-h) * var(--size) * 1.8);
+  aspect-ratio: 1;
+  translate: -50% -50%;
+  opacity: 0.45;
+  filter: saturate(0.3) brightness(0.8);
+  transition:
+    opacity 500ms,
+    filter 500ms;
+}
+
+.stop-label {
+  position: absolute;
+  top: calc(var(--scene-h) * var(--size) * 0.5 + 0.25rem);
+  translate: -50% 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--color-space-400);
+  transition: color 400ms;
+}
+
+@media (min-width: 64rem) {
+  .stop-label {
+    font-size: 0.85rem;
+  }
+}
+
+.is-lit .stop-art {
+  opacity: 1;
+  filter: none;
+}
+
+.is-lit .stop-label {
+  color: var(--color-space-200);
+}
+
+.is-arriving .stop-label {
+  color: var(--color-star-300);
+}
+
+.rocket {
+  position: absolute;
+  top: 26%;
+  left: var(--rocket-x);
+  width: calc(var(--scene-h) * 0.42);
+  translate: -50% -50%;
+}
+
+.rocket-svg {
+  filter: drop-shadow(0 0 0.5rem rgb(79 224 245 / 0.35));
+}
+
+.rocket-tilt {
+  position: relative;
+  transition: rotate 400ms ease-out;
+}
+
+.is-traveling .rocket-tilt {
+  rotate: -7deg;
+}
+
+.trail {
+  position: absolute;
+  top: 50%;
+  right: 80%;
+  width: 0;
+  height: 26%;
+  translate: 0 -50%;
+  border-radius: 999px;
+  background: linear-gradient(
+    to left,
+    rgb(255 224 138 / 0.85),
+    rgb(255 143 107 / 0.4) 40%,
+    transparent
+  );
+  transition: width 300ms ease-out;
+}
+
+.is-traveling .trail {
+  width: 260%;
+}
+
+.puff {
+  position: absolute;
+  top: 42%;
+  left: -6%;
+  width: 18%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-space-400);
+  opacity: 0;
+}
+
+.gain {
+  position: absolute;
+  top: 0;
+  left: var(--rocket-x);
+  translate: -50% 0;
+  font-family: var(--font-display);
+  font-size: 1.35rem;
+  font-weight: 700;
+  text-shadow: 0 0 0.75rem currentColor;
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .stars-near {
+    animation: twinkle-soft 2.6s ease-in-out infinite alternate;
+  }
+
+  .is-traveling .speed-lines {
+    animation: streak 280ms linear infinite;
+  }
+
+  .rocket-liftoff {
+    animation: liftoff 1.2s cubic-bezier(0.3, 0.7, 0.3, 1) both;
+  }
+
+  .rocket-bob {
+    animation: bob 2.8s ease-in-out infinite;
+  }
+
+  .is-sputtering .rocket-tilt {
+    animation: sputter 600ms ease-in-out;
+  }
+
+  .is-sputtering .puff {
+    animation: puff 700ms ease-out both;
+  }
+
+  .is-arriving .stop-art {
+    animation: arrive 1.2s ease-out;
+  }
+
+  .is-arriving .stop-label {
+    animation: arrive-label 1.2s ease-out;
+  }
+
+  .gain {
+    animation: gain-float 1.6s ease-out both;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .world,
+  .route-done,
+  .stars {
+    transition: none;
+  }
+}
+
+@keyframes twinkle-soft {
+  from {
+    opacity: 0.45;
+  }
+}
+
+@keyframes streak {
+  to {
+    background-position: -11rem 0;
+  }
+}
+
+/* The rocket rises out of the Earth at the start of each round. */
+@keyframes liftoff {
+  from {
+    translate: 0 calc(var(--scene-h) * 0.36);
+    scale: 0.3;
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+}
+
+@keyframes bob {
+  50% {
+    translate: 0 -0.2rem;
+  }
+}
+
+@keyframes sputter {
+  15%,
+  55% {
+    translate: -0.2rem 0;
+    rotate: 5deg;
+  }
+  35%,
+  75% {
+    translate: 0.2rem 0;
+    rotate: -4deg;
+  }
+}
+
+@keyframes puff {
+  from {
+    opacity: 0.8;
+    scale: 0.4;
+  }
+  to {
+    opacity: 0;
+    scale: 1.8;
+    translate: -1.6rem -0.4rem;
+  }
+}
+
+@keyframes arrive {
+  30% {
+    scale: 1.3;
+    filter: drop-shadow(0 0 0.8rem var(--color-star-300));
+  }
+}
+
+@keyframes arrive-label {
+  30% {
+    scale: 1.3;
+  }
+}
+
+@keyframes gain-float {
+  from {
+    opacity: 0;
+    translate: -50% 0.8rem;
+    scale: 0.6;
+  }
+  15% {
+    opacity: 1;
+    scale: 1.2;
+  }
+  70% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    translate: -50% -0.6rem;
+    scale: 1;
+  }
+}

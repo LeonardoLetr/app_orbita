@@ -3,28 +3,33 @@ import {
   DestroyRef,
   ElementRef,
   afterRenderEffect,
+  computed,
   inject,
   signal,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
-import { RarityBadge } from '../../shared/components/rarity-badge';
 import { Result } from '../result/result';
+import { AnswerReveal } from './answer-reveal';
 import { Countdown } from './countdown';
+import { JourneyScene } from './journey-scene';
 
-/** How long the score of an answer stays on screen before the next category. */
-export const REVEAL_MS = 1400;
+/** How long the score of an answer stays on screen, while the rocket travels. */
+export const REVEAL_MS = 1800;
 
 @Component({
   selector: 'app-game',
-  imports: [RouterLink, RarityBadge, Result],
+  imports: [RouterLink, Result, AnswerReveal, JourneyScene],
   templateUrl: './game.html',
 })
 export class Game {
   protected readonly game = inject(GameService);
   protected readonly countdown = new Countdown();
   protected readonly draft = signal('');
+  protected readonly answered = computed(
+    () => this.game.entries().filter((entry) => entry.result).length,
+  );
 
   private readonly answerInput = viewChild<ElementRef<HTMLInputElement>>('answerInput');
   private revealTimer?: ReturnType<typeof setTimeout>;

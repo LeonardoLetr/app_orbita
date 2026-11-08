@@ -5,12 +5,13 @@ import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RarityBadge } from '../../shared/components/rarity-badge';
+import { StarBurst } from '../../shared/components/star-burst';
 import { JourneyTrack } from './journey-track';
 
 /** End-of-round screen: planet reached, journey animation and every answer. */
 @Component({
   selector: 'app-result',
-  imports: [RouterLink, PlanetArt, RarityBadge, JourneyTrack],
+  imports: [RouterLink, PlanetArt, RarityBadge, JourneyTrack, StarBurst],
   templateUrl: './result.html',
 })
 export class Result {

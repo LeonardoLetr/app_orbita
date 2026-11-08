@@ -1,0 +1,45 @@
+<div
+  class="scene"
+  [class.is-traveling]="traveling()"
+  [class.is-sputtering]="sputtering()"
+  [style.--pos]="position()"
+>
+  <div class="stars stars-far"></div>
+  <div class="stars stars-near"></div>
+  <div class="speed-lines"></div>
+
+  <div class="world">
+    <div class="route"></div>
+    <div class="route-done"></div>
+    @for (stop of stops; track stop.id; let i = $index) {
+      <div
+        class="stop"
+        [class.is-lit]="i <= litIndex()"
+        [class.is-arriving]="i === arrivingIndex()"
+        [style.--i]="i"
+        [style.--size]="stop.size"
+      >
+        <app-planet-art class="stop-art" [planet]="stop.id" />
+        <span class="stop-label">{{ stop.name }}</span>
+      </div>
+    }
+  </div>
+
+  <div class="rocket">
+    <div class="rocket-liftoff">
+      <div class="rocket-bob">
+        <div class="rocket-tilt">
+          <span class="trail"></span>
+          <span class="puff"></span>
+          <span class="puff" style="animation-delay: 120ms"></span>
+          <span class="puff" style="animation-delay: 240ms"></span>
+          <app-rocket-art class="rocket-svg" [boosting]="traveling()" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+  @for (event of gainEvents(); track event.key) {
+    <span class="gain" [class]="event.tone">+{{ event.gain }}</span>
+  }
+</div>
