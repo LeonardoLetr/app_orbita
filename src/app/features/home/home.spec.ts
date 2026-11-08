@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { GameService } from '../../core/services/game-service';
+import { PreferencesService } from '../../core/services/preferences-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { provideTestProgress } from '../../testing/test-providers';
 import { Home } from './home';
@@ -63,5 +64,15 @@ describe('Home', () => {
     expect(element.textContent).toContain('Destinos alcançados: 2 de 8');
     expect(element.querySelectorAll('app-planet-art.grayscale')).toHaveLength(6);
     expect(element.querySelector('a[href="/historico"]')).not.toBeNull();
+  });
+
+  it('turns sound on from the home screen', () => {
+    const element = render();
+    const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');
+
+    expect(switches[1].checked).toBe(false);
+    switches[1].click();
+
+    expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(true);
   });
 });

@@ -12,6 +12,23 @@
         <path d="m15 6-6 6 6 6" stroke-linecap="round" stroke-linejoin="round" />
       </svg>
     </a>
+    <button
+      type="button"
+      class="grid size-11 shrink-0 place-items-center rounded-full text-space-200 transition hover:bg-space-800 hover:text-space-50"
+      [attr.aria-label]="sound.enabled() ? 'Desligar sons' : 'Ligar sons'"
+      [attr.aria-pressed]="sound.enabled()"
+      (mousedown)="$event.preventDefault()"
+      (click)="sound.enabled.set(!sound.enabled())"
+    >
+      <svg viewBox="0 0 24 24" class="size-6 fill-none stroke-current stroke-2" aria-hidden="true">
+        <path d="M4 10v4h4l5 4V6L8 10z" stroke-linejoin="round" />
+        @if (sound.enabled()) {
+          <path d="M16.5 9a4 4 0 0 1 0 6M19 6.5a7.5 7.5 0 0 1 0 11" stroke-linecap="round" />
+        } @else {
+          <path d="m17 10 4 4m0-4-4 4" stroke-linecap="round" />
+        }
+      </svg>
+    </button>
 
     @if (inRound) {
       <div class="flex min-w-0 flex-1 flex-col items-center gap-1.5">
