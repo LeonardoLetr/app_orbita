@@ -86,4 +86,35 @@ describe('ScoringService', () => {
       expect(scoring.nextDestination(140)).toBeUndefined();
     });
   });
+
+  describe('rarest answers', () => {
+    const fruit: Category = {
+      id: 'fruit',
+      title: 'Fruta',
+      answers: [
+        { text: 'Banana', rarity: 'satellite' },
+        { text: 'Maçã', rarity: 'satellite' },
+        { text: 'Goiaba', rarity: 'comet' },
+        { text: 'Lichia', rarity: 'supernova' },
+        { text: 'Cupuaçu', rarity: 'supernova' },
+      ],
+    };
+
+    it('puts the rarest answers first', () => {
+      const texts = scoring.rarestAnswers(fruit, 3).map((answer) => answer.text);
+
+      expect(texts.slice(0, 2).sort()).toEqual(['Cupuaçu', 'Lichia']);
+      expect(texts[2]).toBe('Goiaba');
+    });
+
+    it('respects the limit', () => {
+      expect(scoring.rarestAnswers(fruit, 1)).toHaveLength(1);
+    });
+
+    it('leaves out the answer the player already gave', () => {
+      const lichia = fruit.answers[3];
+
+      expect(scoring.rarestAnswers(fruit, 3, lichia)).not.toContain(lichia);
+    });
+  });
 });
