@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
+import { PLANETS } from '../data/planets';
 import { Answer, Category } from '../models/category';
+import { Planet } from '../models/planet';
 import { Rarity } from '../models/rarity';
 import { normalizeAnswer } from '../utils/normalize-answer';
 
@@ -42,6 +44,16 @@ export class ScoringService {
     return match
       ? { input: trimmed, outcome: 'scored', points: RARITY_POINTS[match.rarity], match }
       : { input: trimmed, outcome: 'unknown', points: 0 };
+  }
+
+  /** Farthest planet reached with the given points. */
+  destinationFor(points: number): Planet {
+    return PLANETS.filter((planet) => points >= planet.minPoints).at(-1) ?? PLANETS[0];
+  }
+
+  /** Next planet after the one reached, or undefined at the end of the journey. */
+  nextDestination(points: number): Planet | undefined {
+    return PLANETS.find((planet) => planet.minPoints > points);
   }
 
   /** Maps every normalized answer and synonym of a category to its answer. */
