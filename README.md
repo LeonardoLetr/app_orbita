@@ -8,7 +8,8 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 - Cada partida sorteia **5 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
-- A pontuação de cada resposta aparece logo depois de responder, e o foguete avança pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar.
+- A pontuação de cada resposta aparece logo depois de responder, e o foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra, e cada resposta mostra quantos km o foguete percorreu.
+- No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
 | Nível        | Pontos | Significado              |
