@@ -1,0 +1,38 @@
+import { APIRequestContext, Page, expect } from '@playwright/test';
+
+interface Answer {
+  text: string;
+  rarity: 'satellite' | 'comet' | 'supernova';
+}
+
+interface Category {
+  title: string;
+  answers: Answer[];
+}
+
+export async function loadCategories(request: APIRequestContext): Promise<Category[]> {
+  const response = await request.get('/data/categories.json');
+  expect(response.ok()).toBe(true);
+  return response.json();
+}
+
+/** Answers the category on screen with an answer of the given rarity, or with text that is not in the base. */
+export async function answer(
+  page: Page,
+  categories: Category[],
+  rarity: Answer['rarity'] | 'unknown',
+): Promise<void> {
+  const field = page.locator('#answer:not([readonly])');
+  await expect(field).toBeVisible();
+  const title = (await page.locator('#category-title').innerText()).trim();
+  const category = categories.find((c) => c.title === title);
+  expect(category, `category "${title}" in the base`).toBeDefined();
+
+  const text =
+    rarity === 'unknown'
+      ? 'Resposta inventada'
+      : category!.answers.find((a) => a.rarity === rarity)!.text;
+  await field.fill(text);
+  await field.press('Enter');
+  await expect(page.locator('app-answer-reveal')).toBeVisible();
+}

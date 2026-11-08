@@ -34,6 +34,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 - A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
 - **Jogar de novo** sorteia novas categorias, sem limite.
+- **Sons opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio.
 - Histórico (últimas 50 partidas), recorde, destinos alcançados e a preferência do cronômetro ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Stack
@@ -52,6 +53,7 @@ Requer Node.js 22 ou superior.
 npm install
 npm start          # abre em http://localhost:4200
 npm test           # testes unitários (Vitest)
+npm run e2e        # testes de ponta a ponta (Playwright, tela de celular)
 npm run build      # build de produção em dist/orbita/browser
 ```
 
@@ -107,7 +109,7 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 - [x] **Etapa 2** — Tela de jogo: sorteio das categorias, uma categoria por vez, cronômetro opcional e pontuação
 - [x] **Etapa 3** — Tela de resultado com planeta, animação de viagem e respostas mais raras
 - [x] **Etapa 4** — Histórico, recorde e coleção de destinos no `localStorage`, e botão de jogar de novo
-- [ ] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
+- [x] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
 
 ## Convenções de Git
 

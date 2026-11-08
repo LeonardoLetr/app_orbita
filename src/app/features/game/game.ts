@@ -40,6 +40,7 @@ export class Game {
   );
 
   private readonly answerInput = viewChild<ElementRef<HTMLInputElement>>('answerInput');
+  private readonly score = viewChild<ElementRef<HTMLElement>>('score');
   private revealTimer?: ReturnType<typeof setTimeout>;
 
   constructor() {
@@ -50,6 +51,21 @@ export class Game {
       if (this.game.status() === 'playing') {
         this.answerInput()?.nativeElement.focus();
       }
+    });
+
+    // Make the score jump whenever it goes up.
+    let shownPoints = 0;
+    afterRenderEffect(() => {
+      const points = this.game.totalPoints();
+      const element = this.score()?.nativeElement;
+      const reduceMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+      if (element?.animate && points > shownPoints && !reduceMotion) {
+        element.animate([{ scale: 1.6, color: 'var(--color-star-300)' }, { scale: 1 }], {
+          duration: 500,
+          easing: 'cubic-bezier(0.2, 0.9, 0.3, 1.3)',
+        });
+      }
+      shownPoints = points;
     });
 
     void this.newRound();
