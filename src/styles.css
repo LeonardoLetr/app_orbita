@@ -75,9 +75,26 @@
   }
 }
 
+/* Screens with little height: phones in landscape or with the keyboard open on Android. */
+@custom-variant short (@media (max-height: 620px));
+
 @layer base {
   html {
     color-scheme: dark;
+  }
+
+  /* Everything is sized in rem, so a larger root font scales the whole interface up
+     on big screens and keeps it readable on a projector. */
+  @media (min-width: 1280px) and (min-height: 720px) {
+    html {
+      font-size: 112.5%;
+    }
+  }
+
+  @media (min-width: 1600px) and (min-height: 900px) {
+    html {
+      font-size: 137.5%;
+    }
   }
 
   body {
