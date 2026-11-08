@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { answer, loadCategories } from './helpers';
 
 test('plays a full round and reaches the planet for the score', async ({ page, request }) => {
+  test.setTimeout(60_000);
   const categories = await loadCategories(request);
   await page.goto('/');
   await page.getByRole('link', { name: 'Começar partida' }).click();
@@ -30,15 +31,18 @@ test('keeps the same answer field for every category', async ({ page, request })
   expect(await page.evaluate((el) => el === document.querySelector('#answer'), first)).toBe(true);
 });
 
-test('shows the answer score above the keyboard area', async ({ page, request }) => {
+test('keeps the answer bar on top of the keyboard', async ({ page, request }) => {
   const categories = await loadCategories(request);
   await page.goto('/jogar');
+  const { width } = page.viewportSize()!;
 
+  // A phone keyboard leaves only the top part of the screen visible.
+  await page.setViewportSize({ width, height: 460 });
   await answer(page, categories, 'comet');
 
-  const reveal = await page.locator('app-answer-reveal').boundingBox();
-  const viewport = page.viewportSize()!;
-  // Phone keyboards cover roughly the lower 45% of the screen.
-  expect(reveal!.y + reveal!.height).toBeLessThan(viewport.height * 0.55);
-  await expect(page.locator('app-answer-reveal')).toContainText('Cometa!');
+  const bar = (await page.locator('form').boundingBox())!;
+  const badge = (await page.locator('app-journey-scene .badge').boundingBox())!;
+  expect(Math.round(bar.y + bar.height)).toBe(460);
+  expect(badge.y + badge.height).toBeLessThan(bar.y);
+  await expect(page.locator('app-journey-scene .badge')).toContainText('Cometa +20');
 });

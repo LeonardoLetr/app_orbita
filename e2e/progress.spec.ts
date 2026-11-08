@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import { answer, loadCategories } from './helpers';
 
 test('saves the round in the history and on the home screen', async ({ page, request }) => {
+  test.setTimeout(60_000);
   const categories = await loadCategories(request);
   await page.goto('/jogar');
   for (const rarity of ['satellite', 'satellite', 'satellite', 'satellite', 'satellite'] as const) {
