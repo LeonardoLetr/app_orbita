@@ -70,7 +70,7 @@
 
 .earth {
   position: absolute;
-  top: calc(var(--u) * 11);
+  top: calc(var(--u) * 12.5);
   left: 50%;
   width: calc(var(--u) * 170);
   aspect-ratio: 1;
@@ -183,7 +183,7 @@
   position: absolute;
   top: var(--rocket-y);
   left: 50%;
-  width: calc(var(--u) * 9);
+  width: calc(var(--u) * 10.5);
   translate: -50% -50%;
 }
 
@@ -226,7 +226,7 @@
 /* Result of the answer, just below the rocket. */
 .badge {
   position: absolute;
-  top: calc(var(--rocket-y) + var(--u) * 11);
+  top: calc(var(--rocket-y) + var(--u) * 12.5);
   left: 50%;
   translate: -50% 0;
   display: flex;
