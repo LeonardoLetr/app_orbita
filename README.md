@@ -73,6 +73,14 @@ O jogo só conhece a classe `CategoryRepository`. Para trocar o JSON por uma API
 
 `rarity` aceita `satellite`, `comet` ou `supernova`. O teste `categories-data.spec.ts` garante que cada categoria tenha os três níveis e nenhuma resposta repetida.
 
+## Deploy
+
+O deploy é feito pelo GitHub Pages a cada push na `main` (workflow em `.github/workflows/deploy.yml`), e também pode ser disparado manualmente na aba **Actions**. O workflow roda os testes, gera o build e publica em:
+
+**https://leonardoletr.github.io/app_orbita/**
+
+Configuração única no repositório: **Settings → Pages → Build and deployment → Source: GitHub Actions**.
+
 ## Princípios
 
 - **Mobile-first** e legível em projetor.
