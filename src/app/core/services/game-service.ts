@@ -4,6 +4,7 @@ import { Category } from '../models/category';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
 import { PreferencesService } from './preferences-service';
+import { ProgressService } from './progress-service';
 import { AnswerResult, ScoringService } from './scoring-service';
 
 export const CATEGORIES_PER_ROUND = 5;
@@ -29,6 +30,7 @@ export class GameService {
   private readonly scoring = inject(ScoringService);
   private readonly random = inject(RANDOM);
   private readonly pendingTasks = inject(PendingTasks);
+  private readonly progress = inject(ProgressService);
 
   private readonly loadState = signal<'idle' | 'loading' | 'error' | 'ready'>('idle');
   private readonly entriesState = signal<RoundEntry[]>([]);
@@ -91,10 +93,31 @@ export class GameService {
     return result;
   }
 
-  /** Moves on after the current answer has been revealed. */
+  /** Moves on after the current answer has been revealed, saving the round at the end. */
   next(): void {
-    if (this.status() === 'revealing') {
-      this.indexState.update((index) => index + 1);
+    if (this.status() !== 'revealing') {
+      return;
     }
+    this.indexState.update((index) => index + 1);
+    if (this.status() === 'finished') {
+      void this.saveRound();
+    }
+  }
+
+  private saveRound() {
+    const points = this.totalPoints();
+    return this.progress.record({
+      points,
+      planetId: this.scoring.destinationFor(points).id,
+      timerEnabled: this.timerEnabled(),
+      answers: this.entries().map(({ category, result }) => ({
+        categoryId: category.id,
+        categoryTitle: category.title,
+        // Keep only what the history shows, without the synonyms list.
+        result: result?.match
+          ? { ...result, match: { text: result.match.text, rarity: result.match.rarity } }
+          : (result ?? { input: '', outcome: 'blank', points: 0 }),
+      })),
+    });
   }
 }

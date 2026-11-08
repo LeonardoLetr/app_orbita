@@ -1,8 +1,10 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
 import { Category } from '../models/category';
+import { provideTestProgress } from '../../testing/test-providers';
 import { RANDOM } from '../utils/random';
 import { CATEGORIES_PER_ROUND, GameService } from './game-service';
+import { ProgressService } from './progress-service';
 
 function makeCategory(id: string): Category {
   return {
@@ -26,6 +28,7 @@ describe('GameService', () => {
       providers: [
         { provide: CategoryRepository, useValue: { getAll: () => getAll() } },
         { provide: RANDOM, useValue: () => 0 },
+        provideTestProgress(),
       ],
     });
     game = TestBed.inject(GameService);
@@ -84,6 +87,22 @@ describe('GameService', () => {
 
     expect(game.status()).toBe('finished');
     expect(game.totalPoints()).toBe(10 * CATEGORIES_PER_ROUND);
+  });
+
+  it('saves the round in the history when it finishes', async () => {
+    await game.start();
+    for (let i = 0; i < CATEGORIES_PER_ROUND; i++) {
+      game.answer(i === 0 ? `${game.current()!.category.id} rara` : '');
+      game.next();
+    }
+    const progress = TestBed.inject(ProgressService);
+    await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
+
+    const [round] = progress.rounds();
+    expect(round.points).toBe(30);
+    expect(round.planetId).toBe('moon');
+    expect(round.answers).toHaveLength(CATEGORIES_PER_ROUND);
+    expect(round.answers[1].result.outcome).toBe('blank');
   });
 
   it('records a timeout when time runs out with nothing typed', async () => {

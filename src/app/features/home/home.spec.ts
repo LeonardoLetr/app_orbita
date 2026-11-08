@@ -2,6 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { GameService } from '../../core/services/game-service';
+import { provideTestProgress } from '../../testing/test-providers';
 import { Home } from './home';
 
 describe('Home', () => {
@@ -11,6 +12,7 @@ describe('Home', () => {
       providers: [
         provideRouter([]),
         { provide: CategoryRepository, useValue: { getAll: () => Promise.resolve([]) } },
+        provideTestProgress(),
       ],
     });
     const fixture = TestBed.createComponent(Home);
