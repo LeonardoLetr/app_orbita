@@ -34,7 +34,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 - A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
 - **Jogar de novo** sorteia novas categorias, sem limite.
-- Histórico, recorde e planetas já alcançados ficam salvos no `localStorage`.
+- Histórico (últimas 50 partidas), recorde, destinos alcançados e a preferência do cronômetro ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Stack
 
@@ -61,14 +61,14 @@ npm run build      # build de produção em dist/orbita/browser
 src/app/
   core/
     models/   tipos do domínio (Category, Answer, Rarity)
-    data/     acesso às categorias (CategoryRepository e versão JSON)
+    data/     acesso aos dados (CategoryRepository, ProgressRepository e versões locais)
     utils/    funções puras, como a normalização de respostas
   features/   telas do jogo (home, game, result, history)
   shared/     componentes e ilustrações reutilizáveis
 public/data/categories.json   base de categorias
 ```
 
-O jogo só conhece a classe `CategoryRepository`. Para trocar o JSON por uma API, basta criar outra implementação e registrá-la em `src/app/app.config.ts`.
+O jogo só conhece as classes `CategoryRepository` (categorias) e `ProgressRepository` (histórico e recorde). Para trocar o JSON e o `localStorage` por uma API, basta criar outras implementações e registrá-las em `src/app/app.config.ts`.
 
 ### Formato da base
 
@@ -106,7 +106,7 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 - [x] **Etapa 1** — Setup do Angular com Tailwind, estrutura de pastas e base JSON com pelo menos 20 categorias
 - [x] **Etapa 2** — Tela de jogo: sorteio das categorias, uma categoria por vez, cronômetro opcional e pontuação
 - [x] **Etapa 3** — Tela de resultado com planeta, animação de viagem e respostas mais raras
-- [ ] **Etapa 4** — Histórico e recorde no `localStorage`, e botão de jogar de novo
+- [x] **Etapa 4** — Histórico, recorde e coleção de destinos no `localStorage`, e botão de jogar de novo
 - [ ] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
 
 ## Convenções de Git

@@ -1,13 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { PLANETS } from '../../core/data/planets';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
+import { ProgressService } from '../../core/services/progress-service';
+import { PlanetArt } from '../../shared/components/planet-art';
 
 @Component({
   selector: 'app-home',
-  imports: [RouterLink],
+  imports: [RouterLink, PlanetArt],
   templateUrl: './home.html',
 })
 export class Home {
   protected readonly game = inject(GameService);
+  protected readonly progress = inject(ProgressService);
   protected readonly secondsPerCategory = SECONDS_PER_CATEGORY;
+  protected readonly planets = PLANETS;
 }

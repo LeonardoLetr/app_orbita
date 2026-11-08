@@ -1,0 +1,82 @@
+<main class="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-5 py-6 sm:py-10">
+  <header>
+    <a
+      routerLink="/"
+      class="rounded-full px-1 py-1 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"
+    >
+      ← Início
+    </a>
+  </header>
+
+  <h1 class="text-4xl font-bold sm:text-5xl">Histórico</h1>
+
+  @if (progress.rounds().length) {
+    <p class="-mt-3 text-space-200">
+      {{ progress.totalRounds() }} {{ progress.totalRounds() === 1 ? 'partida' : 'partidas' }} ·
+      recorde de {{ progress.bestPoints() }} pts
+      @if (progress.totalRounds() > progress.rounds().length) {
+        <br />
+        Mostrando as últimas {{ maxSavedRounds }}.
+      }
+    </p>
+
+    <ol class="flex flex-col gap-3">
+      @for (round of progress.rounds(); track round.id) {
+        <li class="rounded-3xl border border-space-800 bg-space-900/70">
+          <details class="group">
+            <summary class="flex cursor-pointer list-none items-center gap-4 rounded-3xl px-5 py-4">
+              <app-planet-art class="size-12 shrink-0" [planet]="round.planetId" />
+              <div class="min-w-0 flex-1">
+                <p class="text-lg font-bold">{{ planetName(round.planetId) }}</p>
+                <p class="text-sm text-space-200">
+                  {{ formatDate(round.playedAt) }} ·
+                  {{ round.timerEnabled ? 'com cronômetro' : 'sem cronômetro' }}
+                </p>
+              </div>
+              <p class="font-display text-xl font-bold whitespace-nowrap text-star-400">
+                {{ round.points }} pts
+              </p>
+              <svg
+                viewBox="0 0 24 24"
+                class="size-5 shrink-0 fill-none stroke-space-200 stroke-2 transition group-open:rotate-180"
+                aria-hidden="true"
+              >
+                <path d="m6 9 6 6 6-6" />
+              </svg>
+            </summary>
+
+            <ol class="divide-y divide-space-800 border-t border-space-800">
+              @for (answer of round.answers; track $index) {
+                <li class="flex items-center justify-between gap-4 px-5 py-3">
+                  <div class="min-w-0">
+                    <p class="text-sm text-space-200">{{ answer.categoryTitle }}</p>
+                    <p class="truncate font-bold">{{ answer.result.input || '—' }}</p>
+                  </div>
+                  <app-rarity-badge class="shrink-0 text-sm" [result]="answer.result" />
+                </li>
+              }
+            </ol>
+          </details>
+        </li>
+      }
+    </ol>
+
+    <button
+      type="button"
+      class="self-center rounded-2xl border-2 border-flare-500/60 px-5 py-3 font-bold text-flare-400 hover:bg-flare-500/10"
+      (click)="clear()"
+    >
+      Apagar histórico
+    </button>
+  } @else {
+    <div class="m-auto flex flex-col items-center gap-4 text-center">
+      <p class="text-lg text-space-200">Nenhuma partida por aqui ainda.</p>
+      <a
+        routerLink="/jogar"
+        class="rounded-2xl bg-star-400 px-6 py-3 text-lg font-extrabold text-space-950 hover:bg-star-300"
+      >
+        Começar partida
+      </a>
+    </div>
+  }
+</main>

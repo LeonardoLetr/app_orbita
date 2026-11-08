@@ -7,24 +7,56 @@
       style="animation-delay: 1.9s"
       [planet]="destination().id"
     />
-    <p class="mt-2 text-sm font-bold tracking-widest text-space-200 uppercase">Destino alcançado</p>
-    <h1 id="result-title" class="text-5xl font-bold sm:text-6xl">{{ destination().name }}</h1>
+    <!-- Destination details stay hidden until the ship arrives (see journey track). -->
+    <div class="motion-safe:animate-pop" style="animation-delay: 2s">
+      <p class="mt-2 text-sm font-bold tracking-widest text-space-200 uppercase">
+        Destino alcançado
+      </p>
+      <h1 id="result-title" class="text-5xl font-bold sm:text-6xl">{{ destination().name }}</h1>
+    </div>
     <p class="font-display text-3xl font-bold text-star-400">
       <span class="sr-only">{{ points() }}</span>
       <span aria-hidden="true" class="count-up" [style.--count]="points()"></span>
       pts
     </p>
     @if (next(); as next) {
-      <p class="text-lg text-space-200">
+      <p class="text-lg text-space-200 motion-safe:animate-pop" style="animation-delay: 2.2s">
         Faltaram <strong class="text-space-50">{{ next.minPoints - points() }} pts</strong> para
         chegar {{ next.toName }}.
       </p>
     } @else {
-      <p class="text-lg text-space-200">Você chegou ao ponto mais distante da viagem!</p>
+      <p class="text-lg text-space-200 motion-safe:animate-pop" style="animation-delay: 2.2s">
+        Você chegou ao ponto mais distante da viagem!
+      </p>
     }
   </div>
 
-  <aside class="rounded-3xl border border-nebula-500/40 bg-nebula-600/15 px-5 py-4">
+  @if (progress.lastOutcome(); as outcome) {
+    <div
+      class="-mt-4 flex flex-wrap justify-center gap-2 text-sm font-bold motion-safe:animate-pop"
+      style="animation-delay: 2.4s"
+    >
+      @if (outcome.isNewBest && !outcome.isFirstRound) {
+        <span class="rounded-full bg-star-400 px-4 py-1.5 text-space-950">Novo recorde!</span>
+      } @else if (!outcome.isNewBest) {
+        <span class="rounded-full border border-space-600 px-4 py-1.5 text-space-200">
+          Seu recorde: {{ progress.bestPoints() }} pts
+        </span>
+      }
+      @if (outcome.isNewPlanet) {
+        <span
+          class="rounded-full border border-nebula-400/60 bg-nebula-600/20 px-4 py-1.5 text-nebula-300"
+        >
+          Novo destino na coleção
+        </span>
+      }
+    </div>
+  }
+
+  <aside
+    class="rounded-3xl border border-nebula-500/40 bg-nebula-600/15 px-5 py-4 motion-safe:animate-pop"
+    style="animation-delay: 2.3s"
+  >
     <p class="text-sm font-bold tracking-widest text-nebula-300 uppercase">Curiosidade</p>
     <p class="mt-1 text-lg">{{ destination().fact }}</p>
   </aside>

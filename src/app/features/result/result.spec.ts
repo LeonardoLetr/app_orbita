@@ -2,7 +2,9 @@ import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { Category } from '../../core/models/category';
 import { RoundEntry } from '../../core/services/game-service';
+import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
+import { provideTestProgress } from '../../testing/test-providers';
 import { Result } from './result';
 
 describe('Result', () => {
@@ -17,7 +19,10 @@ describe('Result', () => {
   };
 
   beforeEach(() => {
-    TestBed.configureTestingModule({ imports: [Result], providers: [provideRouter([])] });
+    TestBed.configureTestingModule({
+      imports: [Result],
+      providers: [provideRouter([]), provideTestProgress()],
+    });
   });
 
   function render(entries: RoundEntry[], points: number) {
@@ -62,5 +67,27 @@ describe('Result', () => {
     (fixture.nativeElement as HTMLElement).querySelector<HTMLButtonElement>('button')!.click();
 
     expect(asked).toBe(true);
+  });
+
+  it('celebrates a new record', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 30, planetId: 'moon', timerEnabled: true, answers: [] });
+    await progress.record({ points: 70, planetId: 'jupiter', timerEnabled: true, answers: [] });
+
+    const element = render([answered('Narval')], 70).nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Novo recorde!');
+    expect(element.textContent).toContain('Novo destino na coleção');
+  });
+
+  it('reminds the record when it was not beaten', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 90, planetId: 'saturn', timerEnabled: true, answers: [] });
+    await progress.record({ points: 90, planetId: 'saturn', timerEnabled: true, answers: [] });
+
+    const element = render([answered('Narval')], 90).nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Seu recorde: 90 pts');
+    expect(element.textContent).not.toContain('Novo destino');
   });
 });

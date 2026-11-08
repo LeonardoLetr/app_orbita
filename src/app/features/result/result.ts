@@ -1,6 +1,7 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { RoundEntry } from '../../core/services/game-service';
+import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RarityBadge } from '../../shared/components/rarity-badge';
@@ -14,6 +15,7 @@ import { JourneyTrack } from './journey-track';
 })
 export class Result {
   private readonly scoring = inject(ScoringService);
+  protected readonly progress = inject(ProgressService);
 
   readonly entries = input.required<RoundEntry[]>();
   readonly points = input.required<number>();

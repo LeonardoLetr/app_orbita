@@ -75,4 +75,53 @@
       Cronômetro de {{ secondsPerCategory }} s por categoria
     </label>
   </div>
+
+  @if (progress.totalRounds() > 0) {
+    <section
+      aria-labelledby="progress-title"
+      class="flex w-full max-w-md flex-col gap-4 rounded-3xl border border-space-800 bg-space-900/60 p-5"
+    >
+      <h2 id="progress-title" class="sr-only">Seu progresso</h2>
+      <dl class="grid grid-cols-2 gap-4">
+        <div>
+          <dt class="text-sm text-space-200">Recorde</dt>
+          <dd class="font-display text-2xl font-bold text-star-400">
+            {{ progress.bestPoints() }} pts
+          </dd>
+        </div>
+        <div>
+          <dt class="text-sm text-space-200">Partidas</dt>
+          <dd class="font-display text-2xl font-bold">{{ progress.totalRounds() }}</dd>
+        </div>
+      </dl>
+
+      <div class="flex flex-col gap-2">
+        <p class="text-sm text-space-200">
+          Destinos alcançados: {{ progress.reachedPlanets().size }} de {{ planets.length }}
+        </p>
+        <ul class="flex justify-between">
+          @for (planet of planets; track planet.id) {
+            @let reached = progress.reachedPlanets().has(planet.id);
+            <li [title]="reached ? planet.name : 'Ainda não alcançado'">
+              <app-planet-art
+                class="size-9"
+                [class]="reached ? '' : 'opacity-25 grayscale'"
+                [planet]="planet.id"
+              />
+              <span class="sr-only">
+                {{ planet.name }}: {{ reached ? 'alcançado' : 'ainda não alcançado' }}
+              </span>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <a
+        routerLink="/historico"
+        class="self-center font-semibold text-aurora-300 underline-offset-4 hover:underline"
+      >
+        Ver histórico
+      </a>
+    </section>
+  }
 </main>

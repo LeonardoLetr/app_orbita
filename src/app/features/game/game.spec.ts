@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
+import { provideTestProgress } from '../../testing/test-providers';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
@@ -24,6 +25,7 @@ describe('Game', () => {
         provideRouter([]),
         { provide: CategoryRepository, useValue: { getAll: () => Promise.resolve(categories) } },
         { provide: RANDOM, useValue: () => 0 },
+        provideTestProgress(),
       ],
     });
     TestBed.inject(GameService).timerEnabled.set(false);
