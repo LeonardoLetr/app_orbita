@@ -208,3 +208,31 @@
     opacity: 1;
   }
 }
+
+/* Small four-point stars thrown out from the center, see StarBurst. */
+.star-particle {
+  width: 0.7rem;
+  height: 0.7rem;
+  opacity: 0;
+  clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .star-particle {
+    animation: star-burst 950ms cubic-bezier(0.15, 0.7, 0.3, 1) both;
+  }
+}
+
+@keyframes star-burst {
+  0% {
+    opacity: 1;
+    transform: rotate(var(--angle)) translateX(0) scale(0.3);
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(var(--angle)) translateX(var(--distance)) scale(1.1) rotate(120deg);
+  }
+}
