@@ -6,12 +6,12 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 ## Como funciona
 
-- Cada partida começa com a **decolagem**: contagem "3, 2, 1, Decolar!", fumaça na plataforma e o foguete subindo pelas nuvens até o espaço, com a Terra lá embaixo. Dá para pular, e quem pede menos movimento no aparelho vai direto para a primeira categoria.
+- Cada partida começa com a **decolagem**: o foguete parte de cima da Terra, com contagem "3, 2, 1, Decolar!" e fumaça na plataforma, e o planeta encolhe e fica para trás enquanto ele sobe. Dá para pular, e quem pede menos movimento no aparelho vai direto para a primeira categoria.
 - Cada partida sorteia **7 categorias** de uma base local com **42 categorias** e cerca de **2.700 respostas** (ex.: "Animal que vive no mar", "País da África", "Constelação", "Dinossauro", "Brincadeira de criança").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - Cada categoria aparece num **cartão** no topo da tela. Ao responder, o cartão vira e mostra o nível, os pontos e quantos km o foguete percorreu; depois o próximo cartão entra e o anterior sai voando. Como o cartão fica no topo, o resultado aparece mesmo com o teclado do celular aberto.
 - O foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra.
-- No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
+- No celular, a barra de resposta fica colada em cima do teclado. Depois de enviar a resposta o teclado se fecha, para o voo aparecer na tela toda, e o campo volta a chamar o toque na próxima categoria.
 - O céu corre sem parar atrás do foguete, com a chama acesa, para ele parecer sempre em voo. O cenário não muda de tamanho quando o teclado abre ou fecha.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
