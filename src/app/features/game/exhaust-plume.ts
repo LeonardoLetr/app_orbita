@@ -70,6 +70,8 @@ export class ExhaustPlume {
   /** Thick smoke only near the Earth, during the launch. */
   private smokyUntil = 0;
   private sputterUntil = 0;
+  /** Where the engine was on the previous frame. */
+  private lastNozzle?: { x: number; y: number };
 
   constructor() {
     afterNextRender(() => this.start());
@@ -168,6 +170,21 @@ export class ExhaustPlume {
 
     // The route moving down pushes everything behind the rocket down too.
     const wind = this.motion.speed(now);
+
+    // When the rocket itself moves on the screen (the keyboard opens or closes and the
+    // scene glides to its new place), the flame moves along instead of hanging behind.
+    const nozzle = this.nozzle();
+    if (this.lastNozzle) {
+      const dx = nozzle.x - this.lastNozzle.x;
+      const dy = nozzle.y - this.lastNozzle.y;
+      if (dx || dy) {
+        for (const particle of this.particles) {
+          particle.x += dx;
+          particle.y += dy;
+        }
+      }
+    }
+    this.lastNozzle = { x: nozzle.x, y: nozzle.y };
 
     // New particles, at a rate that follows the engine power and the speed.
     const smoky = !!this.ignition || now < this.smokyUntil;
