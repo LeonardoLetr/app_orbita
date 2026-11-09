@@ -28,6 +28,23 @@
       }
     </svg>
   </button>
+  <button
+    type="button"
+    class="grid size-11 shrink-0 place-items-center rounded-full text-space-200 transition hover:bg-space-800 hover:text-space-50"
+    [attr.aria-label]="music.enabled() ? 'Desligar música' : 'Ligar música'"
+    [attr.aria-pressed]="music.enabled()"
+    (mousedown)="$event.preventDefault()"
+    (click)="music.enabled.set(!music.enabled())"
+  >
+    <svg viewBox="0 0 24 24" class="size-6 fill-none stroke-current stroke-2" aria-hidden="true">
+      <path d="M9 18V6l10-2v12" stroke-linejoin="round" />
+      <circle cx="6.5" cy="18" r="2.5" />
+      <circle cx="16.5" cy="16" r="2.5" />
+      @if (!music.enabled()) {
+        <path d="m3 3 18 18" stroke-linecap="round" />
+      }
+    </svg>
+  </button>
 </ng-template>
 
 @if (inRound) {

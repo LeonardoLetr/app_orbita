@@ -66,6 +66,16 @@ describe('Home', () => {
     expect(element.querySelector('a[href="/historico"]')).not.toBeNull();
   });
 
+  it('turns music on from the home screen', () => {
+    const element = render();
+    const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');
+
+    expect(switches[2].checked).toBe(false);
+    switches[2].click();
+
+    expect(TestBed.inject(PreferencesService).musicEnabled()).toBe(true);
+  });
+
   it('turns sound on from the home screen', () => {
     const element = render();
     const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');

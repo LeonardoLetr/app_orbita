@@ -4,6 +4,7 @@ import {
   ElementRef,
   afterRenderEffect,
   computed,
+  effect,
   inject,
   signal,
   viewChild,
@@ -11,6 +12,7 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
+import { MusicService } from '../../core/services/music-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
 import { FitVisualViewport } from '../../shared/fit-visual-viewport';
@@ -49,6 +51,7 @@ const ZERO_ANNOUNCEMENTS = {
 export class Game {
   protected readonly game = inject(GameService);
   protected readonly sound = inject(SoundService);
+  protected readonly music = inject(MusicService);
   private readonly scoring = inject(ScoringService);
   protected readonly countdown = new Countdown();
   protected readonly draft = signal('');
@@ -89,7 +92,13 @@ export class Game {
   private retries = 0;
 
   constructor() {
-    inject(DestroyRef).onDestroy(() => this.stopTimers());
+    inject(DestroyRef).onDestroy(() => {
+      this.stopTimers();
+      this.music.stop();
+    });
+
+    // Background music plays during the game screen, following its switch.
+    effect(() => (this.music.enabled() ? this.music.start() : this.music.stop()));
 
     // Keep the keyboard on the answer field whenever a new category shows up.
     afterRenderEffect(() => {
