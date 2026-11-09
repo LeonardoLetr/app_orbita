@@ -1,28 +1,40 @@
 @import 'tailwindcss';
 
 @theme {
-  --font-display: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
-  --font-sans: 'Nunito', ui-sans-serif, system-ui, sans-serif;
+  /* Chunky arcade lettering for titles, numbers and buttons; a round sans for the rest. */
+  --font-display: 'Lilita One', ui-rounded, system-ui, sans-serif;
+  --font-sans: 'Nunito', ui-rounded, system-ui, sans-serif;
 
-  /* Deep space backgrounds and text */
-  --color-space-50: #eef0ff;
-  --color-space-200: #b8bfe8;
-  --color-space-400: #7c85c0;
-  --color-space-600: #2e3880;
-  --color-space-700: #1f2760;
-  --color-space-800: #141a45;
-  --color-space-900: #0b1030;
-  --color-space-950: #060818;
+  /* Deep purple space: backgrounds and text */
+  --color-space-50: #f7f2ff;
+  --color-space-200: #cdbff5;
+  --color-space-400: #9580d6;
+  --color-space-600: #4b2a8f;
+  --color-space-700: #34176f;
+  --color-space-800: #241052;
+  --color-space-900: #170737;
+  --color-space-950: #0f0628;
+
+  /* Sticker look: dark outline and cream paper */
+  --color-ink: #1b1035;
+  --color-cream: #fff4d6;
+  /* Softer ink for hints on white or cream (AA contrast). */
+  --color-ink-soft: #6b5a9e;
 
   /* Accents */
+  --color-candy-400: #ff6aa8;
+  --color-candy-500: #ff3d8b;
+  /* Darker pink for text on cream (AA contrast). */
+  --color-candy-600: #c8135e;
+
   --color-nebula-300: #c9b8ff;
   --color-nebula-400: #a98bff;
   --color-nebula-500: #8b63f5;
   --color-nebula-600: #6d45d9;
 
-  --color-star-300: #ffe08a;
-  --color-star-400: #ffcf4d;
-  --color-star-500: #f5b421;
+  --color-star-300: #ffe27a;
+  --color-star-400: #ffd23f;
+  --color-star-500: #f5b400;
 
   --color-aurora-300: #8ff3ff;
   --color-aurora-400: #4fe0f5;
@@ -120,19 +132,135 @@
     }
   }
 
+  html {
+    /* The title font has a single weight: never fake a bold version of it. */
+    font-synthesis-weight: none;
+  }
+
   body {
-    @apply min-h-dvh bg-space-950 font-sans text-space-50 antialiased;
+    @apply min-h-dvh bg-space-950 font-sans font-semibold text-space-50 antialiased;
   }
 
   h1,
   h2,
   h3 {
-    @apply font-display;
+    @apply font-display font-normal tracking-wide;
   }
 
   :focus-visible {
     outline: 3px solid var(--color-aurora-400);
     outline-offset: 3px;
+  }
+}
+
+@layer components {
+  /* Cream card with a dark outline and a hard colored shadow, like a sticker. */
+  .sticker {
+    border: 3px solid var(--color-ink);
+    border-radius: 1.25rem;
+    background: var(--color-cream);
+    box-shadow: 0.35rem 0.35rem 0 var(--color-candy-500);
+    color: var(--color-ink);
+  }
+
+  /* Dark card for longer content. */
+  .panel {
+    border: 3px solid var(--color-space-600);
+    border-radius: 1.25rem;
+    background: var(--color-space-900);
+    box-shadow: 0.3rem 0.3rem 0 var(--color-ink);
+  }
+
+  /* Chunky button that sinks when pressed. */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 3px solid var(--color-ink);
+    border-radius: 1rem;
+    box-shadow: 0 0.3rem 0 var(--color-ink);
+    color: var(--color-ink);
+    font-family: var(--font-display);
+    letter-spacing: 0.02em;
+    transition:
+      translate 100ms ease-out,
+      box-shadow 100ms ease-out,
+      background-color 150ms;
+  }
+
+  .btn:active:not(:disabled) {
+    translate: 0 0.2rem;
+    box-shadow: 0 0.1rem 0 var(--color-ink);
+  }
+
+  .btn-primary {
+    background: var(--color-star-400);
+  }
+
+  .btn-primary:hover:not(:disabled) {
+    background: var(--color-star-300);
+  }
+
+  .btn-secondary {
+    background: var(--color-cream);
+  }
+
+  .btn-secondary:hover:not(:disabled) {
+    background: #fff;
+  }
+
+  /* On/off switch drawn after a hidden checkbox (its previous sibling). */
+  .switch {
+    position: relative;
+    flex-shrink: 0;
+    width: 3.25rem;
+    height: 1.9rem;
+    border: 3px solid var(--color-space-600);
+    border-radius: 999px;
+    background: var(--color-space-800);
+    transition:
+      background-color 150ms,
+      border-color 150ms;
+  }
+
+  .switch::after {
+    content: '';
+    position: absolute;
+    top: 0.14rem;
+    left: 0.14rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid var(--color-ink);
+    border-radius: 50%;
+    background: var(--color-cream);
+    transition: translate 150ms;
+  }
+
+  :checked + .switch {
+    border-color: var(--color-ink);
+    background: var(--color-aurora-400);
+  }
+
+  :checked + .switch::after {
+    translate: 1.35rem 0;
+  }
+
+  :focus-visible + .switch {
+    outline: 3px solid var(--color-aurora-400);
+    outline-offset: 3px;
+  }
+
+  /* Big lettering: yellow with a dark outline and a stacked pink and dark shadow. */
+  .title-3d {
+    color: var(--color-star-400);
+    font-family: var(--font-display);
+    font-weight: 400;
+    -webkit-text-stroke: 0.06em var(--color-ink);
+    paint-order: stroke fill;
+    text-shadow:
+      0.05em 0.05em 0 var(--color-candy-500),
+      0.1em 0.1em 0 var(--color-ink);
   }
 }
 
