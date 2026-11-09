@@ -18,8 +18,8 @@ import { RocketArt } from '../../shared/components/rocket-art';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
-const MIN_FLIGHT_MS = 900;
-const MAX_FLIGHT_MS = 4200;
+const MIN_FLIGHT_MS = 1300;
+const MAX_FLIGHT_MS = 6000;
 
 /**
  * How long the rocket flies between two scores: longer trips take longer,
@@ -30,28 +30,21 @@ export function flightDuration(fromPoints: number, toPoints: number): number {
   if (stops <= 0) {
     return 0;
   }
-  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1300 * Math.sqrt(stops)));
+  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1800 * Math.sqrt(stops)));
 }
 
 type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
 
-/**
- * How each planet passes the rocket: body diameter and how much of it shows from its
- * side of the screen, in scene units (a phone screen is about 100 units wide). They are
- * far bigger than the rocket and mostly off screen, to show how huge planets are.
- */
-const STOP_LOOKS: Record<RouteStop, { size: number; visible: number; side: 'left' | 'right' }> = {
-  moon: { size: 70, visible: 32, side: 'left' },
-  mars: { size: 85, visible: 34, side: 'right' },
-  jupiter: { size: 170, visible: 40, side: 'left' },
-  saturn: { size: 90, visible: 34, side: 'right' },
-  uranus: { size: 120, visible: 38, side: 'left' },
-  neptune: { size: 115, visible: 38, side: 'right' },
-  pluto: { size: 55, visible: 28, side: 'left' },
+/** Planet diameter, in scene units, and the side of the route it passes on. */
+const STOP_LOOKS: Record<RouteStop, { size: number; side: 'left' | 'right' }> = {
+  moon: { size: 22, side: 'left' },
+  mars: { size: 26, side: 'right' },
+  jupiter: { size: 46, side: 'left' },
+  saturn: { size: 38, side: 'right' },
+  uranus: { size: 32, side: 'left' },
+  neptune: { size: 32, side: 'right' },
+  pluto: { size: 18, side: 'left' },
 };
-
-/** Planet drawing width for a given body diameter (the body fills part of the drawing). */
-const ART_SCALE: Partial<Record<RouteStop, number>> = { saturn: 2 };
 
 const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
   .filter(({ planet }) => planet.id !== 'earth-orbit')
@@ -60,7 +53,6 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
     index,
     name: planet.name,
     distance: formatDistance(planet.distanceKm),
-    art: ART_SCALE[planet.id as RouteStop] ?? 1.765,
     ...STOP_LOOKS[planet.id as RouteStop],
   }));
 

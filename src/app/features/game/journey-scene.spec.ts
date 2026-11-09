@@ -11,9 +11,9 @@ describe('flightDuration', () => {
     const short = flightDuration(0, 10);
     const long = flightDuration(0, 30);
 
-    expect(short).toBeGreaterThanOrEqual(900);
+    expect(short).toBeGreaterThanOrEqual(1300);
     expect(long).toBeGreaterThan(short);
-    expect(flightDuration(0, 150)).toBeLessThanOrEqual(4200);
+    expect(flightDuration(0, 150)).toBeLessThanOrEqual(6000);
   });
 });
 
