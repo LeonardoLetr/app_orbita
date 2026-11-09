@@ -1,5 +1,10 @@
-import { expect, test } from '@playwright/test';
-import { answer, loadCategories } from './helpers';
+import { Page, expect, test } from '@playwright/test';
+import { LAUNCH_WAIT, answer, loadCategories } from './helpers';
+
+async function barBottom(page: Page): Promise<number> {
+  const bar = (await page.locator('form').boundingBox())!;
+  return Math.round(bar.y + bar.height);
+}
 
 test('plays a full round and reaches the planet for the score', async ({ page, request }) => {
   test.setTimeout(90_000);
@@ -30,7 +35,7 @@ test('keeps the same answer field for every category', async ({ page, request })
   const categories = await loadCategories(request);
   await page.goto('/jogar');
   const field = page.locator('#answer');
-  await expect(field).toBeFocused();
+  await expect(field).toBeFocused({ timeout: LAUNCH_WAIT });
   const first = await field.elementHandle();
 
   await answer(page, categories, 'satellite');
@@ -49,10 +54,11 @@ test('keeps the answer bar on top of the keyboard', async ({ page, request }) =>
   await page.setViewportSize({ width, height: 460 });
   await answer(page, categories, 'comet');
 
+  // The bar slides in after the launch, then rests on the keyboard.
+  await expect.poll(() => barBottom(page)).toBe(460);
   const bar = (await page.locator('form').boundingBox())!;
   const card = page.locator('app-question-card [data-showing="result"]');
   const box = (await card.boundingBox())!;
-  expect(Math.round(bar.y + bar.height)).toBe(460);
   expect(box.y + box.height).toBeLessThan(bar.y);
   await expect(card).toContainText('Cometa');
 });
@@ -60,7 +66,7 @@ test('keeps the answer bar on top of the keyboard', async ({ page, request }) =>
 test('shows the result above the keyboard on an iPhone', async ({ page, request }) => {
   const categories = await loadCategories(request);
   await page.goto('/jogar');
-  await expect(page.locator('#answer[data-ready]')).toBeVisible();
+  await expect(page.locator('#answer[data-ready]')).toBeVisible({ timeout: LAUNCH_WAIT });
 
   // Safari keeps the page size and only shrinks the visible part above the keyboard.
   await page.evaluate(() => {
@@ -70,8 +76,29 @@ test('shows the result above the keyboard on an iPhone', async ({ page, request 
   });
   await answer(page, categories, 'comet');
 
+  await expect.poll(() => barBottom(page)).toBe(380);
   const bar = (await page.locator('form').boundingBox())!;
   const box = (await page.locator('app-question-card [data-showing="result"]').boundingBox())!;
-  expect(Math.round(bar.y + bar.height)).toBe(380);
   expect(box.y + box.height).toBeLessThan(bar.y);
+});
+
+test('takes off from the ground before the first category', async ({ page }) => {
+  await page.goto('/jogar');
+
+  await expect(page.locator('app-launch-layers .pad')).toBeVisible();
+  await expect(page.locator('.launch-countdown')).toContainText('3');
+  await expect(page.locator('#answer[data-ready]')).toHaveCount(0);
+
+  await expect(page.locator('#answer[data-ready]')).toBeVisible({ timeout: LAUNCH_WAIT });
+  await expect(page.locator('app-launch-layers')).toHaveCount(0);
+  await expect(page.locator('#category-title')).toBeVisible();
+});
+
+test('can skip the launch', async ({ page }) => {
+  await page.goto('/jogar');
+
+  await page.getByRole('button', { name: 'Pular decolagem' }).click();
+
+  await expect(page.locator('#answer[data-ready]')).toBeVisible({ timeout: 1_000 });
+  await expect(page.locator('#answer')).toBeFocused();
 });

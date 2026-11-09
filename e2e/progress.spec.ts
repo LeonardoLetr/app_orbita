@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { answer, loadCategories } from './helpers';
+import { LAUNCH_WAIT, answer, loadCategories } from './helpers';
 
 test('saves the round in the history and on the home screen', async ({ page, request }) => {
   test.setTimeout(90_000);
@@ -35,5 +35,5 @@ test('always plays with the timer', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('link', { name: 'Começar partida' }).click();
 
-  await expect(page.getByRole('timer')).toBeVisible();
+  await expect(page.getByRole('timer')).toBeVisible({ timeout: LAUNCH_WAIT });
 });

@@ -2,6 +2,8 @@
   class="scene"
   [class.is-flying]="flying()"
   [class.is-sputtering]="sputtering()"
+  [class.is-launching]="launching()"
+  [class.is-liftoff]="liftoff()"
   [style.--pos]="position()"
   [style.--flight]="flightMs() + 'ms'"
 >
@@ -35,6 +37,10 @@
     }
   </div>
 
+  @if (launching()) {
+    <app-launch-layers />
+  }
+
   <div class="rocket">
     <div class="rocket-bob">
       <div class="rocket-tilt">
@@ -46,7 +52,7 @@
         <span class="puff"></span>
         <span class="puff" style="animation-delay: 120ms"></span>
         <span class="puff" style="animation-delay: 240ms"></span>
-        <app-rocket-art class="rocket-art" [upright]="true" [boosting]="flying()" />
+        <app-rocket-art class="rocket-art" [upright]="true" [boosting]="flying() || liftoff()" />
       </div>
     </div>
   </div>

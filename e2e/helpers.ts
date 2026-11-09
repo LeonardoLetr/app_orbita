@@ -10,6 +10,9 @@ interface Category {
   answers: Answer[];
 }
 
+/** Time to wait for the answer field, covering the launch at the start of a round. */
+export const LAUNCH_WAIT = 10_000;
+
 export async function loadCategories(request: APIRequestContext): Promise<Category[]> {
   const response = await request.get('/data/categories.json');
   expect(response.ok()).toBe(true);
@@ -23,7 +26,8 @@ export async function answer(
   rarity: Answer['rarity'] | 'skip',
 ): Promise<void> {
   const field = page.locator('#answer[data-ready]');
-  await expect(field).toBeVisible();
+  // The first category comes after the launch from the ground.
+  await expect(field).toBeVisible({ timeout: LAUNCH_WAIT });
   const title = (await page.locator('#category-title').innerText()).trim();
   const category = categories.find((c) => c.title === title);
   expect(category, `category "${title}" in the base`).toBeDefined();

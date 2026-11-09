@@ -76,7 +76,8 @@
   transition: opacity 300ms;
 }
 
-.is-flying .speed-lines {
+.is-flying .speed-lines,
+.is-liftoff .speed-lines {
   opacity: 1;
 }
 
@@ -231,7 +232,8 @@
   transition: height 300ms ease-out;
 }
 
-.is-flying .trail {
+.is-flying .trail,
+.is-liftoff .trail {
   height: 240%;
 }
 
@@ -278,8 +280,23 @@
     animation-duration: 380ms;
   }
 
-  .is-flying .speed-lines {
+  .is-flying .speed-lines,
+  .is-liftoff .speed-lines {
     animation: streak-down 300ms linear infinite;
+  }
+
+  /* On the launch pad the rocket rumbles until the countdown ends, then climbs. */
+  .is-launching .rocket-bob {
+    animation: rumble 70ms linear 0.9s 13;
+  }
+
+  .is-liftoff .rocket-tilt {
+    animation: wobble 420ms ease-in-out infinite alternate;
+  }
+
+  /* Earth seen from space only shows up once the ground has dropped away. */
+  .is-launching .earth {
+    animation: earth-in 0.8s ease-out 3.5s both;
   }
 
   .rocket-bob {
@@ -369,6 +386,21 @@
   }
   75% {
     rotate: 1.2deg;
+  }
+}
+
+@keyframes earth-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes rumble {
+  25% {
+    translate: -0.12rem 0;
+  }
+  75% {
+    translate: 0.12rem 0;
   }
 }
 
