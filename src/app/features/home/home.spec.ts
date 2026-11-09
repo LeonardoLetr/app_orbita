@@ -1,7 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
-import { GameService } from '../../core/services/game-service';
 import { PreferencesService } from '../../core/services/preferences-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { provideTestProgress } from '../../testing/test-providers';
@@ -35,18 +34,8 @@ describe('Home', () => {
     expect(link?.textContent).toContain('Começar partida');
   });
 
-  it('turns the timer off and on', () => {
-    const element = render();
-    const game = TestBed.inject(GameService);
-    const toggle = element.querySelector<HTMLInputElement>('input[role="switch"]')!;
-
-    expect(toggle.checked).toBe(true);
-
-    toggle.click();
-    expect(game.timerEnabled()).toBe(false);
-
-    toggle.click();
-    expect(game.timerEnabled()).toBe(true);
+  it('has no switch to turn the timer off', () => {
+    expect(render().textContent).not.toContain('Cronômetro');
   });
 
   it('hides the progress before the first round', () => {
@@ -70,8 +59,8 @@ describe('Home', () => {
     const element = render();
     const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');
 
-    expect(switches[2].checked).toBe(false);
-    switches[2].click();
+    expect(switches[1].checked).toBe(false);
+    switches[1].click();
 
     expect(TestBed.inject(PreferencesService).musicEnabled()).toBe(true);
   });
@@ -80,8 +69,8 @@ describe('Home', () => {
     const element = render();
     const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');
 
-    expect(switches[1].checked).toBe(false);
-    switches[1].click();
+    expect(switches[0].checked).toBe(false);
+    switches[0].click();
 
     expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(true);
   });

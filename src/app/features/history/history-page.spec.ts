@@ -54,7 +54,6 @@ describe('HistoryPage', () => {
     expect(rounds).toHaveLength(2);
     expect(rounds[0].textContent).toContain('50 pts');
     expect(rounds[0].textContent).toContain('Marte');
-    expect(rounds[0].textContent).toContain('sem tempo');
     expect(rounds[0].textContent).toContain('Supernova +30');
     expect(element.textContent).toContain('2 partidas');
   });
