@@ -18,7 +18,7 @@ import { distanceAt, formatDistance, reachedIndex, routePosition } from '../../c
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { RocketArt } from '../../shared/components/rocket-art';
-import { StarBurst } from '../../shared/components/star-burst';
+import { FlightBadge, FlightBadgeData } from './flight-badge';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
@@ -60,7 +60,7 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
     ...STOP_LOOKS[planet.id as RouteStop],
   }));
 
-const BADGE_LOOKS: Record<Rarity, { tone: string; burst?: string[] }> = {
+const BADGE_LOOKS: Record<Rarity, { tone: FlightBadgeData['tone']; burst?: string[] }> = {
   satellite: { tone: 'is-satellite' },
   meteorite: { tone: 'is-meteorite' },
   comet: { tone: 'is-comet', burst: ['bg-comet', 'bg-nebula-300'] },
@@ -70,14 +70,6 @@ const BADGE_LOOKS: Record<Rarity, { tone: string; burst?: string[] }> = {
 
 const ZERO_LABELS = { unknown: 'Fora da base', blank: 'Pulou', timeout: 'Tempo esgotado' } as const;
 
-interface Badge {
-  key: number;
-  text: string;
-  tone: string;
-  burst?: readonly string[];
-  km?: string;
-}
-
 /**
  * The journey seen from behind the rocket, used as the game background. After each
  * answer the rocket climbs by the points earned while the planets slide past, or
@@ -85,7 +77,7 @@ interface Badge {
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt, RocketArt, StarBurst],
+  imports: [PlanetArt, RocketArt, FlightBadge],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },
@@ -109,7 +101,7 @@ export class JourneyScene {
   /** Distance covered by the last flight, already formatted. */
   private readonly lastTrip = signal<{ answers: number; km: string } | undefined>(undefined);
 
-  protected readonly badge = computed<Badge | undefined>(() => {
+  protected readonly badge = computed<FlightBadgeData | undefined>(() => {
     const result = this.result();
     if (!result) {
       return undefined;
@@ -124,6 +116,10 @@ export class JourneyScene {
         tone: look.tone,
         burst: look.burst,
         km: trip?.answers === key ? trip.km : undefined,
+        note:
+          result.match.text.toLowerCase() !== result.input.toLowerCase()
+            ? `Valeu como “${result.match.text}”`
+            : undefined,
       };
     }
     return { key, text: ZERO_LABELS[result.outcome as keyof typeof ZERO_LABELS], tone: 'is-zero' };

@@ -101,6 +101,12 @@ describe('JourneyScene', () => {
     expect(element().querySelector('.badge')?.textContent).toContain('Fora da base');
   });
 
+  it('shows the right spelling when a typo was forgiven', () => {
+    progress(50, 1, { ...comet, input: 'Orka', corrected: true });
+
+    expect(element().querySelector('.badge-note')?.textContent).toContain('Valeu como “Orca”');
+  });
+
   it('hides the badge once the answer is no longer shown', () => {
     progress(50, 1, comet);
     progress(50, 1);
