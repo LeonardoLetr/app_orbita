@@ -14,7 +14,7 @@ describe('RocketArt', () => {
     expect(flame.classList).toContain('is-boosting');
   });
 
-  it('can point up with the flag still upright', () => {
+  it('can point up', () => {
     const fixture = TestBed.createComponent(RocketArt);
     fixture.componentRef.setInput('upright', true);
     fixture.detectChanges();
@@ -22,8 +22,12 @@ describe('RocketArt', () => {
 
     expect(element.classList).toContain('aspect-[36/64]');
     expect(element.querySelector('svg')?.classList).toContain('-rotate-90');
-    expect(element.querySelector('g[transform]')?.getAttribute('transform')).toBe(
-      'rotate(90 26 18)',
-    );
+  });
+
+  it('has no flag', () => {
+    const fixture = TestBed.createComponent(RocketArt);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('rect')).toBeNull();
   });
 });
