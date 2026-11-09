@@ -173,13 +173,21 @@
           [class]="retryMessage() ? 'border-flare-500' : 'border-ink'"
           [attr.aria-invalid]="retryMessage() ? true : null"
           aria-describedby="retry-message"
-          [placeholder]="status === 'revealing' ? 'Aguarde…' : 'Sua resposta'"
+          [placeholder]="
+            status === 'revealing'
+              ? 'Aguarde…'
+              : fieldFocused()
+                ? 'Sua resposta'
+                : 'Toque aqui para responder'
+          "
           [value]="draft()"
           [attr.aria-readonly]="status === 'revealing' ? true : null"
           [attr.data-ready]="status === 'playing' && !launching() ? '' : null"
           (input)="type(answerInput.value)"
+          (focus)="fieldFocused.set(true)"
+          (blur)="fieldFocused.set(false)"
         />
-        <!-- mousedown is prevented so tapping the button keeps the keyboard open. -->
+        <!-- mousedown is prevented so tapping the button keeps the keyboard open for a retry. -->
         <button
           type="submit"
           class="btn btn-primary shrink-0 px-4 text-xl disabled:opacity-50 sm:px-6 sm:text-2xl"

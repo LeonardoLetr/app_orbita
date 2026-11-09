@@ -35,3 +35,16 @@
     scale: 0.7;
   }
 }
+
+/* After a flight the keyboard is away: the empty field gently asks for a tap. */
+@media (prefers-reduced-motion: no-preference) {
+  #answer[data-ready]:not(:focus) {
+    animation: ask-for-tap 1.6s ease-in-out 0.4s infinite;
+  }
+}
+
+@keyframes ask-for-tap {
+  50% {
+    box-shadow: 0 0 0 0.35rem var(--color-star-400);
+  }
+}
