@@ -1,17 +1,9 @@
-import { Injectable, InjectionToken, inject } from '@angular/core';
+import { Injectable, inject } from '@angular/core';
 import { Rarity } from '../models/rarity';
+import { AudioOutput } from './audio-output';
 import { PreferencesService } from './preferences-service';
 
-export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish';
-
-/** Creates the audio context, or null when the browser has no Web Audio. */
-export const AUDIO_CONTEXT_FACTORY = new InjectionToken<() => AudioContext | null>(
-  'AUDIO_CONTEXT_FACTORY',
-  {
-    providedIn: 'root',
-    factory: () => () => (typeof AudioContext === 'undefined' ? null : new AudioContext()),
-  },
-);
+export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish' | 'thrust';
 
 interface Note {
   /** Frequency in Hz; a pair slides from the first to the second. */
@@ -55,6 +47,8 @@ const EFFECTS: Record<SoundEffect, Note[]> = {
     { freq: 1047, at: 0, length: 0.3, wave: 'sine' },
     { freq: 1319, at: 0.09, length: 0.4, wave: 'sine' },
   ],
+  // Engine noise, see playThrust.
+  thrust: [],
   finish: [392, 523, 659, 784, 1047].map((freq, i) => ({
     freq,
     at: i * 0.11,
@@ -67,38 +61,62 @@ const EFFECTS: Record<SoundEffect, Note[]> = {
 @Injectable({ providedIn: 'root' })
 export class SoundService {
   private readonly preferences = inject(PreferencesService);
-  private readonly createContext = inject(AUDIO_CONTEXT_FACTORY);
-  private context?: AudioContext | null;
+  private readonly output = inject(AudioOutput);
+  private noise?: AudioBuffer;
 
   readonly enabled = this.preferences.soundEnabled;
 
-  play(effect: SoundEffect): void {
+  /** Plays an effect; `seconds` sets how long the engine thrust lasts. */
+  play(effect: SoundEffect, seconds = 1.2): void {
     if (!this.enabled()) {
       return;
     }
-    const context = this.audio();
+    const context = this.output.get();
     if (!context) {
       return;
     }
-    // Browsers suspend audio until the page is used; the game always plays after a tap or key.
-    if (context.state === 'suspended') {
-      void context.resume();
-    }
     const start = context.currentTime;
+    if (effect === 'thrust') {
+      this.playThrust(context, start, seconds);
+      return;
+    }
     for (const note of EFFECTS[effect]) {
       this.playNote(context, note, start);
     }
   }
 
-  private audio(): AudioContext | null {
-    if (this.context === undefined) {
-      try {
-        this.context = this.createContext();
-      } catch {
-        this.context = null;
+  /** Rocket engine: filtered noise that swells and fades over the flight. */
+  private playThrust(context: AudioContext, start: number, seconds: number): void {
+    const source = context.createBufferSource();
+    source.buffer = this.noiseBuffer(context);
+    source.loop = true;
+
+    const filter = context.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 0.7;
+    filter.frequency.setValueAtTime(260, start);
+    filter.frequency.exponentialRampToValueAtTime(900, start + seconds * 0.3);
+    filter.frequency.exponentialRampToValueAtTime(220, start + seconds);
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.09, start + 0.15);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + seconds);
+
+    source.connect(filter).connect(gain).connect(context.destination);
+    source.start(start);
+    source.stop(start + seconds + 0.05);
+  }
+
+  private noiseBuffer(context: AudioContext): AudioBuffer {
+    if (!this.noise) {
+      this.noise = context.createBuffer(1, context.sampleRate, context.sampleRate);
+      const samples = this.noise.getChannelData(0);
+      for (let i = 0; i < samples.length; i++) {
+        samples[i] = Math.random() * 2 - 1;
       }
     }
-    return this.context;
+    return this.noise;
   }
 
   private playNote(context: AudioContext, note: Note, start: number): void {

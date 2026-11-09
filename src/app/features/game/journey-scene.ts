@@ -157,6 +157,7 @@ export class JourneyScene {
     const duration = flightDuration(from, points);
     this.flightMs.set(duration);
     this.flag(this.flying, 'fly', duration);
+    this.sound.play('thrust', duration / 1000);
     this.lastTrip.set({ answers, km: formatDistance(distanceAt(points) - distanceAt(from)) });
 
     // Light each planet roughly when the rocket goes past it.
