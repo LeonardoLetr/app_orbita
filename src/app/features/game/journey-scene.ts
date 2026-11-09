@@ -1,6 +1,7 @@
 import {
   Component,
   DestroyRef,
+  ElementRef,
   WritableSignal,
   computed,
   effect,
@@ -8,6 +9,7 @@ import {
   input,
   signal,
   untracked,
+  viewChild,
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
@@ -15,12 +17,23 @@ import { SoundService } from '../../core/services/sound-service';
 import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
+import { ExhaustPlume } from './exhaust-plume';
+import { LIFTOFF_EASING } from './flight-motion';
 import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
+import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
 const MIN_FLIGHT_MS = 1300;
 const MAX_FLIGHT_MS = 6000;
+/** The climb off the Earth, after the countdown. */
+const LAUNCH_CLIMB_MS = 2600;
+/** Distance between two stops, in scene units (the --gap of the CSS). */
+const GAP_UNITS = 140;
+/** How far the Earth drops away at launch, in scene units (as in the CSS). */
+const LIFTOFF_UNITS = 40.5;
+/** Width of the rocket in scene units (as in the CSS), used to measure a unit in pixels. */
+const ROCKET_UNITS = 10.5;
 
 /**
  * How long the rocket flies between two scores: longer trips take longer,
@@ -64,7 +77,7 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt, RocketArt, LaunchLayers],
+  imports: [PlanetArt, RocketArt, LaunchLayers, StarField, ExhaustPlume],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },
@@ -90,6 +103,9 @@ export class JourneyScene {
   protected readonly arrivingIndex = signal(-1);
 
   private readonly sound = inject(SoundService);
+  private readonly starField = viewChild(StarField);
+  private readonly exhaust = viewChild(ExhaustPlume);
+  private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
   private seenAnswers = 0;
   private seenPoints = 0;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -106,7 +122,14 @@ export class JourneyScene {
         clearTimeout(this.timers.get('liftoff'));
         this.liftoff.set(false);
         if (launching) {
-          this.later('liftoff', LIFTOFF_MS, () => this.liftoff.set(true));
+          this.exhaust()?.ignite(LIFTOFF_MS);
+          this.later('liftoff', LIFTOFF_MS, () => {
+            this.liftoff.set(true);
+            const climb = LIFTOFF_UNITS * this.unitPx();
+            const duration = LAUNCH_CLIMB_MS;
+            this.starField()?.fly(duration, climb, LIFTOFF_EASING);
+            this.exhaust()?.fly(duration, climb, LIFTOFF_EASING, true);
+          });
         }
       });
     });
@@ -125,6 +148,7 @@ export class JourneyScene {
     }
     if (points <= from) {
       this.flag(this.sputtering, 'sputter', SPUTTER_MS);
+      this.exhaust()?.sputter();
       return;
     }
 
@@ -132,6 +156,9 @@ export class JourneyScene {
     this.flightMs.set(duration);
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
+    const distance = (routePosition(points) - routePosition(from)) * GAP_UNITS * this.unitPx();
+    this.starField()?.fly(duration, distance);
+    this.exhaust()?.fly(duration, distance);
 
     // Light each planet roughly when the rocket goes past it.
     const start = routePosition(from);
@@ -145,6 +172,11 @@ export class JourneyScene {
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
     }
+  }
+
+  /** One scene unit in pixels, measured on the rocket (it is ROCKET_UNITS wide). */
+  private unitPx(): number {
+    return (this.rocketTilt()?.nativeElement.offsetWidth ?? 0) / ROCKET_UNITS;
   }
 
   private flag(state: WritableSignal<boolean>, key: string, ms: number): void {

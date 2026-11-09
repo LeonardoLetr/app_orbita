@@ -7,9 +7,7 @@
   [style.--pos]="position()"
   [style.--flight]="flightMs() + 'ms'"
 >
-  <div class="stars stars-far"></div>
-  <div class="stars stars-near"></div>
-  <div class="speed-lines"></div>
+  <app-star-field />
 
   <!-- Everything on the route moves together, down, as the rocket climbs. -->
   <div class="world">
@@ -41,17 +39,11 @@
     <app-launch-layers />
   }
 
+  <app-exhaust-plume [anchor]="rocketTilt" />
+
   <div class="rocket">
     <div class="rocket-bob">
-      <div class="rocket-tilt">
-        <span class="trail"></span>
-        <span class="spark" style="--x: -18%; animation-delay: 0ms"></span>
-        <span class="spark" style="--x: 14%; animation-delay: 160ms"></span>
-        <span class="spark" style="--x: -4%; animation-delay: 320ms"></span>
-        <span class="spark" style="--x: 22%; animation-delay: 480ms"></span>
-        <span class="puff"></span>
-        <span class="puff" style="animation-delay: 120ms"></span>
-        <span class="puff" style="animation-delay: 240ms"></span>
+      <div #rocketTilt class="rocket-tilt">
         <app-rocket-art class="rocket-art" [upright]="true" [boosting]="flying() || liftoff()" />
       </div>
     </div>
