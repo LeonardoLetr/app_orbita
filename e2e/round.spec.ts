@@ -11,7 +11,7 @@ test('plays a full round and reaches the planet for the score', async ({ page, r
   const plan = [
     'supernova',
     'comet',
-    'unknown',
+    'skip',
     'pulsar',
     'meteorite',
     'satellite',

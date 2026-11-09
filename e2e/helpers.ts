@@ -16,11 +16,11 @@ export async function loadCategories(request: APIRequestContext): Promise<Catego
   return response.json();
 }
 
-/** Answers the category on screen with an answer of the given rarity, or with text that is not in the base. */
+/** Answers the category on screen with an answer of the given rarity, or skips it. */
 export async function answer(
   page: Page,
   categories: Category[],
-  rarity: Answer['rarity'] | 'unknown',
+  rarity: Answer['rarity'] | 'skip',
 ): Promise<void> {
   const field = page.locator('#answer:not([readonly])');
   await expect(field).toBeVisible();
@@ -28,10 +28,7 @@ export async function answer(
   const category = categories.find((c) => c.title === title);
   expect(category, `category "${title}" in the base`).toBeDefined();
 
-  const text =
-    rarity === 'unknown'
-      ? 'Resposta inventada'
-      : category!.answers.find((a) => a.rarity === rarity)!.text;
+  const text = rarity === 'skip' ? '' : category!.answers.find((a) => a.rarity === rarity)!.text;
   await field.fill(text);
   await field.press('Enter');
   // The result appears as a badge next to the rocket.
