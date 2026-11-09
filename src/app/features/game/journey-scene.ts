@@ -18,8 +18,8 @@ import { RocketArt } from '../../shared/components/rocket-art';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
-const MIN_FLIGHT_MS = 900;
-const MAX_FLIGHT_MS = 4200;
+const MIN_FLIGHT_MS = 1300;
+const MAX_FLIGHT_MS = 6000;
 
 /**
  * How long the rocket flies between two scores: longer trips take longer,
@@ -30,7 +30,7 @@ export function flightDuration(fromPoints: number, toPoints: number): number {
   if (stops <= 0) {
     return 0;
   }
-  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1300 * Math.sqrt(stops)));
+  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1800 * Math.sqrt(stops)));
 }
 
 type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
