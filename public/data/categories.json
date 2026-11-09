@@ -224,7 +224,11 @@
       { "text": "Baixo", "rarity": "meteorite", "synonyms": ["baixo elétrico"] },
       { "text": "Cavaquinho", "rarity": "meteorite" },
       { "text": "Ukulele", "rarity": "meteorite", "synonyms": ["ukelele"] },
-      { "text": "Sanfona", "rarity": "meteorite", "synonyms": ["acordeão", "acordeom"] },
+      {
+        "text": "Sanfona",
+        "rarity": "meteorite",
+        "synonyms": ["acordeão", "acordeom", "acordeon"]
+      },
       { "text": "Gaita", "rarity": "meteorite", "synonyms": ["harmônica", "gaita de boca"] },
       { "text": "Harpa", "rarity": "meteorite" },
       { "text": "Tambor", "rarity": "meteorite" },
