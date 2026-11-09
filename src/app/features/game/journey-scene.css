@@ -28,6 +28,18 @@
   }
 }
 
+/*
+ * Phone on its side: the width-based unit would make the rocket taller than the little
+ * height left, so it gets a smaller cap. The aspect ratio keeps the keyboard out of it:
+ * even open, it never turns a phone held upright into a screen this wide.
+ */
+@media (orientation: landscape) and (max-height: 500px) and (min-aspect-ratio: 3/2) {
+  .scene {
+    --u: min(1cqw, 0.25rem);
+    --rocket-y: 40%;
+  }
+}
+
 /* Stars stretch past the scene so they also stream behind the title and answer bar. */
 .stars {
   position: absolute;
@@ -252,6 +264,15 @@
   top: calc(var(--rocket-y) + var(--u) * 12.5);
   left: 50%;
   translate: -50% 0;
+}
+
+/* Phone on its side (see the unit above): no room below the rocket, plenty beside it. */
+@media (orientation: landscape) and (max-height: 500px) and (min-aspect-ratio: 3/2) {
+  .badge-slot {
+    top: var(--rocket-y);
+    left: calc(50% + var(--u) * 9);
+    translate: 0 -50%;
+  }
 }
 
 @media (prefers-reduced-motion: no-preference) {
