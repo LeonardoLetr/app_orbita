@@ -2,18 +2,27 @@ import { expect, test } from '@playwright/test';
 import { answer, loadCategories } from './helpers';
 
 test('plays a full round and reaches the planet for the score', async ({ page, request }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
   const categories = await loadCategories(request);
   await page.goto('/');
   await page.getByRole('link', { name: 'Começar partida' }).click();
 
-  // 30 + 20 + 0 + 20 + 30 = 100 points: Uranus.
-  for (const rarity of ['supernova', 'comet', 'unknown', 'comet', 'supernova'] as const) {
+  // 100 + 50 + 0 + 75 + 25 + 10 + 75 = 335 points: Saturn, 35 short of Uranus.
+  const plan = [
+    'supernova',
+    'comet',
+    'unknown',
+    'pulsar',
+    'meteorite',
+    'satellite',
+    'pulsar',
+  ] as const;
+  for (const rarity of plan) {
     await answer(page, categories, rarity);
   }
 
-  await expect(page.locator('#result-title')).toHaveText('Urano', { timeout: 15_000 });
-  await expect(page.getByText('Faltaram 20 pts para chegar a Netuno.')).toBeVisible();
+  await expect(page.locator('#result-title')).toHaveText('Saturno', { timeout: 15_000 });
+  await expect(page.getByText('Faltaram 35 pts para chegar a Urano.')).toBeVisible();
   await expect(page.locator('#result-title')).toBeFocused();
 });
 
@@ -25,7 +34,7 @@ test('keeps the same answer field for every category', async ({ page, request })
   const first = await field.elementHandle();
 
   await answer(page, categories, 'satellite');
-  await expect(page.getByText('Categoria 2 de 5')).toBeVisible({ timeout: 5_000 });
+  await expect(page.getByText('Categoria 2 de 7')).toBeVisible({ timeout: 5_000 });
 
   await expect(field).toBeFocused();
   expect(await page.evaluate((el) => el === document.querySelector('#answer'), first)).toBe(true);
@@ -44,5 +53,5 @@ test('keeps the answer bar on top of the keyboard', async ({ page, request }) =>
   const badge = (await page.locator('app-journey-scene .badge').boundingBox())!;
   expect(Math.round(bar.y + bar.height)).toBe(460);
   expect(badge.y + badge.height).toBeLessThan(bar.y);
-  await expect(page.locator('app-journey-scene .badge')).toContainText('Cometa +20');
+  await expect(page.locator('app-journey-scene .badge')).toContainText('Cometa +50');
 });

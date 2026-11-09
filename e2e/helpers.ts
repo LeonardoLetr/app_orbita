@@ -2,7 +2,7 @@ import { APIRequestContext, Page, expect } from '@playwright/test';
 
 interface Answer {
   text: string;
-  rarity: 'satellite' | 'comet' | 'supernova';
+  rarity: 'satellite' | 'meteorite' | 'comet' | 'pulsar' | 'supernova';
 }
 
 interface Category {
