@@ -68,7 +68,7 @@ describe('Game', () => {
     const input = element.querySelector<HTMLInputElement>('#answer')!;
     expect(element.querySelector('#retry-message')?.textContent).toContain('Tente outra');
     expect(input.value).toBe('Sereia');
-    expect(input.readOnly).toBe(false);
+    expect(input.hasAttribute('data-ready')).toBe(true);
     expect(input.getAttribute('aria-invalid')).toBe('true');
     expect(element.querySelector('h1')?.textContent).toContain('Categoria 0');
   });
@@ -107,7 +107,10 @@ describe('Game', () => {
     await answer(element, 'resposta 0');
 
     const input = element.querySelector<HTMLInputElement>('#answer')!;
-    expect(input.readOnly).toBe(true);
+    // Still editable, so phone keyboards stay open, but marked as not taking answers.
+    expect(input.readOnly).toBe(false);
+    expect(input.getAttribute('aria-readonly')).toBe('true');
+    expect(input.hasAttribute('data-ready')).toBe(false);
     expect(input.placeholder).toBe('Aguarde…');
     expect(input.value).toBe('');
   });
