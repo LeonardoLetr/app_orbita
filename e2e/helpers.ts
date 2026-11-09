@@ -22,7 +22,7 @@ export async function answer(
   categories: Category[],
   rarity: Answer['rarity'] | 'skip',
 ): Promise<void> {
-  const field = page.locator('#answer:not([readonly])');
+  const field = page.locator('#answer[data-ready]');
   await expect(field).toBeVisible();
   const title = (await page.locator('#category-title').innerText()).trim();
   const category = categories.find((c) => c.title === title);

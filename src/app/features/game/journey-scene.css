@@ -9,7 +9,11 @@
 }
 
 .scene {
-  --u: min(1cqw, 1.3cqh);
+  /*
+   * Width only: the phone keyboard changes the height, and sizes tied to it would make
+   * the route slide around every time the keyboard opens or closes.
+   */
+  --u: min(1cqw, 0.4rem);
   --gap: calc(var(--u) * 80);
   --rocket-y: 56%;
   --fly: var(--flight, 1s) cubic-bezier(0.5, 0, 0.12, 1);
