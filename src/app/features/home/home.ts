@@ -7,7 +7,7 @@ import { ProgressService } from '../../core/services/progress-service';
 import { RARITY_POINTS } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
 import { PlanetArt } from '../../shared/components/planet-art';
-import { RARITY_LABELS } from '../../shared/components/rarity-badge';
+import { RARITY_LABELS, RARITY_STYLES } from '../../shared/components/rarity-badge';
 
 @Component({
   selector: 'app-home',
@@ -25,6 +25,6 @@ export class Home {
     rarity,
     label: RARITY_LABELS[rarity],
     points: RARITY_POINTS[rarity],
-    style: `border-${rarity}/40 bg-${rarity}/10 text-${rarity}`,
+    style: RARITY_STYLES[rarity],
   }));
 }

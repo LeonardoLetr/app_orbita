@@ -16,7 +16,7 @@ const OUTCOME_LABELS: Record<Exclude<AnswerOutcome, 'scored'>, string> = {
   timeout: 'Tempo esgotado',
 };
 
-const RARITY_STYLES: Record<Rarity, string> = {
+export const RARITY_STYLES: Record<Rarity, string> = {
   satellite: 'border-satellite/50 bg-satellite/10 text-satellite',
   meteorite: 'border-meteorite/50 bg-meteorite/10 text-meteorite',
   comet: 'border-comet/50 bg-comet/10 text-comet',
