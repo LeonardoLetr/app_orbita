@@ -5,142 +5,51 @@
   pointer-events: none;
 }
 
-/* Daytime sky, reaching behind the header and the answer bar too. */
-.sky {
+/* The spot on the Earth right under the rocket; it drops away with the planet. */
+.base {
   position: absolute;
-  inset: -50vh 0;
-  background: linear-gradient(
-    to bottom,
-    #0b1440 0%,
-    #1c4aa8 38%,
-    #4b93ea 56%,
-    #9fd8ff 72%,
-    #d4f0ff 100%
-  );
-  animation: sky-fade 1.6s ease-in 2.6s both;
-}
-
-.cloud {
-  position: absolute;
-  top: 0;
-  left: var(--x);
-  width: calc(var(--u) * var(--w));
-  fill: #fff;
-  filter: drop-shadow(0 0.2rem 0 rgb(27 16 53 / 0.18));
-  animation: cloud-pass 1.1s linear both;
-}
-
-/* Ground, with the pad right under the rocket. */
-.ground {
-  position: absolute;
-  top: calc(var(--rocket-y) + var(--u) * 8.5);
-  left: -20%;
-  right: -20%;
-  height: 120vh;
-  border-top: 3px solid var(--color-ink);
-  background: linear-gradient(#5cc46b, #2f8f4e 25%, #1f6b3a);
-  animation: ground-fall 2s cubic-bezier(0.55, 0, 0.85, 0.3) 1.8s both;
-}
-
-.hill {
-  position: absolute;
-  bottom: 100%;
-  width: calc(var(--u) * 70);
-  height: calc(var(--u) * 13);
-  border: 3px solid var(--color-ink);
-  border-bottom: 0;
-  border-radius: 50% 50% 0 0;
-  background: #3fa45a;
-}
-
-.hill-left {
-  left: 8%;
-}
-
-.hill-right {
-  right: 6%;
-  height: calc(var(--u) * 17);
-  background: #49b263;
+  top: calc(var(--rocket-y) + var(--u) * 5.5);
+  left: 50%;
+  width: 0;
+  height: 0;
+  animation: drop-away 2.6s cubic-bezier(0.45, 0, 0.25, 1) 1.8s both;
 }
 
 .pad {
   position: absolute;
-  bottom: 100%;
-  left: 50%;
-  width: calc(var(--u) * 24);
-  height: calc(var(--u) * 3);
+  bottom: calc(var(--u) * -1.5);
+  left: 0;
+  width: calc(var(--u) * 18);
+  height: calc(var(--u) * 2.4);
   translate: -50% 0;
   border: 3px solid var(--color-ink);
-  border-bottom: 0;
-  border-radius: 0.4rem 0.4rem 0 0;
+  border-radius: 0.4rem;
   background: #9aa1c4;
-}
-
-/* Service tower next to the rocket, with its arm reaching out. */
-.tower {
-  position: absolute;
-  bottom: 100%;
-  left: calc(50% + var(--u) * 9);
-  width: calc(var(--u) * 4);
-  height: calc(var(--u) * 30);
-  border: 3px solid var(--color-ink);
-  border-bottom: 0;
-  background: repeating-linear-gradient(
-    -45deg,
-    var(--color-flare-500) 0 0.4rem,
-    var(--color-cream) 0.4rem 0.8rem
-  );
-}
-
-.tower::after {
-  content: '';
-  position: absolute;
-  top: 30%;
-  right: 100%;
-  width: calc(var(--u) * 4);
-  height: calc(var(--u) * 1.5);
-  border: 3px solid var(--color-ink);
-  border-right: 0;
-  background: var(--color-cream);
 }
 
 .smoke {
   position: absolute;
   top: 0;
-  left: calc(50% + var(--u) * var(--x));
+  left: calc(var(--u) * var(--x));
   width: calc(var(--u) * var(--s));
   aspect-ratio: 1;
-  translate: -50% -55%;
+  translate: -50% -45%;
   scale: 0;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #fff, #e3e5f4 55%, #b5bad8);
   animation: smoke 1.5s ease-out both;
 }
 
-@keyframes sky-fade {
+@keyframes drop-away {
   to {
+    translate: 0 calc(var(--u) * 40.5);
     opacity: 0;
-  }
-}
-
-@keyframes cloud-pass {
-  from {
-    translate: 0 -45vh;
-  }
-  to {
-    translate: 0 120vh;
-  }
-}
-
-@keyframes ground-fall {
-  to {
-    translate: 0 110vh;
   }
 }
 
 @keyframes smoke {
   to {
     scale: 1;
-    translate: calc(-50% + var(--drift)) -45%;
+    translate: calc(-50% + var(--drift)) -35%;
   }
 }
