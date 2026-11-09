@@ -10,31 +10,10 @@ describe('PreferencesService', () => {
     TestBed.configureTestingModule({ providers: [{ provide: STORAGE, useValue: store }] });
   });
 
-  it('has the timer on by default', () => {
-    expect(TestBed.inject(PreferencesService).timerEnabled()).toBe(true);
-  });
-
-  it('saves the timer choice', () => {
-    TestBed.inject(PreferencesService).timerEnabled.set(false);
-    TestBed.tick();
-
-    expect(JSON.parse(store.getItem('orbita:preferences')!)).toEqual({
-      timerEnabled: false,
-      soundEnabled: false,
-      musicEnabled: false,
-    });
-  });
-
-  it('restores the saved timer choice', () => {
-    store.setItem('orbita:preferences', JSON.stringify({ timerEnabled: false }));
-
-    expect(TestBed.inject(PreferencesService).timerEnabled()).toBe(false);
-  });
-
   it('ignores invalid saved values', () => {
-    store.setItem('orbita:preferences', JSON.stringify({ timerEnabled: 'no' }));
+    store.setItem('orbita:preferences', JSON.stringify({ soundEnabled: 'yes' }));
 
-    expect(TestBed.inject(PreferencesService).timerEnabled()).toBe(true);
+    expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(false);
   });
 
   it('keeps sound off by default and remembers when it is turned on', () => {

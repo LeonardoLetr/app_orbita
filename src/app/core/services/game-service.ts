@@ -3,7 +3,6 @@ import { CategoryRepository } from '../data/category-repository';
 import { Category } from '../models/category';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
-import { PreferencesService } from './preferences-service';
 import { ProgressService } from './progress-service';
 import { AnswerResult, RARITY_POINTS, ScoringService } from './scoring-service';
 
@@ -38,8 +37,8 @@ export class GameService {
   private readonly entriesState = signal<RoundEntry[]>([]);
   private readonly indexState = signal(0);
 
-  /** Player preference, remembered on this device: whether each category has a countdown. */
-  readonly timerEnabled = inject(PreferencesService).timerEnabled;
+  /** Each category has a countdown; it is part of the game. Turned off only in tests. */
+  readonly timerEnabled = signal(true);
 
   readonly entries = this.entriesState.asReadonly();
   readonly index = this.indexState.asReadonly();

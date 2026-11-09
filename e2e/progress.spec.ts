@@ -19,23 +19,21 @@ test('saves the round in the history and on the home screen', async ({ page, req
   await expect(page.locator('details')).toContainText('70 pts');
 });
 
-test('remembers the timer and sound switches after a reload', async ({ page }) => {
+test('remembers the sound switch after a reload', async ({ page }) => {
   await page.goto('/');
-  const [timer, sound] = await page.getByRole('switch').all();
-  await timer.click({ force: true });
-  await sound.click({ force: true });
+  await page.getByRole('switch', { name: 'Sons' }).click({ force: true });
 
   await page.reload();
 
-  await expect(page.getByRole('switch').first()).not.toBeChecked();
-  await expect(page.getByRole('switch').nth(1)).toBeChecked();
+  await expect(page.getByRole('switch', { name: 'Sons' })).toBeChecked();
 });
 
-test('plays without the timer when it is turned off', async ({ page }) => {
+test('always plays with the timer', async ({ page }) => {
+  await page.addInitScript(() =>
+    localStorage.setItem('orbita:preferences', JSON.stringify({ timerEnabled: false })),
+  );
   await page.goto('/');
-  await page.getByRole('switch').first().click({ force: true });
   await page.getByRole('link', { name: 'Começar partida' }).click();
 
-  await expect(page.locator('#answer')).toBeVisible();
-  await expect(page.getByRole('timer')).toHaveCount(0);
+  await expect(page.getByRole('timer')).toBeVisible();
 });

@@ -7,7 +7,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 ## Como funciona
 
 - Cada partida sorteia **7 categorias** de uma base local com **42 categorias** e cerca de **2.700 respostas** (ex.: "Animal que vive no mar", "País da África", "Constelação", "Dinossauro", "Brincadeira de criança").
-- As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
+- As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - Cada categoria aparece num **cartão** no topo da tela. Ao responder, o cartão vira e mostra o nível, os pontos e quantos km o foguete percorreu; depois o próximo cartão entra e o anterior sai voando. Como o cartão fica no topo, o resultado aparece mesmo com o teclado do celular aberto.
 - O foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam enormes, saindo pela borda da tela, para mostrar o tamanho deles perto do foguete, com o nome e a distância real até a Terra.
 - No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
@@ -42,7 +42,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - O resultado pode ser **compartilhado** pelo menu do celular, ou copiado quando o navegador não tem esse menu.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música espacial de fundo.
-- Histórico (últimas 50 partidas), recorde, destinos alcançados e a preferência do cronômetro ficam salvos no `localStorage`, só no aparelho do jogador.
+- Histórico (últimas 50 partidas), recorde, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Stack
 
