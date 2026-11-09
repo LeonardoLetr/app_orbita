@@ -62,7 +62,7 @@ describe('Home', () => {
 
     expect(element.textContent).toContain('75 pts');
     expect(element.textContent).toContain('Destinos alcançados: 2 de 8');
-    expect(element.querySelectorAll('app-planet-art.grayscale')).toHaveLength(6);
+    expect(element.querySelectorAll('app-planet-art.brightness-0')).toHaveLength(6);
     expect(element.querySelector('a[href="/historico"]')).not.toBeNull();
   });
 
