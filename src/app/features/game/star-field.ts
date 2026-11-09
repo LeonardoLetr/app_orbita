@@ -24,6 +24,11 @@ const DRIFT = 60;
 /** Length of the streaks, as seconds of movement. */
 const STREAK = 0.05;
 
+/** Number of stars for a sky of this size, in CSS pixels. */
+export function starCount(width: number, height: number): number {
+  return Math.max(60, Math.min(420, Math.round((width * height) / 3200)));
+}
+
 /**
  * Stars drawn on a canvas behind the route. They drift slowly and stretch into streaks
  * when the rocket flies, at the speed of the flight; still for players who ask for less
@@ -96,17 +101,26 @@ export class StarField {
     canvas.width = Math.round(width * ratio);
     canvas.height = Math.round(height * ratio);
     this.context!.setTransform(ratio, 0, 0, ratio, 0, 0);
-    // A new width needs a new sky; a new height (keyboard) keeps the same stars.
-    if (width !== this.width) {
-      this.stars = this.createStars(width, height);
+    if (width !== this.width || !this.stars.length) {
+      this.stars = this.createStars(width, height, starCount(width, height));
+    } else if (height !== this.height) {
+      // The keyboard opened or closed: spread the same sky over the new height, so no
+      // part of the screen is left without stars, and keep the same density.
+      const stretch = height / this.height;
+      for (const star of this.stars) star.y *= stretch;
+      const count = starCount(width, height);
+      if (count > this.stars.length) {
+        this.stars.push(...this.createStars(width, height, count - this.stars.length));
+      } else {
+        this.stars.length = count;
+      }
     }
     this.width = width;
     this.height = height;
     if (this.still) this.draw(0, 0);
   }
 
-  private createStars(width: number, height: number): Star[] {
-    const count = Math.max(60, Math.min(420, Math.round((width * height) / 3200)));
+  private createStars(width: number, height: number, count: number): Star[] {
     return Array.from({ length: count }, () => {
       const layer = Math.random();
       const depth =
