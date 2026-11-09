@@ -1,4 +1,4 @@
-# Órbita
+# Astropalavra
 
 Jogo web de categorias com tema espacial. A cada partida o jogador recebe 7 categorias e dá uma resposta para cada uma. Quanto mais rara a resposta, mais pontos — e mais longe a nave viaja pelo Sistema Solar.
 

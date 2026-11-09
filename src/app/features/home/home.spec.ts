@@ -26,7 +26,7 @@ describe('Home', () => {
   }
 
   it('shows the game title', () => {
-    expect(render().querySelector('h1')?.textContent).toContain('Órbita');
+    expect(render().querySelector('h1')?.textContent).toContain('Astropalavra');
   });
 
   it('links to a new round', () => {

@@ -26,7 +26,7 @@ describe('shareText', () => {
     );
 
     expect(text).toBe(
-      '🚀 Órbita: cheguei a Saturno com 335 pts!\n🟠⚫🟢\nhttps://example.org/orbita/',
+      '🚀 Astropalavra: cheguei a Saturno com 335 pts!\n🟠⚫🟢\nhttps://example.org/orbita/',
     );
   });
 });
