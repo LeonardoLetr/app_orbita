@@ -18,13 +18,16 @@ describe('TimerRing', () => {
   });
 
   it('empties the ring as time passes', () => {
-    const ring = render(15, 0.5).querySelectorAll('circle')[1];
+    const ring = render(15, 0.5).querySelector('circle.progress')!;
+    expect(ring.getAttribute('stroke-dasharray')).not.toBeNull();
     const length = Number(ring.getAttribute('stroke-dasharray'));
 
     expect(Number(ring.getAttribute('stroke-dashoffset'))).toBeCloseTo(length / 2);
   });
 
   it('turns red in the last seconds', () => {
-    expect(render(4, 0.1).querySelectorAll('circle')[1].classList).toContain('stroke-flare-500');
+    expect(render(4, 0.1).querySelector('circle.progress')?.classList).toContain(
+      'stroke-flare-500',
+    );
   });
 });
