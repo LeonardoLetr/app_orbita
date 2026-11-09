@@ -109,7 +109,7 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 - **Mobile-first** e legível em projetor.
 - Interface em **pt-BR**; código, variáveis e comentários em inglês.
 - Lógica de pontuação e acesso aos dados isolados em services, para no futuro trocar o JSON por um backend (turmas e alunos) sem reescrever o jogo.
-- Identidade visual **100% original**: paleta própria e ilustrações SVG feitas para o projeto.
+- Identidade visual **100% original**, em estilo de fliperama: letras grossas com contorno (Lilita One e Nunito), cartões que parecem figurinhas, paleta própria e ilustrações SVG feitas para o projeto.
 
 ## Roadmap
 
