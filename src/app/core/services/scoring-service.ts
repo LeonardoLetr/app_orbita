@@ -2,17 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { PLANETS } from '../data/planets';
 import { Answer, Category } from '../models/category';
 import { Planet } from '../models/planet';
-import { Rarity } from '../models/rarity';
+import { RARITIES, Rarity } from '../models/rarity';
 import { normalizeAnswer } from '../utils/normalize-answer';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
 
-const RARITY_RANK: Record<Rarity, number> = { satellite: 0, comet: 1, supernova: 2 };
-
 export const RARITY_POINTS: Record<Rarity, number> = {
   satellite: 10,
-  comet: 20,
-  supernova: 30,
+  meteorite: 25,
+  comet: 50,
+  pulsar: 75,
+  supernova: 100,
 };
 
 /**
@@ -68,7 +68,7 @@ export class ScoringService {
   rarestAnswers(category: Category, limit = 3, exclude?: Answer): Answer[] {
     const candidates = category.answers.filter((answer) => answer !== exclude);
     return pickRandom(candidates, candidates.length, this.random)
-      .sort((a, b) => RARITY_RANK[b.rarity] - RARITY_RANK[a.rarity])
+      .sort((a, b) => RARITIES.indexOf(b.rarity) - RARITIES.indexOf(a.rarity))
       .slice(0, limit);
   }
 

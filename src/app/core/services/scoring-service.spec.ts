@@ -8,7 +8,9 @@ describe('ScoringService', () => {
     title: 'Animal que vive no mar',
     answers: [
       { text: 'Tubarão', rarity: 'satellite' },
+      { text: 'Foca', rarity: 'meteorite' },
       { text: 'Peixe-boi', rarity: 'comet', synonyms: ['manati'] },
+      { text: 'Coral', rarity: 'pulsar' },
       { text: 'Narval', rarity: 'supernova' },
     ],
   };
@@ -21,8 +23,10 @@ describe('ScoringService', () => {
 
   it('gives points according to the answer rarity', () => {
     expect(scoring.score(category, 'Tubarão').points).toBe(10);
-    expect(scoring.score(category, 'Peixe-boi').points).toBe(20);
-    expect(scoring.score(category, 'Narval').points).toBe(30);
+    expect(scoring.score(category, 'Foca').points).toBe(25);
+    expect(scoring.score(category, 'Peixe-boi').points).toBe(50);
+    expect(scoring.score(category, 'Coral').points).toBe(75);
+    expect(scoring.score(category, 'Narval').points).toBe(100);
   });
 
   it('ignores case, accents, hyphens and extra spaces', () => {
@@ -36,7 +40,7 @@ describe('ScoringService', () => {
   it('accepts synonyms with the same points', () => {
     const result = scoring.score(category, 'Manati');
 
-    expect(result.points).toBe(20);
+    expect(result.points).toBe(50);
     expect(result.match?.text).toBe('Peixe-boi');
   });
 
@@ -61,7 +65,7 @@ describe('ScoringService', () => {
   });
 
   it('still scores what was typed when time ran out', () => {
-    expect(scoring.score(category, 'narval', true).points).toBe(30);
+    expect(scoring.score(category, 'narval', true).points).toBe(100);
   });
 
   describe('destinations', () => {

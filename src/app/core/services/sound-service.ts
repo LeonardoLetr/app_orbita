@@ -1,8 +1,8 @@
 import { Injectable, InjectionToken, inject } from '@angular/core';
+import { Rarity } from '../models/rarity';
 import { PreferencesService } from './preferences-service';
 
-export type SoundEffect =
-  'satellite' | 'comet' | 'supernova' | 'miss' | 'liftoff' | 'arrive' | 'finish';
+export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish';
 
 /** Creates the audio context, or null when the browser has no Web Audio. */
 export const AUDIO_CONTEXT_FACTORY = new InjectionToken<() => AudioContext | null>(
@@ -26,10 +26,23 @@ interface Note {
 /** Short synthesized effects, so the game ships no audio files. */
 const EFFECTS: Record<SoundEffect, Note[]> = {
   satellite: [{ freq: 660, at: 0, length: 0.18, wave: 'triangle' }],
-  comet: [
-    { freq: 660, at: 0, length: 0.14, wave: 'triangle' },
-    { freq: 880, at: 0.11, length: 0.22, wave: 'triangle' },
+  meteorite: [
+    { freq: 587, at: 0, length: 0.12, wave: 'triangle' },
+    { freq: 784, at: 0.1, length: 0.2, wave: 'triangle' },
   ],
+  comet: [
+    { freq: 660, at: 0, length: 0.12, wave: 'triangle' },
+    { freq: 880, at: 0.1, length: 0.12, wave: 'triangle' },
+    { freq: 990, at: 0.2, length: 0.24, wave: 'triangle' },
+  ],
+  // A pulsar blinks: quick repeated beeps.
+  pulsar: [0, 0.07, 0.14, 0.21].map((at, i) => ({
+    freq: i === 3 ? 1319 : 1047,
+    at,
+    length: i === 3 ? 0.3 : 0.05,
+    wave: 'square' as const,
+    volume: 0.06,
+  })),
   supernova: [523, 659, 784, 1047].map((freq, i) => ({
     freq,
     at: i * 0.08,

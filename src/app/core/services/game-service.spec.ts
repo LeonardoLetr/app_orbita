@@ -64,9 +64,9 @@ describe('GameService', () => {
 
     const result = game.answer(`${current.id} rara`);
 
-    expect(result?.points).toBe(30);
+    expect(result?.points).toBe(100);
     expect(game.status()).toBe('revealing');
-    expect(game.totalPoints()).toBe(30);
+    expect(game.totalPoints()).toBe(100);
   });
 
   it('ignores answers while revealing', async () => {
@@ -99,8 +99,8 @@ describe('GameService', () => {
     await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
 
     const [round] = progress.rounds();
-    expect(round.points).toBe(30);
-    expect(round.planetId).toBe('moon');
+    expect(round.points).toBe(100);
+    expect(round.planetId).toBe('uranus');
     expect(round.answers).toHaveLength(CATEGORIES_PER_ROUND);
     expect(round.answers[1].result.outcome).toBe('blank');
   });
