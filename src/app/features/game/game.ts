@@ -14,6 +14,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CLASSIC_MODE } from '../../core/data/game-modes';
 import { GameMode } from '../../core/models/game-mode';
+import { RoundPace } from '../../core/models/round-rules';
 import { GameService } from '../../core/services/game-service';
 import { MusicService } from '../../core/services/music-service';
 import { ScoringService } from '../../core/services/scoring-service';
@@ -30,10 +31,22 @@ import { TimerRing } from './timer-ring';
 
 /** Shortest time an answer's result stays on screen. */
 export const MIN_REVEAL_MS = 1500;
+/** The same in quick rounds. */
+export const QUICK_REVEAL_MS = 1000;
 
-/** Time to show an answer's result: the whole flight plus a moment to read it. */
-export function revealDelay(pointsBefore: number, pointsAfter: number): number {
-  return Math.max(MIN_REVEAL_MS, flightDuration(pointsBefore, pointsAfter) + 700);
+/**
+ * Time to show an answer's result: the whole flight plus a moment to read it. In quick
+ * rounds the next category comes as soon as the flight ends.
+ */
+export function revealDelay(
+  pointsBefore: number,
+  pointsAfter: number,
+  pace: RoundPace = 'calm',
+): number {
+  const flight = flightDuration(pointsBefore, pointsAfter, pace);
+  return pace === 'quick'
+    ? Math.max(QUICK_REVEAL_MS, flight)
+    : Math.max(MIN_REVEAL_MS, flight + 700);
 }
 
 /**
@@ -245,11 +258,14 @@ export class Game {
       this.askToRetry();
       return;
     }
+    const { pace } = this.game.mode().rules;
     this.countdown.stop();
     this.clearField();
-    // Put the phone keyboard away, so the whole flight can be seen. The field gets the
-    // focus back with the next category (where the browser allows it without a tap).
-    this.answerInput()?.nativeElement.blur();
+    if (pace === 'calm') {
+      // Put the phone keyboard away, so the whole flight can be seen. The field gets the
+      // focus back with the next category (where the browser allows it without a tap).
+      this.answerInput()?.nativeElement.blur();
+    }
     this.revealKm.set(
       result.points > 0
         ? formatDistance(distanceAt(before + result.points) - distanceAt(before))
@@ -262,7 +278,7 @@ export class Game {
         this.sound.play(this.game.status() === 'finished' ? 'finish' : 'deal');
         this.beginCategory();
       },
-      revealDelay(before, before + result.points),
+      revealDelay(before, before + result.points, pace),
     );
   }
 

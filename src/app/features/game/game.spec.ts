@@ -8,7 +8,7 @@ import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
 import { RANDOM } from '../../core/utils/random';
-import { Game, MIN_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
+import { Game, MIN_REVEAL_MS, QUICK_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
 
 describe('Game', () => {
   const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
@@ -40,6 +40,15 @@ describe('Game', () => {
     fixture = TestBed.createComponent(Game);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
+  }
+
+  /** Renders the game at the address of a mode, the way the router does. */
+  async function renderMode(mode: GameMode) {
+    configure(false, [{ path: 'jogar/modo', component: Game, data: { mode } }]);
+    const harness = await RouterTestingHarness.create('/jogar/modo');
+    fixture = harness.fixture;
+    await fixture.whenStable();
+    return harness.routeNativeElement as HTMLElement;
   }
 
   /** Text on the back of the question card, once it turned over. */
@@ -188,18 +197,39 @@ describe('Game', () => {
       slug: 'curto',
       rules: { ...CLASSIC_MODE.rules, pickCategories: (all) => all.slice(0, 2) },
     };
-    configure(false, [{ path: 'jogar/curto', component: Game, data: { mode: short } }]);
 
-    const harness = await RouterTestingHarness.create('/jogar/curto');
-    fixture = harness.fixture;
-    await fixture.whenStable();
+    const element = await renderMode(short);
 
     expect(TestBed.inject(GameService).mode()).toBe(short);
-    expect(harness.routeNativeElement?.textContent).toContain('Categoria 1 de 2');
+    expect(element.textContent).toContain('Categoria 1 de 2');
+  });
+
+  it('keeps the keyboard and moves on sooner in quick rounds', async () => {
+    const quick: GameMode = {
+      ...CLASSIC_MODE,
+      name: 'Rápido',
+      slug: 'rapido',
+      rules: { ...CLASSIC_MODE.rules, pace: 'quick' },
+    };
+    const element = await renderMode(quick);
+    const input = element.querySelector<HTMLInputElement>('#answer')!;
+
+    await answer(element, 'resposta 0');
+    expect(document.activeElement).toBe(input);
+
+    await new Promise((resolve) => setTimeout(resolve, revealDelay(0, 50, 'quick') + 100));
+    await fixture.whenStable();
+    expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
   });
 
   it('keeps short results on screen for a minimum time', () => {
     expect(revealDelay(10, 10)).toBe(MIN_REVEAL_MS);
     expect(revealDelay(0, 30)).toBeGreaterThan(revealDelay(0, 10));
+  });
+
+  it('shows results for a shorter time in quick rounds', () => {
+    expect(revealDelay(10, 10, 'quick')).toBe(QUICK_REVEAL_MS);
+    expect(revealDelay(0, 600, 'quick')).toBeGreaterThan(QUICK_REVEAL_MS);
+    expect(revealDelay(0, 600, 'quick')).toBeLessThan(MIN_REVEAL_MS);
   });
 });

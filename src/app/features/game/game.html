@@ -123,6 +123,7 @@
       [points]="game.totalPoints()"
       [answers]="answered()"
       [launching]="launching()"
+      [pace]="game.mode().rules.pace"
     />
 
     <p class="sr-only" aria-live="polite">{{ resultAnnouncement() }}</p>
