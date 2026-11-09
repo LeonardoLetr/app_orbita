@@ -40,47 +40,6 @@
   }
 }
 
-/* Stars stretch past the scene so they also stream behind the title and answer bar. */
-.stars {
-  position: absolute;
-  inset: -60% 0;
-  transition: background-position var(--fly);
-}
-
-.stars-far {
-  background-image:
-    radial-gradient(1px 1px at 15% 25%, rgb(255 255 255 / 0.7) 50%, transparent 51%),
-    radial-gradient(1px 1px at 55% 70%, rgb(184 191 232 / 0.6) 50%, transparent 51%),
-    radial-gradient(1px 1px at 85% 40%, rgb(255 255 255 / 0.5) 50%, transparent 51%);
-  background-size: 5.5rem 4.5rem;
-  background-position: 0 calc(var(--pos) * var(--gap) * 0.12);
-}
-
-.stars-near {
-  background-image:
-    radial-gradient(1.5px 1.5px at 30% 20%, var(--color-star-300) 50%, transparent 51%),
-    radial-gradient(1.5px 1.5px at 75% 65%, var(--color-aurora-300) 50%, transparent 51%),
-    radial-gradient(1px 1px at 50% 90%, #fff 50%, transparent 51%);
-  background-size: 9rem 7rem;
-  background-position: 0 calc(var(--pos) * var(--gap) * 0.35);
-}
-
-.speed-lines {
-  position: absolute;
-  inset: -60% 8%;
-  opacity: 0;
-  background-image:
-    radial-gradient(ellipse 1px 2.6rem at 20% 30%, rgb(255 255 255 / 0.65), transparent),
-    radial-gradient(ellipse 1px 1.8rem at 70% 70%, rgb(143 243 255 / 0.55), transparent);
-  background-size: 5.5rem 9rem;
-  transition: opacity 300ms;
-}
-
-.is-flying .speed-lines,
-.is-liftoff .speed-lines {
-  opacity: 1;
-}
-
 /* The camera follows the rocket: the whole route slides down under it. */
 .world {
   position: absolute;
@@ -221,76 +180,7 @@
   filter: drop-shadow(0 0 0.6rem rgb(79 224 245 / 0.4));
 }
 
-.trail {
-  position: absolute;
-  top: 88%;
-  left: 50%;
-  width: 34%;
-  height: 0;
-  translate: -50% 0;
-  border-radius: 999px;
-  background: linear-gradient(
-    to bottom,
-    rgb(255 224 138 / 0.9),
-    rgb(255 143 107 / 0.45) 40%,
-    transparent
-  );
-  transition: height 300ms ease-out;
-}
-
-.is-flying .trail,
-.is-liftoff .trail {
-  height: 240%;
-}
-
-.spark {
-  position: absolute;
-  top: 92%;
-  left: calc(50% + var(--x));
-  width: 9%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--color-star-300);
-  box-shadow: 0 0 0.3rem var(--color-flare-400);
-  opacity: 0;
-}
-
-.puff {
-  position: absolute;
-  top: 95%;
-  left: 30%;
-  width: 40%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: var(--color-space-400);
-  opacity: 0;
-}
-
 @media (prefers-reduced-motion: no-preference) {
-  /* The sky keeps streaming down, so the rocket always looks like it is flying. */
-  .stars-far {
-    animation: drift-far 5s linear infinite;
-  }
-
-  .stars-near {
-    animation:
-      drift-near 2.4s linear infinite,
-      twinkle-soft 2.6s ease-in-out infinite alternate;
-  }
-
-  .spark {
-    animation: spark 640ms ease-in infinite;
-  }
-
-  .is-flying .spark {
-    animation-duration: 380ms;
-  }
-
-  .is-flying .speed-lines,
-  .is-liftoff .speed-lines {
-    animation: streak-down 300ms linear infinite;
-  }
-
   /* On the launch pad the rocket rumbles until the countdown ends, then climbs. */
   .is-launching .rocket-bob {
     animation: rumble 70ms linear 0.9s 13;
@@ -321,69 +211,14 @@
     animation: sputter 600ms ease-in-out;
   }
 
-  .is-sputtering .spark {
-    position: absolute;
-    top: 92%;
-    left: calc(50% + var(--x));
-    width: 9%;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--color-star-300);
-    box-shadow: 0 0 0.3rem var(--color-flare-400);
-    opacity: 0;
-  }
-
-  .puff {
-    animation: puff 700ms ease-out both;
-  }
-
   .is-arriving .stop-art {
     animation: arrive 1.2s ease-out;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .world,
-  .stars {
+  .world {
     transition: none;
-  }
-}
-
-/* Each loop moves exactly one background tile, so it repeats without a jump. */
-@keyframes drift-far {
-  to {
-    translate: 0 4.5rem;
-  }
-}
-
-@keyframes drift-near {
-  to {
-    translate: 0 7rem;
-  }
-}
-
-@keyframes spark {
-  0% {
-    opacity: 0.95;
-    translate: 0 0;
-    scale: 1;
-  }
-  100% {
-    opacity: 0;
-    translate: calc(var(--x) * 0.6) 220%;
-    scale: 0.3;
-  }
-}
-
-@keyframes twinkle-soft {
-  from {
-    opacity: 0.45;
-  }
-}
-
-@keyframes streak-down {
-  to {
-    background-position: 0 9rem;
   }
 }
 
@@ -445,18 +280,6 @@
   75% {
     translate: 0.2rem 0;
     rotate: 4deg;
-  }
-}
-
-@keyframes puff {
-  from {
-    opacity: 0.8;
-    scale: 0.4;
-  }
-  to {
-    opacity: 0;
-    scale: 1.8;
-    translate: 0 1.4rem;
   }
 }
 
