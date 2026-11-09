@@ -14,10 +14,12 @@ function round(id: string, points: number): RoundRecord {
 }
 
 describe('ScoreHistory', () => {
-  function render(rounds: RoundRecord[], currentId?: string, max = 700) {
+  function render(rounds: RoundRecord[], currentId?: string, max: number | 'open' = 700) {
     const fixture = TestBed.createComponent(ScoreHistory);
     fixture.componentRef.setInput('rounds', rounds);
-    fixture.componentRef.setInput('max', max);
+    if (max !== 'open') {
+      fixture.componentRef.setInput('max', max);
+    }
     fixture.componentRef.setInput('currentId', currentId);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
@@ -38,6 +40,22 @@ describe('ScoreHistory', () => {
 
     expect(bars.map((bar) => bar.style.height)).toEqual(['15%', '10%', '25%']);
     expect(element.textContent).toContain('máx. 1400');
+  });
+
+  it('ends the scale just above the best round when the mode has no highest score', () => {
+    const element = render(rounds, 'c', 'open');
+    const bars = [...element.querySelectorAll<HTMLElement>('.bar')];
+
+    expect(bars.map((bar) => bar.style.height)).toEqual(['52.5%', '35%', '87.5%']);
+    expect(element.textContent).toContain('400 pts');
+    expect(element.textContent).not.toContain('máx.');
+  });
+
+  it('keeps a scale when every round scored nothing', () => {
+    const element = render([round('b', 0), round('a', 0)], 'b', 'open');
+
+    expect(element.querySelector<HTMLElement>('.bar')?.style.height).toBe('0%');
+    expect(element.textContent).toContain('100 pts');
   });
 
   it('highlights the round just played and labels it', () => {

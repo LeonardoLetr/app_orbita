@@ -23,8 +23,11 @@ export type RoundPace = 'calm' | 'quick';
 export interface RoundRules {
   readonly clock: RoundClock;
   readonly pace: RoundPace;
-  /** Highest score a round can reach, used as the top of the charts. */
-  readonly maxPoints: number;
+  /**
+   * Highest score a round can reach, used as the top of the charts. Rounds with no
+   * fixed number of categories have none.
+   */
+  readonly maxPoints?: number;
   /**
    * Categories of a new round, in the order they are asked. `previous` has the ids of
    * the round just played, so they can be avoided.
