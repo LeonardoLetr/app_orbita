@@ -136,75 +136,56 @@
   opacity: 0.6;
 }
 
-/* Each planet sits on a line across the route, mostly past the edge of the screen. */
 .stop {
   position: absolute;
   top: calc(var(--i) * var(--gap) * -1);
-  left: 0;
-  right: 0;
-  height: 0;
-  /* Center of the planet, from its edge of the screen (negative: past the edge). */
-  --center: calc(var(--u) * (var(--v) - var(--d) / 2));
+  left: 10%;
+}
+
+.stop.is-right {
+  left: 90%;
 }
 
 .stop-art {
   position: absolute;
-  top: 0;
-  left: var(--center);
-  width: calc(var(--u) * var(--d) * var(--art));
+  width: calc(var(--u) * var(--d) * 1.8);
   aspect-ratio: 1;
   translate: -50% -50%;
-  opacity: 0.55;
-  filter: saturate(0.4) brightness(0.75);
+  opacity: 0.5;
+  filter: saturate(0.35) brightness(0.8);
   transition:
     opacity 500ms,
     filter 500ms;
 }
 
-.is-right .stop-art {
-  left: auto;
-  right: var(--center);
-  translate: 50% -50%;
-}
-
-/* Name and distance on the visible part of the planet, near the edge of the screen,
-   away from the rocket's path. */
+/* Name and distance just above the planet, on the inner side of the screen. */
 .stop-label {
   position: absolute;
-  top: 0;
-  left: 0.6rem;
+  bottom: calc(var(--u) * var(--d) * 0.5 + 0.4rem);
+  left: 0;
   display: flex;
   flex-direction: column;
-  padding: 0.2rem 0.6rem;
-  border: 2px solid var(--color-ink);
+  padding: 0.25rem 0.6rem;
   border-radius: 0.75rem;
-  background: var(--color-cream);
-  box-shadow: 0.15rem 0.15rem 0 var(--color-ink);
+  background: rgb(11 16 48 / 0.75);
   font-size: max(0.7rem, calc(var(--u) * 1.7));
-  font-weight: 800;
-  line-height: 1.2;
+  line-height: 1.25;
   white-space: nowrap;
-  color: var(--color-ink-soft);
-  translate: 0 -50%;
-  rotate: -3deg;
+  color: var(--color-space-200);
   transition:
-    background-color 300ms,
-    scale 300ms;
+    color 400ms,
+    background-color 400ms;
 }
 
 .is-right .stop-label {
   left: auto;
-  right: 0.6rem;
+  right: 0;
   text-align: right;
-  rotate: 3deg;
 }
 
 .stop-label b {
-  font-family: var(--font-display);
-  font-size: max(0.9rem, calc(var(--u) * 2.3));
-  font-weight: 400;
-  letter-spacing: 0.03em;
-  color: var(--color-ink);
+  font-size: max(0.85rem, calc(var(--u) * 2.1));
+  color: var(--color-space-50);
 }
 
 .is-lit .stop-art {
@@ -214,8 +195,11 @@
 
 .is-arriving .stop-label {
   background: var(--color-star-400);
-  color: var(--color-ink);
-  scale: 1.15;
+  color: var(--color-space-950);
+}
+
+.is-arriving .stop-label b {
+  color: var(--color-space-950);
 }
 
 .rocket {
