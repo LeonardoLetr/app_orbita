@@ -104,7 +104,7 @@ export class JourneyScene {
 
   private readonly sound = inject(SoundService);
   private readonly starField = viewChild(StarField);
-  private readonly exhaust = viewChild(ExhaustPlume);
+  protected readonly exhaust = viewChild(ExhaustPlume);
   private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
   private seenAnswers = 0;
   private seenPoints = 0;

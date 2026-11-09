@@ -5,6 +5,7 @@ import {
   afterNextRender,
   inject,
   input,
+  signal,
   viewChild,
 } from '@angular/core';
 import { Easing, FLY_EASING, FlightMotion } from './flight-motion';
@@ -54,6 +55,8 @@ const IDLE_THRUST = 0.3;
 export class ExhaustPlume {
   /** The rocket drawing; the flame comes out of the bottom of it. */
   readonly anchor = input.required<HTMLElement>();
+  /** Drawing the flame, so the rocket's own drawn flame can be hidden. */
+  readonly active = signal(false);
 
   private readonly canvas = viewChild.required<ElementRef<HTMLCanvasElement>>('canvas');
   private readonly motion = new FlightMotion();
@@ -70,6 +73,8 @@ export class ExhaustPlume {
   /** Thick smoke only near the Earth, during the launch. */
   private smokyUntil = 0;
   private sputterUntil = 0;
+  /** Where the engine was on the previous frame. */
+  private lastNozzle?: { x: number; y: number };
 
   constructor() {
     afterNextRender(() => this.start());
@@ -109,6 +114,7 @@ export class ExhaustPlume {
     this.observer = new ResizeObserver(() => this.resize());
     this.observer.observe(canvas);
     this.resize();
+    this.active.set(true);
     this.frame = requestAnimationFrame((now) => this.tick(now));
   }
 
@@ -145,20 +151,43 @@ export class ExhaustPlume {
     };
   }
 
-  private emit(now: number, smoke: boolean): void {
+  /** Adds a particle at the engine, already `age` seconds into its life. */
+  private emit(now: number, smoke: boolean, age = 0): void {
     if (this.particles.length >= MAX_PARTICLES) return;
     const { x, y, unit } = this.nozzle();
     const power = this.thrust(now);
-    this.particles.push({
-      x: x + (Math.random() - 0.5) * unit * 2,
+    const particle: Particle = {
+      x: x + (Math.random() - 0.5) * unit * (smoke ? 2 : 1.2),
       y,
-      vx: (Math.random() - 0.5) * unit * (smoke ? 14 : 8),
-      vy: unit * (smoke ? 8 + Math.random() * 10 : 30 + Math.random() * 30) * (0.6 + power),
-      life: 0,
-      maxLife: smoke ? 1 + Math.random() * 0.6 : 0.3 + Math.random() * 0.3,
-      size: unit * (smoke ? 2.2 : 0.9 + power * 0.8),
+      vx: (Math.random() - 0.5) * unit * (smoke ? 14 : 4),
+      vy: unit * (smoke ? 8 + Math.random() * 10 : 28 + Math.random() * 18) * (0.6 + power),
+      life: age,
+      maxLife: smoke ? 1 + Math.random() * 0.6 : 0.22 + Math.random() * 0.12 + power * 0.18,
+      size: unit * (smoke ? 2.2 : 0.55 + power * 0.55),
       smoke,
-    });
+    };
+    // Spread the particles of one frame along their way, so the jet looks continuous
+    // even when frames come slowly.
+    particle.x += particle.vx * age;
+    particle.y += particle.vy * age;
+    this.particles.push(particle);
+  }
+
+  /** Bright glow right at the engine, joining the rocket and its flame. */
+  private drawGlow(context: CanvasRenderingContext2D, now: number, power: number): void {
+    const { x, y, unit } = this.nozzle();
+    const flicker = 0.9 + Math.random() * 0.2;
+    const radius = unit * (1.2 + power * 1.2) * flicker;
+    const glow = context.createRadialGradient(x, y, 0, x, y, radius);
+    glow.addColorStop(0, 'rgb(255 250 225 / 1)');
+    glow.addColorStop(0.4, 'rgb(255 210 63 / 0.85)');
+    glow.addColorStop(1, 'rgb(255 143 107 / 0)');
+    context.globalCompositeOperation = 'lighter';
+    context.globalAlpha = now < this.sputterUntil ? 0.3 : 1;
+    context.fillStyle = glow;
+    context.beginPath();
+    context.ellipse(x, y + radius * 0.5, radius * 0.75, radius * 1.4, 0, 0, Math.PI * 2);
+    context.fill();
   }
 
   private tick(now: number): void {
@@ -169,13 +198,30 @@ export class ExhaustPlume {
     // The route moving down pushes everything behind the rocket down too.
     const wind = this.motion.speed(now);
 
+    // When the rocket itself moves on the screen (the keyboard opens or closes and the
+    // scene glides to its new place), the flame moves along instead of hanging behind.
+    const nozzle = this.nozzle();
+    if (this.lastNozzle) {
+      const dx = nozzle.x - this.lastNozzle.x;
+      const dy = nozzle.y - this.lastNozzle.y;
+      if (dx || dy) {
+        for (const particle of this.particles) {
+          particle.x += dx;
+          particle.y += dy;
+        }
+      }
+    }
+    this.lastNozzle = { x: nozzle.x, y: nozzle.y };
+
     // New particles, at a rate that follows the engine power and the speed.
     const smoky = !!this.ignition || now < this.smokyUntil;
-    this.carry += seconds * (25 + 140 * power + wind * 0.1);
-    while (this.carry >= 1) {
-      this.carry -= 1;
-      this.emit(now, false);
-      if (smoky && Math.random() < 0.3) this.emit(now, true);
+    this.carry += seconds * (60 + 180 * power + wind * 0.12);
+    const count = Math.floor(this.carry);
+    this.carry -= count;
+    for (let i = 0; i < count; i++) {
+      const age = (seconds * i) / Math.max(1, count);
+      this.emit(now, false, age);
+      if (smoky && Math.random() < 0.25) this.emit(now, true, age);
     }
 
     const context = this.context!;
@@ -210,6 +256,7 @@ export class ExhaustPlume {
       context.stroke();
       return true;
     });
+    this.drawGlow(context, now, power);
     context.globalCompositeOperation = 'source-over';
     context.globalAlpha = 1;
     this.frame = requestAnimationFrame((next) => this.tick(next));
