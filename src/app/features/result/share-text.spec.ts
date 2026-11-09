@@ -2,6 +2,14 @@ import { PLANETS } from '../../core/data/planets';
 import { shareText } from './share-text';
 
 describe('shareText', () => {
+  it('says the mode for rounds outside the main one', () => {
+    const moon = PLANETS.find((planet) => planet.id === 'moon')!;
+
+    expect(shareText(moon, 40, [], 'https://example.org/', 'Relâmpago')).toBe(
+      '🚀 Astropalavra (Relâmpago): cheguei à Lua com 40 pts!\n\nhttps://example.org/',
+    );
+  });
+
   it('tells where the rocket got with one mark per answer', () => {
     const saturn = PLANETS.find((planet) => planet.id === 'saturn')!;
     const text = shareText(

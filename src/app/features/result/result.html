@@ -5,6 +5,14 @@
   />
 
   <div class="flex flex-col items-center gap-1 text-center">
+    @if (modeName(); as name) {
+      <p
+        class="reveal mb-1 rounded-full border-[3px] border-ink bg-aurora-400 px-3 py-0.5 font-display tracking-wide text-ink"
+        style="--delay: 1.4s"
+      >
+        Modo {{ name }}
+      </p>
+    }
     <p
       class="reveal font-display text-lg tracking-wider text-space-200 uppercase"
       style="--delay: 1.5s"

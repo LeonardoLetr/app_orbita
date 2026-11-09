@@ -12,15 +12,20 @@ const LEVEL_MARKS: Record<Rarity, string> = {
 };
 const ZERO_MARK = '⚫';
 
-/** Short text to share a round: where the rocket got, the points and one mark per answer. */
+/**
+ * Short text to share a round: where the rocket got, the points and one mark per answer.
+ * `modeName` is given for rounds outside the main mode.
+ */
 export function shareText(
   destination: Planet,
   points: number,
   results: (AnswerResult | undefined)[],
   url: string,
+  modeName = '',
 ): string {
   const marks = results.map((result) =>
     result?.match ? LEVEL_MARKS[result.match.rarity] : ZERO_MARK,
   );
-  return `🚀 Astropalavra: cheguei ${destination.toName} com ${points} pts!\n${marks.join('')}\n${url}`;
+  const game = modeName ? `Astropalavra (${modeName})` : 'Astropalavra';
+  return `🚀 ${game}: cheguei ${destination.toName} com ${points} pts!\n${marks.join('')}\n${url}`;
 }

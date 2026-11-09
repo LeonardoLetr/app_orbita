@@ -164,6 +164,18 @@ describe('Result', () => {
       slug: 'relampago',
     };
 
+    it('says which mode was played', () => {
+      const element = render([answered('Narval')], 100, blitz).nativeElement as HTMLElement;
+
+      expect(element.textContent).toContain('Modo Relâmpago');
+    });
+
+    it('does not name the main mode', () => {
+      const element = render([answered('Narval')], 100).nativeElement as HTMLElement;
+
+      expect(element.textContent).not.toContain('Modo ');
+    });
+
     it('leaves the rounds and the record of other modes out', async () => {
       const progress = TestBed.inject(ProgressService);
       await progress.record({ points: 300, planetId: 'saturn', mode: 'classic', answers: [] });

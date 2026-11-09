@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { CLASSIC_MODE, isMainMode } from '../../core/data/game-modes';
 import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
@@ -51,6 +51,8 @@ export class Result {
   protected readonly currentId = computed(() =>
     this.progress.lastOutcome() ? this.progress.rounds()[0]?.id : undefined,
   );
+  /** Name of the mode, said only for rounds outside the main one. */
+  protected readonly modeName = computed(() => (isMainMode(this.mode()) ? '' : this.mode().name));
   /** Saved rounds of this mode, newest first. */
   protected readonly modeRounds = computed(() =>
     this.progress.rounds().filter((round) => round.mode === this.mode().id),
@@ -91,6 +93,7 @@ export class Result {
       this.points(),
       this.entries().map((entry) => entry.result),
       this.document.baseURI,
+      this.modeName(),
     );
     try {
       if (navigator.share) {
