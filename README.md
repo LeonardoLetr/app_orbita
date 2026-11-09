@@ -10,6 +10,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - A pontuação de cada resposta aparece logo depois de responder, e o foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra, e cada resposta mostra quantos km o foguete percorreu.
 - No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
+- O céu corre sem parar atrás do foguete, com a chama acesa, para ele parecer sempre em voo. O cenário não muda de tamanho quando o teclado abre ou fecha.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
 | Nível     | Pontos | Significado               |
@@ -38,7 +39,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 - A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
 - **Jogar de novo** sorteia novas categorias, sem limite.
-- **Sons opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio.
+- **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música espacial de fundo.
 - Histórico (últimas 50 partidas), recorde, destinos alcançados e a preferência do cronômetro ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Stack
