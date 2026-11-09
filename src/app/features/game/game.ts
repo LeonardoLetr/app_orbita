@@ -227,7 +227,7 @@ export class Game {
     this.clearField();
     this.retryMessage.set('');
     if (this.game.status() === 'playing' && this.game.timerEnabled()) {
-      const seconds = this.game.mode().rules.secondsPerCategory;
+      const { seconds } = this.game.mode().rules.clock;
       this.countdown.start(seconds, () => this.finishCategory(true));
     }
   }
