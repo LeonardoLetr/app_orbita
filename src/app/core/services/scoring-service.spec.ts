@@ -44,6 +44,48 @@ describe('ScoringService', () => {
     expect(result.match?.text).toBe('Peixe-boi');
   });
 
+  it('forgives a one-letter typo', () => {
+    const result = scoring.score(category, 'Peixe-bio');
+
+    expect(result.outcome).toBe('scored');
+    expect(result.match?.text).toBe('Peixe-boi');
+    expect(result.corrected).toBe(true);
+    expect(scoring.score(category, 'Tubarao').corrected).toBeUndefined();
+  });
+
+  it('forgives a missing or extra letter', () => {
+    expect(scoring.score(category, 'Narva').match?.text).toBe('Narval');
+    expect(scoring.score(category, 'Narvall').match?.text).toBe('Narval');
+  });
+
+  it('does not correct short answers', () => {
+    const short: Category = {
+      id: 'sky',
+      title: 'Astro',
+      answers: [{ text: 'Sol', rarity: 'satellite' }],
+    };
+
+    expect(scoring.score(short, 'Sal').outcome).toBe('unknown');
+  });
+
+  it('does not guess between two close answers', () => {
+    const pets: Category = {
+      id: 'pets',
+      title: 'Bicho',
+      answers: [
+        { text: 'Gato', rarity: 'satellite' },
+        { text: 'Pato', rarity: 'satellite' },
+      ],
+    };
+
+    expect(scoring.score(pets, 'Rato').outcome).toBe('unknown');
+  });
+
+  it('does not correct two wrong letters', () => {
+    expect(scoring.score(category, 'Tobarao').outcome).toBe('scored');
+    expect(scoring.score(category, 'Tobaraa').outcome).toBe('unknown');
+  });
+
   it('keeps the trimmed input', () => {
     expect(scoring.score(category, '  Narval ').input).toBe('Narval');
   });
