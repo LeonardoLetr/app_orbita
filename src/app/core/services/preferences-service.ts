@@ -6,6 +6,7 @@ const PREFERENCES_KEY = 'orbita:preferences';
 interface SavedPreferences {
   timerEnabled?: unknown;
   soundEnabled?: unknown;
+  musicEnabled?: unknown;
 }
 
 /** Player settings remembered on this device. */
@@ -17,6 +18,8 @@ export class PreferencesService {
   readonly timerEnabled = signal(true);
   /** Sound effects start off, so a classroom full of phones stays quiet by default. */
   readonly soundEnabled = signal(false);
+  /** Background music, also off by default. */
+  readonly musicEnabled = signal(false);
 
   constructor() {
     const saved = readJson(this.store, PREFERENCES_KEY) as SavedPreferences | undefined;
@@ -26,11 +29,15 @@ export class PreferencesService {
     if (typeof saved?.soundEnabled === 'boolean') {
       this.soundEnabled.set(saved.soundEnabled);
     }
+    if (typeof saved?.musicEnabled === 'boolean') {
+      this.musicEnabled.set(saved.musicEnabled);
+    }
 
     effect(() =>
       writeJson(this.store, PREFERENCES_KEY, {
         timerEnabled: this.timerEnabled(),
         soundEnabled: this.soundEnabled(),
+        musicEnabled: this.musicEnabled(),
       }),
     );
   }

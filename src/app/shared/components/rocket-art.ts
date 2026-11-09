@@ -22,7 +22,7 @@ import { Component, input } from '@angular/core';
     >
       <g class="flame" [class.is-boosting]="boosting()">
         <path d="M15 18C9 11 3 13 0 18c3 5 9 7 15 0z" class="fill-flare-500" />
-        <path d="M15 18c-4-3.5-8-3-10 0 2 3 6 3.5 10 0z" class="fill-star-300" />
+        <path d="M15 18c-4-3.5-8-3-10 0 2 3 6 3.5 10 0z" class="flame-core fill-star-300" />
       </g>
       <path d="M21 10 15 2h9l8 8zm0 16-6 8h9l8-8z" class="fill-nebula-500" />
       <path
@@ -40,8 +40,12 @@ import { Component, input } from '@angular/core';
     </svg>
   `,
   styles: `
-    .flame {
+    .flame,
+    .flame-core {
       transform-origin: 15px 18px;
+    }
+
+    .flame {
       transition: transform 250ms ease-out;
     }
 
@@ -49,15 +53,35 @@ import { Component, input } from '@angular/core';
       transform: scale(2.3, 1.35);
     }
 
+    /* scale (not transform) so the flicker adds up with the boost above. */
     @media (prefers-reduced-motion: no-preference) {
       .flame {
-        animation: flicker 160ms steps(2) infinite alternate;
+        animation: flicker 220ms ease-in-out infinite alternate;
+      }
+
+      .flame-core {
+        animation: flicker-core 150ms ease-in-out infinite alternate;
       }
     }
 
     @keyframes flicker {
+      from {
+        scale: 1 1;
+      }
+      50% {
+        scale: 1.2 0.9;
+        opacity: 0.9;
+      }
       to {
-        opacity: 0.75;
+        scale: 0.85 1.08;
+        opacity: 0.8;
+      }
+    }
+
+    @keyframes flicker-core {
+      to {
+        scale: 1.3 0.85;
+        opacity: 0.85;
       }
     }
   `,

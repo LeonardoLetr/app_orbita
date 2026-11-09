@@ -5,6 +5,7 @@ import { RARITIES } from '../../core/models/rarity';
 import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { RARITY_POINTS } from '../../core/services/scoring-service';
+import { MusicService } from '../../core/services/music-service';
 import { SoundService } from '../../core/services/sound-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RARITY_LABELS, RARITY_STYLES } from '../../shared/components/rarity-badge';
@@ -18,6 +19,7 @@ export class Home {
   protected readonly game = inject(GameService);
   protected readonly progress = inject(ProgressService);
   protected readonly sound = inject(SoundService);
+  protected readonly music = inject(MusicService);
   protected readonly secondsPerCategory = SECONDS_PER_CATEGORY;
   protected readonly planets = PLANETS;
   /** The scoring levels, from the most common answers to the rarest. */

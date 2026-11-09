@@ -21,6 +21,7 @@ describe('PreferencesService', () => {
     expect(JSON.parse(store.getItem('orbita:preferences')!)).toEqual({
       timerEnabled: false,
       soundEnabled: false,
+      musicEnabled: false,
     });
   });
 
@@ -50,5 +51,11 @@ describe('PreferencesService', () => {
     store.setItem('orbita:preferences', JSON.stringify({ soundEnabled: true }));
 
     expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(true);
+  });
+
+  it('keeps music off by default and restores the saved choice', () => {
+    store.setItem('orbita:preferences', JSON.stringify({ musicEnabled: true }));
+
+    expect(TestBed.inject(PreferencesService).musicEnabled()).toBe(true);
   });
 });

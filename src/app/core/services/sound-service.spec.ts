@@ -1,41 +1,16 @@
 import { TestBed } from '@angular/core/testing';
 import { STORAGE, createMemoryStore } from '../utils/storage';
 import { PreferencesService } from './preferences-service';
-import { AUDIO_CONTEXT_FACTORY, SoundService } from './sound-service';
-
-function fakeAudioContext() {
-  const param = () => ({
-    setValueAtTime: vi.fn(),
-    exponentialRampToValueAtTime: vi.fn(),
-  });
-  const oscillators: { start: ReturnType<typeof vi.fn> }[] = [];
-  const context = {
-    state: 'suspended',
-    currentTime: 0,
-    destination: {},
-    resume: vi.fn(() => Promise.resolve()),
-    createOscillator: vi.fn(() => {
-      const oscillator = {
-        type: 'sine',
-        frequency: param(),
-        connect: vi.fn((node: unknown) => node),
-        start: vi.fn(),
-        stop: vi.fn(),
-      };
-      oscillators.push(oscillator);
-      return oscillator;
-    }),
-    createGain: vi.fn(() => ({ gain: param(), connect: vi.fn((node: unknown) => node) })),
-  };
-  return { context, oscillators };
-}
+import { createFakeAudioContext } from '../../testing/fake-audio';
+import { AUDIO_CONTEXT_FACTORY } from './audio-output';
+import { SoundService } from './sound-service';
 
 describe('SoundService', () => {
-  let fake: ReturnType<typeof fakeAudioContext>;
+  let fake: ReturnType<typeof createFakeAudioContext>;
   let factory: ReturnType<typeof vi.fn>;
 
   beforeEach(() => {
-    fake = fakeAudioContext();
+    fake = createFakeAudioContext();
     factory = vi.fn(() => fake.context);
     TestBed.configureTestingModule({
       providers: [
@@ -56,8 +31,7 @@ describe('SoundService', () => {
 
     TestBed.inject(SoundService).play('supernova');
 
-    expect(fake.oscillators).toHaveLength(4);
-    expect(fake.oscillators[0].start).toHaveBeenCalled();
+    expect(fake.started.oscillators).toBe(4);
     expect(fake.context.resume).toHaveBeenCalled();
   });
 
@@ -76,5 +50,14 @@ describe('SoundService', () => {
     TestBed.inject(PreferencesService).soundEnabled.set(true);
 
     expect(() => TestBed.inject(SoundService).play('miss')).not.toThrow();
+  });
+
+  it('plays the engine as filtered noise', () => {
+    TestBed.inject(PreferencesService).soundEnabled.set(true);
+
+    TestBed.inject(SoundService).play('thrust', 2);
+
+    expect(fake.started.noises).toBe(1);
+    expect(fake.context.createBiquadFilter).toHaveBeenCalled();
   });
 });
