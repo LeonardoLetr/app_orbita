@@ -6,7 +6,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 ## Como funciona
 
-- Cada partida sorteia **7 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
+- Cada partida sorteia **7 categorias** de uma base local com **42 categorias** e cerca de **2.700 respostas** (ex.: "Animal que vive no mar", "País da África", "Constelação", "Dinossauro", "Brincadeira de criança").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - A pontuação de cada resposta aparece logo depois de responder, e o foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra, e cada resposta mostra quantos km o foguete percorreu.
 - No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
