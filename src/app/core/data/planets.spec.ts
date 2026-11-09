@@ -12,6 +12,12 @@ describe('PLANETS', () => {
     expect(new Set(points).size).toBe(points.length);
   });
 
+  it('gets farther from Earth at every stop', () => {
+    const distances = PLANETS.map((planet) => planet.distanceKm);
+
+    expect(distances).toEqual([...distances].sort((a, b) => a - b));
+  });
+
   it('has a name and a fact for every planet', () => {
     for (const planet of PLANETS) {
       expect(planet.name.trim(), planet.id).not.toBe('');

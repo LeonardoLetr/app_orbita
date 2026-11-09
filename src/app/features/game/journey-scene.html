@@ -1,45 +1,63 @@
 <div
   class="scene"
-  [class.is-traveling]="traveling()"
+  [class.is-flying]="flying()"
   [class.is-sputtering]="sputtering()"
   [style.--pos]="position()"
+  [style.--flight]="flightMs() + 'ms'"
 >
   <div class="stars stars-far"></div>
   <div class="stars stars-near"></div>
   <div class="speed-lines"></div>
 
+  <!-- Everything on the route moves together, down, as the rocket climbs. -->
   <div class="world">
-    <div class="route"></div>
-    <div class="route-done"></div>
-    @for (stop of stops; track stop.id; let i = $index) {
+    <div class="earth">
+      <span class="land land-a"></span>
+      <span class="land land-b"></span>
+      <span class="land land-c"></span>
+    </div>
+
+    @for (stop of stops; track stop.id) {
       <div
         class="stop"
-        [class.is-lit]="i <= litIndex()"
-        [class.is-arriving]="i === arrivingIndex()"
-        [style.--i]="i"
-        [style.--size]="stop.size"
+        [class.is-right]="stop.side === 'right'"
+        [class.is-lit]="stop.index <= litIndex()"
+        [class.is-arriving]="stop.index === arrivingIndex()"
+        [style.--i]="stop.index"
+        [style.--d]="stop.size"
       >
         <app-planet-art class="stop-art" [planet]="stop.id" />
-        <span class="stop-label">{{ stop.name }}</span>
+        <span class="stop-label">
+          <b>{{ stop.name }}</b>
+          <span>{{ stop.distance }}</span>
+        </span>
       </div>
     }
   </div>
 
   <div class="rocket">
-    <div class="rocket-liftoff">
-      <div class="rocket-bob">
-        <div class="rocket-tilt">
-          <span class="trail"></span>
-          <span class="puff"></span>
-          <span class="puff" style="animation-delay: 120ms"></span>
-          <span class="puff" style="animation-delay: 240ms"></span>
-          <app-rocket-art class="rocket-svg" [boosting]="traveling()" />
-        </div>
+    <div class="rocket-bob">
+      <div class="rocket-tilt">
+        <span class="trail"></span>
+        <span class="puff"></span>
+        <span class="puff" style="animation-delay: 120ms"></span>
+        <span class="puff" style="animation-delay: 240ms"></span>
+        <app-rocket-art class="rocket-art" [upright]="true" [boosting]="flying()" />
       </div>
     </div>
   </div>
 
-  @for (event of gainEvents(); track event.key) {
-    <span class="gain" [class]="event.tone">+{{ event.gain }}</span>
+  @if (badge(); as badge) {
+    @for (item of [badge]; track item.key) {
+      <div class="badge" [class]="item.tone">
+        @if (item.burst; as colors) {
+          <app-star-burst [colors]="colors" [count]="12" [reach]="5" />
+        }
+        <span class="badge-name">{{ item.text }}</span>
+        @if (item.km; as km) {
+          <span class="badge-km">+{{ km }}</span>
+        }
+      </div>
+    }
   }
 </div>

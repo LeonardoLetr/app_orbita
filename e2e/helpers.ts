@@ -34,5 +34,6 @@ export async function answer(
       : category!.answers.find((a) => a.rarity === rarity)!.text;
   await field.fill(text);
   await field.press('Enter');
-  await expect(page.locator('app-answer-reveal')).toBeVisible();
+  // The result appears as a badge next to the rocket.
+  await expect(page.locator('app-journey-scene .badge')).toBeVisible();
 }

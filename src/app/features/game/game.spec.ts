@@ -5,7 +5,7 @@ import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
 import { RANDOM } from '../../core/utils/random';
-import { Game, REVEAL_MS } from './game';
+import { Game, MIN_REVEAL_MS, revealDelay } from './game';
 
 describe('Game', () => {
   const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
@@ -55,9 +55,9 @@ describe('Game', () => {
 
     await answer(element, 'resposta 0');
 
-    expect(element.querySelector('app-answer-reveal')?.textContent).toContain('+20');
-    expect(element.textContent).toContain('Cometa!');
+    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +20');
     expect(element.querySelector('header')?.textContent).toMatch(/20\s*pts/);
+    expect(element.querySelector('[aria-live]')?.textContent).toContain('Cometa, mais 20 pontos.');
   });
 
   it('shows when an answer is not in the base', async () => {
@@ -68,10 +68,22 @@ describe('Game', () => {
     expect(element.textContent).toContain('Fora da base');
   });
 
-  it('shows the journey scene while playing', async () => {
+  it('shows the journey scene and the next destination while playing', async () => {
     const element = await render();
 
     expect(element.querySelector('app-journey-scene')).not.toBeNull();
+    expect(element.textContent).toMatch(/Próximo:\s*Lua\s*· faltam\s*20 pts/);
+  });
+
+  it('waits while the rocket flies before the next category', async () => {
+    const element = await render();
+
+    await answer(element, 'resposta 0');
+
+    const input = element.querySelector<HTMLInputElement>('#answer')!;
+    expect(input.readOnly).toBe(true);
+    expect(input.placeholder).toBe('Aguarde…');
+    expect(input.value).toBe('');
   });
 
   it('keeps the same answer field between categories', async () => {
@@ -79,10 +91,15 @@ describe('Game', () => {
     const input = element.querySelector('#answer');
 
     await answer(element, 'resposta 0');
-    await new Promise((resolve) => setTimeout(resolve, REVEAL_MS + 100));
+    await new Promise((resolve) => setTimeout(resolve, revealDelay(0, 20) + 100));
     await fixture.whenStable();
 
     expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
     expect(element.querySelector('#answer')).toBe(input);
+  });
+
+  it('keeps short results on screen for a minimum time', () => {
+    expect(revealDelay(10, 10)).toBe(MIN_REVEAL_MS);
+    expect(revealDelay(0, 30)).toBeGreaterThan(revealDelay(0, 10));
   });
 });

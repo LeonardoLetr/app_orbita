@@ -11,73 +11,81 @@ import {
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
+import { AnswerResult } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
+import { distanceAt, formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
+import { StarBurst } from '../../shared/components/star-burst';
 
-/** Keep in sync with --travel in journey-scene.css. */
-export const TRAVEL_MS = 1300;
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
-
-/** Planet diameter as a fraction of the scene height. */
-const STOP_SIZES: Record<PlanetId, number> = {
-  'earth-orbit': 0.3,
-  moon: 0.18,
-  mars: 0.22,
-  jupiter: 0.4,
-  saturn: 0.32,
-  uranus: 0.28,
-  neptune: 0.27,
-  pluto: 0.15,
-};
-
-const STOPS = PLANETS.map((planet) => ({
-  id: planet.id,
-  name: planet.name,
-  size: STOP_SIZES[planet.id],
-}));
-
-const GAIN_TONES: Record<number, string> = {
-  10: 'text-satellite',
-  20: 'text-comet',
-  30: 'text-supernova',
-};
+const MIN_FLIGHT_MS = 900;
+const MAX_FLIGHT_MS = 4200;
 
 /**
- * Where the rocket is on the route, measured in stops: 0 is Earth orbit, 1 the Moon,
- * 1.5 halfway to Mars, and so on. Slightly past Pluto at the maximum score.
+ * How long the rocket flies between two scores: longer trips take longer,
+ * but never so long that the round drags.
  */
-export function routePosition(points: number): number {
-  const last = PLANETS.length - 1;
-  for (let i = 0; i < last; i++) {
-    const from = PLANETS[i].minPoints;
-    const to = PLANETS[i + 1].minPoints;
-    if (points < to) {
-      return i + Math.max(0, points - from) / (to - from);
-    }
+export function flightDuration(fromPoints: number, toPoints: number): number {
+  const stops = routePosition(toPoints) - routePosition(fromPoints);
+  if (stops <= 0) {
+    return 0;
   }
-  const lastGap = PLANETS[last].minPoints - PLANETS[last - 1].minPoints;
-  return Math.min(last + (points - PLANETS[last].minPoints) / lastGap, last + 0.5);
+  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1300 * Math.sqrt(stops)));
 }
 
-function reachedIndex(points: number): number {
-  return PLANETS.filter((planet) => points >= planet.minPoints).length - 1;
-}
+type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
 
-interface GainEvent {
+/** Planet diameter, in scene units, and the side of the route it passes on. */
+const STOP_LOOKS: Record<RouteStop, { size: number; side: 'left' | 'right' }> = {
+  moon: { size: 22, side: 'left' },
+  mars: { size: 26, side: 'right' },
+  jupiter: { size: 46, side: 'left' },
+  saturn: { size: 38, side: 'right' },
+  uranus: { size: 32, side: 'left' },
+  neptune: { size: 32, side: 'right' },
+  pluto: { size: 18, side: 'left' },
+};
+
+const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
+  .filter(({ planet }) => planet.id !== 'earth-orbit')
+  .map(({ planet, index }) => ({
+    id: planet.id,
+    index,
+    name: planet.name,
+    distance: formatDistance(planet.distanceKm),
+    ...STOP_LOOKS[planet.id as RouteStop],
+  }));
+
+const BADGE_LOOKS = {
+  satellite: { label: 'Satélite', tone: 'is-satellite', burst: undefined },
+  comet: { label: 'Cometa', tone: 'is-comet', burst: ['bg-comet', 'bg-nebula-300'] },
+  supernova: {
+    label: 'Supernova',
+    tone: 'is-supernova',
+    burst: ['bg-supernova', 'bg-star-300', 'bg-flare-500'],
+  },
+} as const;
+
+const ZERO_LABELS = { unknown: 'Fora da base', blank: 'Pulou', timeout: 'Tempo esgotado' } as const;
+
+interface Badge {
   key: number;
-  gain: number;
+  text: string;
   tone: string;
+  burst?: readonly string[];
+  km?: string;
 }
 
 /**
- * Decorative journey shown while playing. After each answer the rocket flies
- * forward by the points earned, or sputters in place when nothing was scored.
+ * The journey seen from behind the rocket, used as the game background. After each
+ * answer the rocket climbs by the points earned while the planets slide past, or
+ * sputters in place when nothing was scored.
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt, RocketArt],
+  imports: [PlanetArt, RocketArt, StarBurst],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },
@@ -87,15 +95,39 @@ export class JourneyScene {
   readonly points = input.required<number>();
   /** Answers given so far; each new one plays an animation. */
   readonly answers = input.required<number>();
+  /** Result of the answer being revealed, shown next to the rocket. */
+  readonly result = input<AnswerResult>();
 
   protected readonly stops = STOPS;
   protected readonly position = computed(() => routePosition(this.points()));
-  protected readonly traveling = signal(false);
+  protected readonly flying = signal(false);
+  protected readonly flightMs = signal(MIN_FLIGHT_MS);
   protected readonly sputtering = signal(false);
-  /** Planets already visited light up when the rocket gets there. */
+  /** Planets light up as the rocket passes them. */
   protected readonly litIndex = signal(0);
   protected readonly arrivingIndex = signal(-1);
-  protected readonly gainEvents = signal<GainEvent[]>([]);
+  /** Distance covered by the last flight, already formatted. */
+  private readonly lastTrip = signal<{ answers: number; km: string } | undefined>(undefined);
+
+  protected readonly badge = computed<Badge | undefined>(() => {
+    const result = this.result();
+    if (!result) {
+      return undefined;
+    }
+    const key = this.answers();
+    if (result.outcome === 'scored' && result.match) {
+      const look = BADGE_LOOKS[result.match.rarity];
+      const trip = this.lastTrip();
+      return {
+        key,
+        text: `${look.label} +${result.points}`,
+        tone: look.tone,
+        burst: look.burst,
+        km: trip?.answers === key ? trip.km : undefined,
+      };
+    }
+    return { key, text: ZERO_LABELS[result.outcome as keyof typeof ZERO_LABELS], tone: 'is-zero' };
+  });
 
   private readonly sound = inject(SoundService);
   private seenAnswers = 0;
@@ -113,7 +145,7 @@ export class JourneyScene {
 
   private react(answers: number, points: number): void {
     const isNewAnswer = answers > this.seenAnswers;
-    const gain = points - this.seenPoints;
+    const from = this.seenPoints;
     this.seenAnswers = answers;
     this.seenPoints = points;
 
@@ -121,19 +153,24 @@ export class JourneyScene {
       this.litIndex.set(reachedIndex(points));
       return;
     }
-    if (gain <= 0) {
+    if (points <= from) {
       this.flag(this.sputtering, 'sputter', SPUTTER_MS);
       return;
     }
 
-    this.flag(this.traveling, 'travel', TRAVEL_MS);
-    this.gainEvents.set([{ key: answers, gain, tone: GAIN_TONES[gain] ?? 'text-star-300' }]);
+    const duration = flightDuration(from, points);
+    this.flightMs.set(duration);
+    this.flag(this.flying, 'fly', duration);
+    this.lastTrip.set({ answers, km: formatDistance(distanceAt(points) - distanceAt(from)) });
 
-    const reached = reachedIndex(points);
-    if (reached > this.litIndex()) {
-      this.later('arrive', TRAVEL_MS * 0.85, () => {
-        this.litIndex.set(reached);
-        this.arrivingIndex.set(reached);
+    // Light each planet roughly when the rocket goes past it.
+    const start = routePosition(from);
+    const end = routePosition(points);
+    for (let index = this.litIndex() + 1; index <= reachedIndex(points); index++) {
+      const share = (index - start) / (end - start);
+      this.later(`arrive-${index}`, duration * Math.min(1, 0.25 + share * 0.7), () => {
+        this.litIndex.set(Math.max(this.litIndex(), index));
+        this.arrivingIndex.set(index);
         this.sound.play('arrive');
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
