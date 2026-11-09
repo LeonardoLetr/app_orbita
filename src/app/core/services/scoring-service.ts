@@ -3,6 +3,7 @@ import { PLANETS } from '../data/planets';
 import { Answer, Category } from '../models/category';
 import { Planet } from '../models/planet';
 import { RARITIES, Rarity } from '../models/rarity';
+import { editDistance } from '../utils/edit-distance';
 import { normalizeAnswer } from '../utils/normalize-answer';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
@@ -30,7 +31,12 @@ export interface AnswerResult {
   points: number;
   /** Accepted answer that matched, when the outcome is "scored". */
   match?: Answer;
+  /** True when a one-letter typo was forgiven to find the match. */
+  corrected?: boolean;
 }
+
+/** Shorter answers must be exact: one letter changes too much in "Sol" or "Rio". */
+const MIN_CORRECTION_LENGTH = 4;
 
 @Injectable({ providedIn: 'root' })
 export class ScoringService {
@@ -45,10 +51,41 @@ export class ScoringService {
       return { input: '', outcome: timedOut ? 'timeout' : 'blank', points: 0 };
     }
 
-    const match = this.lookupFor(category).get(key);
-    return match
-      ? { input: trimmed, outcome: 'scored', points: RARITY_POINTS[match.rarity], match }
-      : { input: trimmed, outcome: 'unknown', points: 0 };
+    const lookup = this.lookupFor(category);
+    const exact = lookup.get(key);
+    if (exact) {
+      return {
+        input: trimmed,
+        outcome: 'scored',
+        points: RARITY_POINTS[exact.rarity],
+        match: exact,
+      };
+    }
+    const corrected = this.closeMatch(lookup, key);
+    if (corrected) {
+      return {
+        input: trimmed,
+        outcome: 'scored',
+        points: RARITY_POINTS[corrected.rarity],
+        match: corrected,
+        corrected: true,
+      };
+    }
+    return { input: trimmed, outcome: 'unknown', points: 0 };
+  }
+
+  /** The only answer one letter away from the typed text, if there is exactly one. */
+  private closeMatch(lookup: Map<string, Answer>, key: string): Answer | undefined {
+    if (key.length < MIN_CORRECTION_LENGTH) {
+      return undefined;
+    }
+    const candidates = new Set<Answer>();
+    for (const [term, answer] of lookup) {
+      if (editDistance(term, key, 1) <= 1) {
+        candidates.add(answer);
+      }
+    }
+    return candidates.size === 1 ? [...candidates][0] : undefined;
   }
 
   /** Farthest planet reached with the given points. */

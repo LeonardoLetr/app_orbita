@@ -22,6 +22,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 | —         | 0      | fora da base ou em branco |
 
 - As respostas são **normalizadas** antes da comparação (minúsculas, sem acentos, sem espaços extras), e sinônimos definidos na base também são aceitos.
+- Resposta fora da base não encerra a categoria: o jogo pede para **tentar de novo** até o tempo acabar (ou até a criança pular). Erro de **uma letra** em palavras de 4 letras ou mais é corrigido automaticamente, e o jogo mostra a grafia certa.
 - O total de pontos define o **destino alcançado**, com animação de viagem e uma curiosidade sobre o planeta:
 
 | Pontos  | Destino         |

@@ -49,15 +49,7 @@
 
   @if (badge(); as badge) {
     @for (item of [badge]; track item.key) {
-      <div class="badge" [class]="item.tone">
-        @if (item.burst; as colors) {
-          <app-star-burst [colors]="colors" [count]="12" [reach]="5" />
-        }
-        <span class="badge-name">{{ item.text }}</span>
-        @if (item.km; as km) {
-          <span class="badge-km">+{{ km }}</span>
-        }
-      </div>
+      <app-flight-badge class="badge-slot" [badge]="item" />
     }
   }
 </div>

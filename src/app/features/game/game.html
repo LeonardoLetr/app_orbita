@@ -125,6 +125,16 @@
           aria-hidden="true"
         ></div>
       }
+      <!-- Always present so screen readers announce the message when it appears. -->
+      <p
+        id="retry-message"
+        class="mx-auto max-w-3xl text-sm font-bold text-flare-400 sm:text-base"
+        aria-live="assertive"
+      >
+        @if (retryMessage(); as message) {
+          <span class="block px-1 pb-1.5">{{ message }}</span>
+        }
+      </p>
       <div class="mx-auto flex max-w-3xl gap-2 sm:gap-3">
         <label for="answer" class="sr-only">Sua resposta</label>
         <input
@@ -136,11 +146,14 @@
           spellcheck="false"
           enterkeyhint="send"
           maxlength="60"
-          class="min-w-0 flex-1 rounded-2xl border-2 border-space-600 bg-space-950/80 px-4 py-3 text-xl text-space-50 placeholder:text-space-400 focus:border-aurora-400 focus:outline-none sm:px-5 sm:py-4 sm:text-2xl short:py-2"
+          class="min-w-0 flex-1 rounded-2xl border-2 bg-space-950/80 px-4 py-3 text-xl text-space-50 placeholder:text-space-400 focus:outline-none sm:px-5 sm:py-4 sm:text-2xl short:py-2"
+          [class]="retryMessage() ? 'border-flare-500' : 'border-space-600 focus:border-aurora-400'"
+          [attr.aria-invalid]="retryMessage() ? true : null"
+          aria-describedby="retry-message"
           [placeholder]="status === 'revealing' ? 'Aguarde…' : 'Sua resposta'"
           [value]="draft()"
           [readOnly]="status === 'revealing'"
-          (input)="draft.set(answerInput.value)"
+          (input)="type(answerInput.value)"
         />
         <!-- mousedown is prevented so tapping the button keeps the keyboard open. -->
         <button
