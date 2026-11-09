@@ -5,7 +5,7 @@ import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
 import { RANDOM } from '../../core/utils/random';
-import { Game, MIN_REVEAL_MS, revealDelay } from './game';
+import { Game, MIN_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
 
 describe('Game', () => {
   const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
@@ -18,13 +18,14 @@ describe('Game', () => {
 
   afterEach(() => fixture.destroy());
 
-  async function render() {
+  async function render(showLaunch = false) {
     TestBed.configureTestingModule({
       imports: [Game],
       providers: [
         provideRouter([]),
         { provide: CategoryRepository, useValue: { getAll: () => Promise.resolve(categories) } },
         { provide: RANDOM, useValue: () => 0 },
+        { provide: SHOW_LAUNCH, useValue: showLaunch },
         provideTestProgress(),
       ],
     });
@@ -131,6 +132,38 @@ describe('Game', () => {
 
     expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
     expect(element.querySelector('#answer')).toBe(input);
+  });
+
+  it('takes off from the ground before the first category', async () => {
+    const element = await render(true);
+
+    expect(element.querySelector('app-launch-layers')).not.toBeNull();
+    expect(element.querySelector('.launch-countdown')?.textContent).toContain('3');
+    expect(element.querySelector('app-question-card')?.classList).toContain('is-waiting');
+    expect(element.querySelector('#answer')?.hasAttribute('data-ready')).toBe(false);
+    expect(element.querySelector('form')?.hasAttribute('inert')).toBe(true);
+  });
+
+  it('ignores answers during the launch', async () => {
+    const element = await render(true);
+
+    await answer(element, 'resposta 0');
+
+    expect(element.querySelector('header')?.textContent).toMatch(/0\s*pts/);
+  });
+
+  it('can skip the launch', async () => {
+    const element = await render(true);
+    const skip = [...element.querySelectorAll('button')].find((button) =>
+      button.textContent?.includes('Pular decolagem'),
+    )!;
+
+    skip.click();
+    await fixture.whenStable();
+
+    expect(element.querySelector('app-launch-layers')).toBeNull();
+    expect(element.querySelector('app-question-card')?.classList).not.toContain('is-waiting');
+    expect(element.querySelector('#answer')?.hasAttribute('data-ready')).toBe(true);
   });
 
   it('keeps short results on screen for a minimum time', () => {

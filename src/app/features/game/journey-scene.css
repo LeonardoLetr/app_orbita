@@ -76,7 +76,8 @@
   transition: opacity 300ms;
 }
 
-.is-flying .speed-lines {
+.is-flying .speed-lines,
+.is-liftoff .speed-lines {
   opacity: 1;
 }
 
@@ -91,13 +92,15 @@
   transition: translate var(--fly);
 }
 
+/* The Earth left behind, well below the rocket; the launch starts on top of it. */
 .earth {
   position: absolute;
-  top: calc(var(--u) * 12.5);
+  top: calc(var(--u) * 46);
   left: 50%;
-  width: calc(var(--u) * 170);
+  width: calc(var(--u) * 100);
   aspect-ratio: 1;
   translate: -50% 0;
+  transform-origin: 50% 0;
   overflow: hidden;
   border-radius: 50%;
   background: radial-gradient(circle at 50% 18%, #5fa5ee, #2f6cc4 45%, #1b3f80 75%);
@@ -231,7 +234,8 @@
   transition: height 300ms ease-out;
 }
 
-.is-flying .trail {
+.is-flying .trail,
+.is-liftoff .trail {
   height: 240%;
 }
 
@@ -278,8 +282,27 @@
     animation-duration: 380ms;
   }
 
-  .is-flying .speed-lines {
+  .is-flying .speed-lines,
+  .is-liftoff .speed-lines {
     animation: streak-down 300ms linear infinite;
+  }
+
+  /* On the launch pad the rocket rumbles until the countdown ends, then climbs. */
+  .is-launching .rocket-bob {
+    animation: rumble 70ms linear 0.9s 13;
+  }
+
+  .is-liftoff .rocket-tilt {
+    animation: wobble 420ms ease-in-out infinite alternate;
+  }
+
+  /* The rocket stands on the Earth, which shrinks and falls away after liftoff. */
+  .is-launching .earth {
+    animation: earth-leave 2.6s cubic-bezier(0.45, 0, 0.25, 1) 1.8s both;
+  }
+
+  .is-liftoff {
+    animation: liftoff-shake 450ms linear;
   }
 
   .rocket-bob {
@@ -369,6 +392,33 @@
   }
   75% {
     rotate: 1.2deg;
+  }
+}
+
+@keyframes earth-leave {
+  from {
+    translate: -50% calc(var(--u) * -40.5);
+    scale: 1.7;
+  }
+}
+
+@keyframes liftoff-shake {
+  20%,
+  60% {
+    translate: -0.15rem 0.1rem;
+  }
+  40%,
+  80% {
+    translate: 0.15rem -0.1rem;
+  }
+}
+
+@keyframes rumble {
+  25% {
+    translate: -0.12rem 0;
+  }
+  75% {
+    translate: 0.12rem 0;
   }
 }
 

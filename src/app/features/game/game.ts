@@ -2,6 +2,7 @@ import {
   Component,
   DestroyRef,
   ElementRef,
+  InjectionToken,
   afterRenderEffect,
   computed,
   effect,
@@ -21,6 +22,7 @@ import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { Result } from '../result/result';
 import { Countdown } from './countdown';
 import { JourneyScene, flightDuration } from './journey-scene';
+import { LAUNCH_MS, LIFTOFF_MS } from './launch-layers';
 import { QuestionCard } from './question-card';
 import { TimerRing } from './timer-ring';
 
@@ -31,6 +33,18 @@ export const MIN_REVEAL_MS = 1500;
 export function revealDelay(pointsBefore: number, pointsAfter: number): number {
   return Math.max(MIN_REVEAL_MS, flightDuration(pointsBefore, pointsAfter) + 700);
 }
+
+/**
+ * Whether each round starts with the launch from the ground. Off for players who ask
+ * for less motion, who go straight to the first category.
+ */
+export const SHOW_LAUNCH = new InjectionToken<boolean>('SHOW_LAUNCH', {
+  providedIn: 'root',
+  factory: () => !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
+});
+
+/** Countdown beats before liftoff, in milliseconds from the start of the launch. */
+const COUNTDOWN_BEATS = [0, 600, 1200];
 
 /** Friendly nudges when an answer is not in the base, used in turns. */
 const RETRY_MESSAGES = [
@@ -57,6 +71,7 @@ const ZERO_ANNOUNCEMENTS = {
     FitVisualViewport,
   ],
   templateUrl: './game.html',
+  styleUrl: './game.css',
 })
 export class Game {
   protected readonly game = inject(GameService);
@@ -109,6 +124,12 @@ export class Game {
   private readonly score = viewChild<ElementRef<HTMLElement>>('score');
   private revealTimer?: ReturnType<typeof setTimeout>;
   private retries = 0;
+  private readonly showLaunch = inject(SHOW_LAUNCH);
+  private launchTimers: ReturnType<typeof setTimeout>[] = [];
+  private endLaunch?: () => void;
+
+  /** The rocket is taking off; the first category comes right after. */
+  protected readonly launching = signal(false);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -119,10 +140,12 @@ export class Game {
     // Background music plays during the game screen, following its switch.
     effect(() => (this.music.enabled() ? this.music.start() : this.music.stop()));
 
-    // Keep the keyboard on the answer field whenever a new category shows up.
+    // Keep the keyboard on the answer field whenever a new category shows up. Without
+    // scrolling: right after the launch the bar is still sliding in from below the screen,
+    // and scrolling to it would push the whole round out of place.
     afterRenderEffect(() => {
-      if (this.game.status() === 'playing') {
-        this.answerInput()?.nativeElement.focus();
+      if (this.game.status() === 'playing' && !this.launching()) {
+        this.answerInput()?.nativeElement.focus({ preventScroll: true });
       }
     });
 
@@ -148,9 +171,45 @@ export class Game {
     this.stopTimers();
     await this.game.start();
     if (this.game.status() === 'playing') {
-      this.sound.play('liftoff');
+      if (this.showLaunch) {
+        await this.launch();
+      } else {
+        this.sound.play('liftoff');
+      }
     }
     this.beginCategory();
+  }
+
+  /** Countdown on the launch pad and the climb into space; resolves when it ends. */
+  private launch(): Promise<void> {
+    this.launching.set(true);
+    const at = (ms: number, action: () => void) => this.launchTimers.push(setTimeout(action, ms));
+    for (const beat of COUNTDOWN_BEATS) {
+      at(beat, () => this.sound.play('tick'));
+    }
+    at(LIFTOFF_MS, () => {
+      this.sound.play('liftoff');
+      this.sound.play('thrust', (LAUNCH_MS - LIFTOFF_MS) / 1000);
+    });
+    return new Promise((resolve) => {
+      this.endLaunch = () => {
+        this.clearLaunch();
+        this.launching.set(false);
+        resolve();
+      };
+      at(LAUNCH_MS, () => this.endLaunch?.());
+    });
+  }
+
+  /** Goes straight to the first category. */
+  protected skipLaunch(): void {
+    this.endLaunch?.();
+  }
+
+  private clearLaunch(): void {
+    this.launchTimers.forEach((timer) => clearTimeout(timer));
+    this.launchTimers = [];
+    this.endLaunch = undefined;
   }
 
   protected submit(event: Event): void {
@@ -167,6 +226,9 @@ export class Game {
   }
 
   private finishCategory(timedOut: boolean): void {
+    if (this.launching()) {
+      return;
+    }
     const before = this.game.totalPoints();
     const result = this.game.answer(this.draft(), timedOut);
     if (!result) {
@@ -234,6 +296,7 @@ export class Game {
 
   private stopTimers(): void {
     this.countdown.stop();
+    this.clearLaunch();
     clearTimeout(this.revealTimer);
   }
 }

@@ -1,10 +1,11 @@
 import { expect, test } from '@playwright/test';
-import { answer, loadCategories } from './helpers';
+import { LAUNCH_WAIT, answer, loadCategories } from './helpers';
 
 test('asks to try again for an answer that is not in the base', async ({ page, request }) => {
   const categories = await loadCategories(request);
   await page.goto('/jogar');
   const field = page.locator('#answer');
+  await expect(page.locator('#answer[data-ready]')).toBeVisible({ timeout: LAUNCH_WAIT });
 
   await field.fill('palavra inventada');
   await field.press('Enter');
@@ -25,7 +26,7 @@ test('accepts an answer with one wrong letter and shows the right spelling', asy
   const categories = await loadCategories(request);
   await page.goto('/jogar');
   const field = page.locator('#answer[data-ready]');
-  await expect(field).toBeVisible();
+  await expect(field).toBeVisible({ timeout: LAUNCH_WAIT });
   const title = (await page.locator('#category-title').innerText()).trim();
   const category = categories.find((c) => c.title === title)!;
   const target = category.answers.find((a) => a.text.length >= 6 && !a.text.includes(' '))!;

@@ -75,7 +75,7 @@ export function cardBack(result: AnswerResult, km?: string): CardBack {
   imports: [NgTemplateOutlet, StarBurst],
   templateUrl: './question-card.html',
   styleUrl: './question-card.css',
-  host: { class: 'relative block' },
+  host: { class: 'relative block', '[class.is-waiting]': 'waiting()' },
 })
 export class QuestionCard {
   readonly category = input.required<Category>();
@@ -87,6 +87,8 @@ export class QuestionCard {
   readonly result = input<AnswerResult>();
   /** Distance the rocket travelled for this answer, already formatted. */
   readonly km = input<string>();
+  /** Kept out of sight (with its space saved) until the launch ends, then dealt. */
+  readonly waiting = input(false);
 
   protected readonly back = computed(() => {
     const result = this.result();

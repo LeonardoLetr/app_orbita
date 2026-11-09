@@ -6,6 +6,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 ## Como funciona
 
+- Cada partida começa com a **decolagem**: o foguete parte de cima da Terra, com contagem "3, 2, 1, Decolar!" e fumaça na plataforma, e o planeta encolhe e fica para trás enquanto ele sobe. Dá para pular, e quem pede menos movimento no aparelho vai direto para a primeira categoria.
 - Cada partida sorteia **7 categorias** de uma base local com **42 categorias** e cerca de **2.700 respostas** (ex.: "Animal que vive no mar", "País da África", "Constelação", "Dinossauro", "Brincadeira de criança").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - Cada categoria aparece num **cartão** no topo da tela. Ao responder, o cartão vira e mostra o nível, os pontos e quantos km o foguete percorreu; depois o próximo cartão entra e o anterior sai voando. Como o cartão fica no topo, o resultado aparece mesmo com o teclado do celular aberto.

@@ -3,7 +3,8 @@ import { Rarity } from '../models/rarity';
 import { AudioOutput } from './audio-output';
 import { PreferencesService } from './preferences-service';
 
-export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish' | 'thrust' | 'deal';
+export type SoundEffect =
+  Rarity | 'miss' | 'tick' | 'liftoff' | 'arrive' | 'finish' | 'thrust' | 'deal';
 
 interface Note {
   /** Frequency in Hz; a pair slides from the first to the second. */
@@ -42,6 +43,8 @@ const EFFECTS: Record<SoundEffect, Note[]> = {
     wave: 'triangle' as const,
   })),
   miss: [{ freq: [240, 140], at: 0, length: 0.35, wave: 'square', volume: 0.05 }],
+  // One beat of the launch countdown.
+  tick: [{ freq: 880, at: 0, length: 0.09, wave: 'square', volume: 0.05 }],
   liftoff: [{ freq: [160, 620], at: 0, length: 0.7, wave: 'sawtooth', volume: 0.04 }],
   arrive: [
     { freq: 1047, at: 0, length: 0.3, wave: 'sine' },

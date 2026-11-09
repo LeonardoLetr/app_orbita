@@ -1,6 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { STORAGE, createMemoryStore } from '../../core/utils/storage';
 import { JourneyScene, flightDuration } from './journey-scene';
+import { LIFTOFF_MS } from './launch-layers';
 
 describe('flightDuration', () => {
   it('does not fly when nothing was gained', () => {
@@ -85,5 +86,24 @@ describe('JourneyScene', () => {
 
     expect(scene().classList).toContain('is-sputtering');
     expect(scene().style.getPropertyValue('--pos')).toBe('0.25');
+  });
+
+  it('takes off from the launch pad after the countdown', () => {
+    fixture.componentRef.setInput('launching', true);
+    fixture.detectChanges();
+
+    expect(element().querySelector('app-launch-layers .pad')).not.toBeNull();
+    expect(scene().classList).toContain('is-launching');
+    expect(scene().classList).not.toContain('is-liftoff');
+
+    vi.advanceTimersByTime(LIFTOFF_MS);
+    fixture.detectChanges();
+    expect(scene().classList).toContain('is-liftoff');
+    expect(element().querySelector('.flame')?.classList).toContain('is-boosting');
+
+    fixture.componentRef.setInput('launching', false);
+    fixture.detectChanges();
+    expect(element().querySelector('app-launch-layers')).toBeNull();
+    expect(scene().classList).not.toContain('is-liftoff');
   });
 });

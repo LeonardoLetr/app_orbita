@@ -15,6 +15,7 @@ import { SoundService } from '../../core/services/sound-service';
 import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
+import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
@@ -63,7 +64,7 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt, RocketArt],
+  imports: [PlanetArt, RocketArt, LaunchLayers],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },
@@ -73,6 +74,11 @@ export class JourneyScene {
   readonly points = input.required<number>();
   /** Answers given so far; each new one plays an animation. */
   readonly answers = input.required<number>();
+  /** Start of the round: the rocket takes off from the ground. */
+  readonly launching = input(false);
+
+  /** The rocket has left the launch pad. */
+  protected readonly liftoff = signal(false);
 
   protected readonly stops = STOPS;
   protected readonly position = computed(() => routePosition(this.points()));
@@ -93,6 +99,16 @@ export class JourneyScene {
       const answers = this.answers();
       const points = this.points();
       untracked(() => this.react(answers, points));
+    });
+    effect(() => {
+      const launching = this.launching();
+      untracked(() => {
+        clearTimeout(this.timers.get('liftoff'));
+        this.liftoff.set(false);
+        if (launching) {
+          this.later('liftoff', LIFTOFF_MS, () => this.liftoff.set(true));
+        }
+      });
     });
     inject(DestroyRef).onDestroy(() => this.timers.forEach((timer) => clearTimeout(timer)));
   }
