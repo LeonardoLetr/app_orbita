@@ -223,6 +223,18 @@
   height: 240%;
 }
 
+.spark {
+  position: absolute;
+  top: 92%;
+  left: calc(50% + var(--x));
+  width: 9%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--color-star-300);
+  box-shadow: 0 0 0.3rem var(--color-flare-400);
+  opacity: 0;
+}
+
 .puff {
   position: absolute;
   top: 95%;
@@ -243,8 +255,23 @@
 }
 
 @media (prefers-reduced-motion: no-preference) {
+  /* The sky keeps streaming down, so the rocket always looks like it is flying. */
+  .stars-far {
+    animation: drift-far 5s linear infinite;
+  }
+
   .stars-near {
-    animation: twinkle-soft 2.6s ease-in-out infinite alternate;
+    animation:
+      drift-near 2.4s linear infinite,
+      twinkle-soft 2.6s ease-in-out infinite alternate;
+  }
+
+  .spark {
+    animation: spark 640ms ease-in infinite;
+  }
+
+  .is-flying .spark {
+    animation-duration: 380ms;
   }
 
   .is-flying .speed-lines {
@@ -263,7 +290,19 @@
     animation: sputter 600ms ease-in-out;
   }
 
-  .is-sputtering .puff {
+  .is-sputtering .spark {
+    position: absolute;
+    top: 92%;
+    left: calc(50% + var(--x));
+    width: 9%;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--color-star-300);
+    box-shadow: 0 0 0.3rem var(--color-flare-400);
+    opacity: 0;
+  }
+
+  .puff {
     animation: puff 700ms ease-out both;
   }
 
@@ -276,6 +315,32 @@
   .world,
   .stars {
     transition: none;
+  }
+}
+
+/* Each loop moves exactly one background tile, so it repeats without a jump. */
+@keyframes drift-far {
+  to {
+    translate: 0 4.5rem;
+  }
+}
+
+@keyframes drift-near {
+  to {
+    translate: 0 7rem;
+  }
+}
+
+@keyframes spark {
+  0% {
+    opacity: 0.95;
+    translate: 0 0;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: calc(var(--x) * 0.6) 220%;
+    scale: 0.3;
   }
 }
 
@@ -292,8 +357,14 @@
 }
 
 @keyframes bob {
+  25% {
+    rotate: -1.2deg;
+  }
   50% {
     translate: 0 -0.25rem;
+  }
+  75% {
+    rotate: 1.2deg;
   }
 }
 
