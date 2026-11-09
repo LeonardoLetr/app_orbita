@@ -120,6 +120,8 @@ describe('Game', () => {
     expect(input.hasAttribute('data-ready')).toBe(false);
     expect(input.placeholder).toBe('Aguarde…');
     expect(input.value).toBe('');
+    // The keyboard goes away so the flight can be seen.
+    expect(document.activeElement).not.toBe(input);
   });
 
   it('keeps the same answer field between categories', async () => {
@@ -132,6 +134,7 @@ describe('Game', () => {
 
     expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
     expect(element.querySelector('#answer')).toBe(input);
+    expect(document.activeElement).toBe(input);
   });
 
   it('takes off from the ground before the first category', async () => {

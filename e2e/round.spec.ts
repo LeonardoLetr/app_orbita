@@ -39,6 +39,8 @@ test('keeps the same answer field for every category', async ({ page, request })
   const first = await field.elementHandle();
 
   await answer(page, categories, 'satellite');
+  // The keyboard goes away during the flight and comes back with the next category.
+  await expect(field).not.toBeFocused();
   await expect(page.getByText('Categoria 2 de 7')).toBeVisible({ timeout: 5_000 });
 
   await expect(field).toBeFocused();

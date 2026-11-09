@@ -130,6 +130,8 @@ export class Game {
 
   /** The rocket is taking off; the first category comes right after. */
   protected readonly launching = signal(false);
+  /** Whether the answer field has the keyboard, to invite a tap when it does not. */
+  protected readonly fieldFocused = signal(false);
 
   constructor() {
     inject(DestroyRef).onDestroy(() => {
@@ -240,6 +242,9 @@ export class Game {
     }
     this.countdown.stop();
     this.clearField();
+    // Put the phone keyboard away, so the whole flight can be seen. The field gets the
+    // focus back with the next category (where the browser allows it without a tap).
+    this.answerInput()?.nativeElement.blur();
     this.revealKm.set(
       result.points > 0
         ? formatDistance(distanceAt(before + result.points) - distanceAt(before))

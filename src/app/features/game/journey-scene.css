@@ -89,7 +89,10 @@
   right: 0;
   height: 0;
   translate: 0 calc(var(--pos) * var(--gap));
-  transition: translate var(--fly);
+  /* top follows the screen height (keyboard open or closed) with a short glide. */
+  transition:
+    translate var(--fly),
+    top 350ms ease-out;
 }
 
 /* The Earth left behind, well below the rocket; the launch starts on top of it. */
@@ -211,6 +214,7 @@
   left: 50%;
   width: calc(var(--u) * 10.5);
   translate: -50% -50%;
+  transition: top 350ms ease-out;
 }
 
 .rocket-art {
