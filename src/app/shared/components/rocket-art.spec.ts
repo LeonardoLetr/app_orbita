@@ -30,4 +30,12 @@ describe('RocketArt', () => {
 
     expect((fixture.nativeElement as HTMLElement).querySelector('rect')).toBeNull();
   });
+
+  it('can leave the flame out, when one is drawn behind it', () => {
+    const fixture = TestBed.createComponent(RocketArt);
+    fixture.componentRef.setInput('flame', false);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.flame')).toBeNull();
+  });
 });

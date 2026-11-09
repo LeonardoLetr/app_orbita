@@ -44,7 +44,12 @@
   <div class="rocket">
     <div class="rocket-bob">
       <div #rocketTilt class="rocket-tilt">
-        <app-rocket-art class="rocket-art" [upright]="true" [boosting]="flying() || liftoff()" />
+        <app-rocket-art
+          class="rocket-art"
+          [upright]="true"
+          [boosting]="flying() || liftoff()"
+          [flame]="!exhaust()?.active()"
+        />
       </div>
     </div>
   </div>

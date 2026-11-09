@@ -7,10 +7,12 @@ import { Component, input } from '@angular/core';
 @Component({
   selector: 'g[appRocketShape]',
   template: `
-    <svg:g class="flame" [class.is-boosting]="boosting()">
-      <svg:path d="M15 18C9 11 3 13 0 18c3 5 9 7 15 0z" class="fill-flare-500" />
-      <svg:path d="M15 18c-4-3.5-8-3-10 0 2 3 6 3.5 10 0z" class="flame-core fill-star-300" />
-    </svg:g>
+    @if (flame()) {
+      <svg:g class="flame" [class.is-boosting]="boosting()">
+        <svg:path d="M15 18C9 11 3 13 0 18c3 5 9 7 15 0z" class="fill-flare-500" />
+        <svg:path d="M15 18c-4-3.5-8-3-10 0 2 3 6 3.5 10 0z" class="flame-core fill-star-300" />
+      </svg:g>
+    }
     <svg:path
       d="M21 10 15 2h9l8 8zm0 16-6 8h9l8-8z"
       class="fill-nebula-500 stroke-ink"
@@ -76,4 +78,6 @@ import { Component, input } from '@angular/core';
 export class RocketShape {
   /** Bigger flame, while the rocket speeds up. */
   readonly boosting = input(false);
+  /** Draw the flame; off when an animated flame is drawn behind the rocket instead. */
+  readonly flame = input(true);
 }

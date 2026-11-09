@@ -22,7 +22,7 @@ import { RocketShape } from './rocket-shape';
           : 'w-full'
       "
     >
-      <g appRocketShape [boosting]="boosting()"></g>
+      <g appRocketShape [boosting]="boosting()" [flame]="flame()"></g>
     </svg>
   `,
 })
@@ -31,4 +31,6 @@ export class RocketArt {
   readonly boosting = input(false);
   /** Point up instead of right. */
   readonly upright = input(false);
+  /** Draw the flame; off when an animated flame is drawn behind the rocket instead. */
+  readonly flame = input(true);
 }
