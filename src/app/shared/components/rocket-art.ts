@@ -2,8 +2,8 @@ import { Component, input } from '@angular/core';
 import { RocketShape } from './rocket-shape';
 
 /**
- * The game's rocket, with a small Brazilian flag. Drawn facing right; `upright`
- * turns it to point up inside a tall box. Decorative only.
+ * The game's rocket. Drawn facing right; `upright` turns it to point up inside a
+ * tall box. Decorative only.
  */
 @Component({
   selector: 'app-rocket-art',
@@ -22,7 +22,7 @@ import { RocketShape } from './rocket-shape';
           : 'w-full'
       "
     >
-      <g appRocketShape [boosting]="boosting()" [upright]="upright()"></g>
+      <g appRocketShape [boosting]="boosting()"></g>
     </svg>
   `,
 })

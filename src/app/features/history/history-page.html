@@ -8,7 +8,7 @@
     </a>
   </header>
 
-  <h1 class="text-4xl font-bold sm:text-5xl">Histórico</h1>
+  <h1 class="title-3d -rotate-1 self-start text-5xl sm:text-6xl">Histórico</h1>
 
   @if (progress.rounds().length) {
     <p class="-mt-3 text-space-200">
@@ -22,7 +22,7 @@
 
     <ol class="flex flex-col gap-3">
       @for (round of progress.rounds(); track round.id) {
-        <li class="rounded-3xl border border-space-800 bg-space-900/70">
+        <li class="panel">
           <details class="group">
             <summary
               class="flex cursor-pointer list-none items-center gap-3 rounded-3xl px-4 py-3 sm:gap-4 sm:px-5 sm:py-4"
@@ -30,10 +30,10 @@
               <app-planet-art class="size-10 shrink-0 sm:size-12" [planet]="round.planetId" />
               <div class="min-w-0 flex-1">
                 <p class="flex items-baseline justify-between gap-2">
-                  <span class="truncate text-lg font-bold">{{ planetName(round.planetId) }}</span>
-                  <span
-                    class="font-display text-lg font-bold whitespace-nowrap text-star-400 sm:text-xl"
-                  >
+                  <span class="truncate text-lg font-extrabold">{{
+                    planetName(round.planetId)
+                  }}</span>
+                  <span class="font-display text-xl whitespace-nowrap text-star-400 sm:text-2xl">
                     {{ round.points }} pts
                   </span>
                 </p>
@@ -51,12 +51,12 @@
               </svg>
             </summary>
 
-            <ol class="divide-y divide-space-800 border-t border-space-800">
+            <ol class="divide-y-2 divide-space-700 border-t-2 border-space-700">
               @for (answer of round.answers; track $index) {
                 <li class="flex items-center justify-between gap-3 px-4 py-3 sm:px-5">
                   <div class="min-w-0">
                     <p class="text-sm text-space-200">{{ answer.categoryTitle }}</p>
-                    <p class="truncate font-bold">{{ answer.result.input || '—' }}</p>
+                    <p class="truncate font-extrabold">{{ answer.result.input || '—' }}</p>
                   </div>
                   <app-rarity-badge class="shrink-0 text-sm" [result]="answer.result" />
                 </li>
@@ -69,7 +69,7 @@
 
     <button
       type="button"
-      class="self-center rounded-2xl border-2 border-flare-500/60 px-5 py-3 font-bold text-flare-400 hover:bg-flare-500/10"
+      class="self-center rounded-2xl border-[3px] border-flare-500 px-5 py-3 font-display text-lg tracking-wide text-flare-400 hover:bg-flare-500/10"
       (click)="clear()"
     >
       Apagar histórico
@@ -77,12 +77,7 @@
   } @else {
     <div class="m-auto flex flex-col items-center gap-4 text-center">
       <p class="text-lg text-space-200">Nenhuma partida por aqui ainda.</p>
-      <a
-        routerLink="/jogar"
-        class="rounded-2xl bg-star-400 px-6 py-3 text-lg font-extrabold text-space-950 hover:bg-star-300"
-      >
-        Começar partida
-      </a>
+      <a routerLink="/jogar" class="btn btn-primary px-6 py-3 text-xl"> Começar partida </a>
     </div>
   }
 </main>

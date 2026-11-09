@@ -6,7 +6,7 @@
 
   <div class="flex flex-col items-center gap-1 text-center">
     <p
-      class="reveal text-sm font-bold tracking-widest text-space-200 uppercase"
+      class="reveal font-display text-lg tracking-wider text-space-200 uppercase"
       style="--delay: 1.5s"
     >
       Você chegou {{ preposition() }}
@@ -15,12 +15,12 @@
       #heading
       id="result-title"
       tabindex="-1"
-      class="reveal text-6xl leading-none font-bold text-star-400 [text-shadow:0_0.25rem_1.5rem_rgb(255_207_77/0.35)] focus:outline-none sm:text-7xl short:text-5xl"
+      class="reveal title-3d text-6xl leading-none focus:outline-none sm:text-7xl short:text-5xl"
       style="--delay: 1.6s"
     >
       {{ destination().name }}
     </h1>
-    <p class="reveal mt-2 font-display text-2xl font-bold sm:text-3xl" style="--delay: 1.7s">
+    <p class="reveal mt-3 font-display text-3xl sm:text-4xl" style="--delay: 1.7s">
       <span class="sr-only">{{ points() }}</span>
       <span
         aria-hidden="true"
@@ -32,7 +32,7 @@
     </p>
     <p class="reveal text-space-200" style="--delay: 1.8s">
       @if (next(); as next) {
-        Faltaram <strong class="text-space-50">{{ next.minPoints - points() }} pts</strong> para
+        Faltaram <strong class="text-star-400">{{ next.minPoints - points() }} pts</strong> para
         chegar {{ next.toName }}.
       } @else {
         Você chegou ao ponto mais distante da viagem!
@@ -45,18 +45,20 @@
         style="--delay: 2s"
       >
         @if (outcome.isNewBest && !outcome.isFirstRound) {
-          <span class="relative rounded-full bg-star-400 px-4 py-1.5 text-space-950">
+          <span
+            class="relative -rotate-2 rounded-full border-[3px] border-ink bg-star-400 px-4 py-1 font-display text-lg tracking-wide text-ink"
+          >
             <app-star-burst [count]="10" [reach]="4" [delay]="2100" [colors]="['bg-star-300']" />
             Novo recorde!
           </span>
         } @else if (!outcome.isNewBest) {
-          <span class="rounded-full border border-space-600 px-4 py-1.5 text-space-200">
+          <span class="rounded-full border-[3px] border-space-600 px-4 py-1 text-space-200">
             Seu recorde: {{ progress.bestPoints() }} pts
           </span>
         }
         @if (outcome.isNewPlanet) {
           <span
-            class="rounded-full border border-nebula-400/60 bg-nebula-600/20 px-4 py-1.5 text-nebula-300"
+            class="rotate-2 rounded-full border-[3px] border-ink bg-nebula-400 px-4 py-1 font-display text-lg tracking-wide text-ink"
           >
             Novo destino na coleção
           </span>
@@ -76,15 +78,15 @@
   }
 
   <div class="flex flex-col gap-3">
-    <h2 class="reveal text-xl font-bold" style="--delay: 2.4s">Suas respostas</h2>
+    <h2 class="reveal text-3xl" style="--delay: 2.4s">Suas respostas</h2>
     <ol class="flex flex-col gap-2">
       @for (row of rows(); track row.entry.category.id; let i = $index) {
         <!-- The category gets the whole width; the answer shares its line with the level. -->
         <li
-          class="reveal grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-3 rounded-2xl border border-space-800 bg-space-900/70 px-4 py-3"
+          class="reveal grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-3 rounded-2xl border-[3px] border-space-700 bg-space-900 px-4 py-3"
           [style.--delay]="2.5 + i * 0.08 + 's'"
         >
-          <span class="row-span-2 text-center font-display text-sm font-bold text-space-400">
+          <span class="row-span-2 text-center font-display text-xl text-candy-400">
             {{ i + 1 }}
           </span>
           <p
@@ -92,7 +94,7 @@
           >
             {{ row.entry.category.title }}
           </p>
-          <p class="text-lg font-bold break-words hyphens-auto max-[359px]:text-base">
+          <p class="text-lg font-extrabold break-words hyphens-auto max-[359px]:text-base">
             {{ row.entry.result?.input || '—' }}
             @if (row.counted; as counted) {
               <span class="text-sm font-semibold text-space-200">→ {{ counted }}</span>
@@ -112,30 +114,23 @@
     </ol>
   </div>
 
-  <aside
-    class="reveal rounded-3xl border border-nebula-500/40 bg-nebula-600/15 px-5 py-4"
-    style="--delay: 3s"
-  >
-    <p class="text-sm font-bold tracking-widest text-nebula-300 uppercase">
+  <aside class="reveal sticker rotate-1 px-5 py-4" style="--delay: 3s">
+    <p class="font-display text-lg tracking-wider text-candy-600 uppercase">
       Curiosidade sobre {{ destination().name }}
     </p>
-    <p class="mt-1 text-lg">{{ destination().fact }}</p>
+    <p class="mt-1 text-lg font-bold">{{ destination().fact }}</p>
   </aside>
 
   <div class="reveal flex flex-col gap-3 sm:flex-row" style="--delay: 3.1s">
     <button
       type="button"
-      class="flex-1 rounded-2xl bg-star-400 px-6 py-4 text-lg font-extrabold text-space-950 hover:bg-star-300"
+      class="btn btn-primary flex-1 px-6 py-4 text-2xl"
       (click)="playAgain.emit()"
     >
       Jogar de novo
     </button>
     @if (canShare) {
-      <button
-        type="button"
-        class="flex-1 rounded-2xl border-2 border-space-600 px-6 py-4 text-lg font-bold hover:border-space-400"
-        (click)="share()"
-      >
+      <button type="button" class="btn btn-secondary flex-1 px-6 py-4 text-2xl" (click)="share()">
         {{ copied() ? 'Copiado!' : 'Compartilhar' }}
       </button>
     }

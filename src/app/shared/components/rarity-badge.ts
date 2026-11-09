@@ -16,12 +16,13 @@ const OUTCOME_LABELS: Record<Exclude<AnswerOutcome, 'scored'>, string> = {
   timeout: 'Tempo esgotado',
 };
 
-export const RARITY_STYLES: Record<Rarity, string> = {
-  satellite: 'border-satellite/50 bg-satellite/10 text-satellite',
-  meteorite: 'border-meteorite/50 bg-meteorite/10 text-meteorite',
-  comet: 'border-comet/50 bg-comet/10 text-comet',
-  pulsar: 'border-pulsar/50 bg-pulsar/10 text-pulsar',
-  supernova: 'border-supernova/50 bg-supernova/10 text-supernova',
+/** Solid stickers in the level color, with dark lettering. */
+const RARITY_STYLES: Record<Rarity, string> = {
+  satellite: 'border-ink bg-satellite text-ink',
+  meteorite: 'border-ink bg-meteorite text-ink',
+  comet: 'border-ink bg-comet text-ink',
+  pulsar: 'border-ink bg-pulsar text-ink',
+  supernova: 'border-ink bg-supernova text-ink',
 };
 
 const NEUTRAL_STYLE = 'border-space-600 bg-space-800 text-space-200';
@@ -32,7 +33,7 @@ const NEUTRAL_STYLE = 'border-space-600 bg-space-800 text-space-200';
   host: { class: 'inline-flex' },
   template: `
     <span
-      class="inline-flex items-center rounded-full border-2 px-[1.15em] py-[0.3em] font-bold whitespace-nowrap"
+      class="inline-flex items-center rounded-full border-[3px] px-[1em] py-[0.2em] font-display tracking-wide whitespace-nowrap"
       [class]="style()"
     >
       {{ label() }}

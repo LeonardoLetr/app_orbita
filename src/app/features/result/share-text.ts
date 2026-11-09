@@ -22,5 +22,5 @@ export function shareText(
   const marks = results.map((result) =>
     result?.match ? LEVEL_MARKS[result.match.rarity] : ZERO_MARK,
   );
-  return `🚀 Órbita: cheguei ${destination.toName} com ${points} pts!\n${marks.join('')}\n${url}`;
+  return `🚀 Astropalavra: cheguei ${destination.toName} com ${points} pts!\n${marks.join('')}\n${url}`;
 }

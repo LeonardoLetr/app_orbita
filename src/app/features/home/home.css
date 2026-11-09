@@ -1,0 +1,13 @@
+/* The logo floats gently, like something in orbit. */
+@media (prefers-reduced-motion: no-preference) {
+  .float {
+    animation: float 4s ease-in-out infinite;
+  }
+}
+
+@keyframes float {
+  50% {
+    translate: 0 -0.5rem;
+    rotate: 4deg;
+  }
+}

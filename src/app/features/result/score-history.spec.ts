@@ -36,7 +36,7 @@ describe('ScoreHistory', () => {
     const bars = element.querySelectorAll('.bar');
 
     expect(bars[2].className).toContain('bg-[#c78600]');
-    expect(bars[0].className).toContain('bg-[#5b628f]');
+    expect(bars[0].className).toContain('bg-[#6b5a9e]');
     expect(element.textContent).toContain('agora');
     expect(element.textContent).toContain('350');
   });
