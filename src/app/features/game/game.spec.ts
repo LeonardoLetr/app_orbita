@@ -55,9 +55,9 @@ describe('Game', () => {
 
     await answer(element, 'resposta 0');
 
-    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +20');
-    expect(element.querySelector('header')?.textContent).toMatch(/20\s*pts/);
-    expect(element.querySelector('[aria-live]')?.textContent).toContain('Cometa, mais 20 pontos.');
+    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+    expect(element.querySelector('header')?.textContent).toMatch(/50\s*pts/);
+    expect(element.querySelector('[aria-live]')?.textContent).toContain('Cometa, mais 50 pontos.');
   });
 
   it('shows when an answer is not in the base', async () => {
@@ -72,7 +72,7 @@ describe('Game', () => {
     const element = await render();
 
     expect(element.querySelector('app-journey-scene')).not.toBeNull();
-    expect(element.textContent).toMatch(/Próximo:\s*Lua\s*· faltam\s*20 pts/);
+    expect(element.textContent).toMatch(/Próximo:\s*Lua\s*· faltam\s*40 pts/);
   });
 
   it('waits while the rocket flies before the next category', async () => {
@@ -91,7 +91,7 @@ describe('Game', () => {
     const input = element.querySelector('#answer');
 
     await answer(element, 'resposta 0');
-    await new Promise((resolve) => setTimeout(resolve, revealDelay(0, 20) + 100));
+    await new Promise((resolve) => setTimeout(resolve, revealDelay(0, 50) + 100));
     await fixture.whenStable();
 
     expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');

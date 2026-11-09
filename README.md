@@ -1,37 +1,39 @@
 # Órbita
 
-Jogo web de categorias com tema espacial. A cada partida o jogador recebe 5 categorias e dá uma resposta para cada uma. Quanto mais rara a resposta, mais pontos — e mais longe a nave viaja pelo Sistema Solar.
+Jogo web de categorias com tema espacial. A cada partida o jogador recebe 7 categorias e dá uma resposta para cada uma. Quanto mais rara a resposta, mais pontos — e mais longe a nave viaja pelo Sistema Solar.
 
 Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 ## Como funciona
 
-- Cada partida sorteia **5 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
+- Cada partida sorteia **7 categorias** de uma base local (ex.: "Animal que vive no mar", "País da América do Sul").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro opcional de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - A pontuação de cada resposta aparece logo depois de responder, e o foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra, e cada resposta mostra quantos km o foguete percorreu.
 - No celular, a barra de resposta fica colada em cima do teclado, e o teclado não fecha durante a partida.
 - Cada categoria tem uma lista de respostas aceitas, cada uma com um nível de raridade:
 
-| Nível        | Pontos | Significado              |
-| ------------ | ------ | ------------------------ |
-| 🛰️ Satélite  | +10    | resposta comum           |
-| ☄️ Cometa    | +20    | resposta incomum         |
-| 💥 Supernova | +30    | resposta rara            |
-| —            | 0      | fora da base ou em branco |
+| Nível     | Pontos | Significado               |
+| --------- | ------ | ------------------------- |
+| Satélite  | +10    | resposta comum            |
+| Meteorito | +25    | pouco comum               |
+| Cometa    | +50    | incomum                   |
+| Pulsar    | +75    | rara                      |
+| Supernova | +100   | raríssima                 |
+| —         | 0      | fora da base ou em branco |
 
 - As respostas são **normalizadas** antes da comparação (minúsculas, sem acentos, sem espaços extras), e sinônimos definidos na base também são aceitos.
 - O total de pontos define o **destino alcançado**, com animação de viagem e uma curiosidade sobre o planeta:
 
 | Pontos  | Destino         |
 | ------- | --------------- |
-| 0–19    | Órbita da Terra |
-| 20–39   | Lua             |
-| 40–59   | Marte           |
-| 60–79   | Júpiter         |
-| 80–99   | Saturno         |
-| 100–119 | Urano           |
-| 120–139 | Netuno          |
-| 140–150 | Plutão          |
+| 0–39    | Órbita da Terra |
+| 40–99   | Lua             |
+| 100–179 | Marte           |
+| 180–269 | Júpiter         |
+| 270–369 | Saturno         |
+| 370–479 | Urano           |
+| 480–599 | Netuno          |
+| 600–700 | Plutão          |
 
 - A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
 - **Jogar de novo** sorteia novas categorias, sem limite.
@@ -81,13 +83,15 @@ O jogo só conhece as classes `CategoryRepository` (categorias) e `ProgressRepos
   "title": "Animal que vive no mar",
   "answers": [
     { "text": "Tubarão", "rarity": "satellite" },
+    { "text": "Foca", "rarity": "meteorite" },
     { "text": "Peixe-boi", "rarity": "comet", "synonyms": ["manati"] },
+    { "text": "Coral", "rarity": "pulsar" },
     { "text": "Narval", "rarity": "supernova" }
   ]
 }
 ```
 
-`rarity` aceita `satellite`, `comet` ou `supernova`. O teste `categories-data.spec.ts` garante que cada categoria tenha os três níveis e nenhuma resposta repetida.
+`rarity` aceita `satellite`, `meteorite`, `comet`, `pulsar` ou `supernova`. O teste `categories-data.spec.ts` garante que cada categoria tenha os cinco níveis e nenhuma resposta repetida.
 
 ## Deploy
 

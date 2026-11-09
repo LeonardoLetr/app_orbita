@@ -270,6 +270,14 @@
   background: var(--color-comet);
 }
 
+.is-meteorite .badge-name {
+  background: var(--color-meteorite);
+}
+
+.is-pulsar .badge-name {
+  background: var(--color-pulsar);
+}
+
 .is-supernova .badge-name {
   background: var(--color-supernova);
 }

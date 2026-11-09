@@ -4,24 +4,24 @@ import { distanceAt, formatDistance, reachedIndex, routePosition } from './journ
 describe('routePosition', () => {
   it('maps points to stops along the route', () => {
     expect(routePosition(0)).toBe(0);
-    expect(routePosition(10)).toBe(0.5);
-    expect(routePosition(20)).toBe(1);
-    expect(routePosition(110)).toBe(5.5);
-    expect(routePosition(140)).toBe(7);
+    expect(routePosition(20)).toBe(0.5);
+    expect(routePosition(40)).toBe(1);
+    expect(routePosition(70)).toBe(1.5);
+    expect(routePosition(600)).toBe(7);
   });
 
   it('goes only a little past the last stop', () => {
-    expect(routePosition(150)).toBe(7.5);
-    expect(routePosition(500)).toBe(7.5);
+    expect(routePosition(660)).toBe(7.5);
+    expect(routePosition(700)).toBe(7.5);
   });
 });
 
 describe('reachedIndex', () => {
   it('is the farthest stop with enough points', () => {
     expect(reachedIndex(0)).toBe(0);
-    expect(reachedIndex(19)).toBe(0);
-    expect(reachedIndex(20)).toBe(1);
-    expect(reachedIndex(150)).toBe(7);
+    expect(reachedIndex(39)).toBe(0);
+    expect(reachedIndex(40)).toBe(1);
+    expect(reachedIndex(700)).toBe(7);
   });
 });
 
@@ -33,8 +33,8 @@ describe('distanceAt', () => {
   });
 
   it('grows between stops', () => {
-    expect(distanceAt(10)).toBeGreaterThan(distanceAt(0));
-    expect(distanceAt(10)).toBeLessThan(distanceAt(20));
+    expect(distanceAt(20)).toBeGreaterThan(distanceAt(0));
+    expect(distanceAt(20)).toBeLessThan(distanceAt(40));
   });
 });
 

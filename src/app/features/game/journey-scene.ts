@@ -11,10 +11,12 @@ import {
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
+import { Rarity } from '../../core/models/rarity';
 import { AnswerResult } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
 import { distanceAt, formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
+import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { RocketArt } from '../../shared/components/rocket-art';
 import { StarBurst } from '../../shared/components/star-burst';
 
@@ -58,15 +60,13 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
     ...STOP_LOOKS[planet.id as RouteStop],
   }));
 
-const BADGE_LOOKS = {
-  satellite: { label: 'Satélite', tone: 'is-satellite', burst: undefined },
-  comet: { label: 'Cometa', tone: 'is-comet', burst: ['bg-comet', 'bg-nebula-300'] },
-  supernova: {
-    label: 'Supernova',
-    tone: 'is-supernova',
-    burst: ['bg-supernova', 'bg-star-300', 'bg-flare-500'],
-  },
-} as const;
+const BADGE_LOOKS: Record<Rarity, { tone: string; burst?: string[] }> = {
+  satellite: { tone: 'is-satellite' },
+  meteorite: { tone: 'is-meteorite' },
+  comet: { tone: 'is-comet', burst: ['bg-comet', 'bg-nebula-300'] },
+  pulsar: { tone: 'is-pulsar', burst: ['bg-pulsar', 'bg-comet', 'bg-star-300'] },
+  supernova: { tone: 'is-supernova', burst: ['bg-supernova', 'bg-star-300', 'bg-flare-500'] },
+};
 
 const ZERO_LABELS = { unknown: 'Fora da base', blank: 'Pulou', timeout: 'Tempo esgotado' } as const;
 
@@ -120,7 +120,7 @@ export class JourneyScene {
       const trip = this.lastTrip();
       return {
         key,
-        text: `${look.label} +${result.points}`,
+        text: `${RARITY_LABELS[result.match.rarity]} +${result.points}`,
         tone: look.tone,
         burst: look.burst,
         km: trip?.answers === key ? trip.km : undefined,

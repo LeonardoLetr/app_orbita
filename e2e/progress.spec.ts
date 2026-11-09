@@ -2,20 +2,21 @@ import { expect, test } from '@playwright/test';
 import { answer, loadCategories } from './helpers';
 
 test('saves the round in the history and on the home screen', async ({ page, request }) => {
-  test.setTimeout(60_000);
+  test.setTimeout(90_000);
   const categories = await loadCategories(request);
   await page.goto('/jogar');
-  for (const rarity of ['satellite', 'satellite', 'satellite', 'satellite', 'satellite'] as const) {
-    await answer(page, categories, rarity);
+  // Seven common answers: 70 points, the Moon.
+  for (let i = 0; i < 7; i++) {
+    await answer(page, categories, 'satellite');
   }
-  await expect(page.locator('#result-title')).toHaveText('Marte', { timeout: 15_000 });
+  await expect(page.locator('#result-title')).toHaveText('Lua', { timeout: 15_000 });
 
   await page.goto('/');
   await expect(page.getByText('Destinos alcançados: 1 de 8')).toBeVisible();
   await page.getByRole('link', { name: 'Ver histórico' }).click();
 
   await expect(page.locator('details')).toHaveCount(1);
-  await expect(page.locator('details')).toContainText('50 pts');
+  await expect(page.locator('details')).toContainText('70 pts');
 });
 
 test('remembers the timer and sound switches after a reload', async ({ page }) => {

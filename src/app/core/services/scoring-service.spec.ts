@@ -8,7 +8,9 @@ describe('ScoringService', () => {
     title: 'Animal que vive no mar',
     answers: [
       { text: 'Tubarão', rarity: 'satellite' },
+      { text: 'Foca', rarity: 'meteorite' },
       { text: 'Peixe-boi', rarity: 'comet', synonyms: ['manati'] },
+      { text: 'Coral', rarity: 'pulsar' },
       { text: 'Narval', rarity: 'supernova' },
     ],
   };
@@ -21,8 +23,10 @@ describe('ScoringService', () => {
 
   it('gives points according to the answer rarity', () => {
     expect(scoring.score(category, 'Tubarão').points).toBe(10);
-    expect(scoring.score(category, 'Peixe-boi').points).toBe(20);
-    expect(scoring.score(category, 'Narval').points).toBe(30);
+    expect(scoring.score(category, 'Foca').points).toBe(25);
+    expect(scoring.score(category, 'Peixe-boi').points).toBe(50);
+    expect(scoring.score(category, 'Coral').points).toBe(75);
+    expect(scoring.score(category, 'Narval').points).toBe(100);
   });
 
   it('ignores case, accents, hyphens and extra spaces', () => {
@@ -36,7 +40,7 @@ describe('ScoringService', () => {
   it('accepts synonyms with the same points', () => {
     const result = scoring.score(category, 'Manati');
 
-    expect(result.points).toBe(20);
+    expect(result.points).toBe(50);
     expect(result.match?.text).toBe('Peixe-boi');
   });
 
@@ -61,29 +65,29 @@ describe('ScoringService', () => {
   });
 
   it('still scores what was typed when time ran out', () => {
-    expect(scoring.score(category, 'narval', true).points).toBe(30);
+    expect(scoring.score(category, 'narval', true).points).toBe(100);
   });
 
   describe('destinations', () => {
     it('starts in Earth orbit', () => {
       expect(scoring.destinationFor(0).id).toBe('earth-orbit');
-      expect(scoring.destinationFor(19).id).toBe('earth-orbit');
+      expect(scoring.destinationFor(39).id).toBe('earth-orbit');
     });
 
     it('reaches a planet once its minimum is hit', () => {
-      expect(scoring.destinationFor(20).id).toBe('moon');
-      expect(scoring.destinationFor(50).id).toBe('mars');
-      expect(scoring.destinationFor(100).id).toBe('uranus');
-      expect(scoring.destinationFor(150).id).toBe('pluto');
+      expect(scoring.destinationFor(40).id).toBe('moon');
+      expect(scoring.destinationFor(175).id).toBe('mars');
+      expect(scoring.destinationFor(370).id).toBe('uranus');
+      expect(scoring.destinationFor(700).id).toBe('pluto');
     });
 
     it('points to the next planet', () => {
-      expect(scoring.nextDestination(45)?.id).toBe('jupiter');
-      expect(scoring.nextDestination(0)?.minPoints).toBe(20);
+      expect(scoring.nextDestination(120)?.id).toBe('jupiter');
+      expect(scoring.nextDestination(0)?.minPoints).toBe(40);
     });
 
     it('has no next planet at the end of the journey', () => {
-      expect(scoring.nextDestination(140)).toBeUndefined();
+      expect(scoring.nextDestination(600)).toBeUndefined();
     });
   });
 

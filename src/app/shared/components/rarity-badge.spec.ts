@@ -14,11 +14,30 @@ describe('RarityBadge', () => {
     const text = render({
       input: 'manati',
       outcome: 'scored',
-      points: 20,
+      points: 50,
       match: { text: 'Peixe-boi', rarity: 'comet' },
     });
 
-    expect(text).toBe('Cometa +20');
+    expect(text).toBe('Cometa +50');
+  });
+
+  it('names the new levels', () => {
+    expect(
+      render({
+        input: 'Foca',
+        outcome: 'scored',
+        points: 25,
+        match: { text: 'Foca', rarity: 'meteorite' },
+      }),
+    ).toBe('Meteorito +25');
+    expect(
+      render({
+        input: 'Coral',
+        outcome: 'scored',
+        points: 75,
+        match: { text: 'Coral', rarity: 'pulsar' },
+      }),
+    ).toBe('Pulsar +75');
   });
 
   it('explains answers that scored zero', () => {

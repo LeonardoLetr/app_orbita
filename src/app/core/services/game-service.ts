@@ -7,7 +7,7 @@ import { PreferencesService } from './preferences-service';
 import { ProgressService } from './progress-service';
 import { AnswerResult, ScoringService } from './scoring-service';
 
-export const CATEGORIES_PER_ROUND = 5;
+export const CATEGORIES_PER_ROUND = 7;
 export const SECONDS_PER_CATEGORY = 30;
 
 export interface RoundEntry {

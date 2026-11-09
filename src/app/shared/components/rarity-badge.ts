@@ -4,7 +4,9 @@ import { AnswerOutcome, AnswerResult } from '../../core/services/scoring-service
 
 export const RARITY_LABELS: Record<Rarity, string> = {
   satellite: 'Satélite',
+  meteorite: 'Meteorito',
   comet: 'Cometa',
+  pulsar: 'Pulsar',
   supernova: 'Supernova',
 };
 
@@ -14,15 +16,17 @@ const OUTCOME_LABELS: Record<Exclude<AnswerOutcome, 'scored'>, string> = {
   timeout: 'Tempo esgotado',
 };
 
-const RARITY_STYLES: Record<Rarity, string> = {
+export const RARITY_STYLES: Record<Rarity, string> = {
   satellite: 'border-satellite/50 bg-satellite/10 text-satellite',
+  meteorite: 'border-meteorite/50 bg-meteorite/10 text-meteorite',
   comet: 'border-comet/50 bg-comet/10 text-comet',
+  pulsar: 'border-pulsar/50 bg-pulsar/10 text-pulsar',
   supernova: 'border-supernova/50 bg-supernova/10 text-supernova',
 };
 
 const NEUTRAL_STYLE = 'border-space-600 bg-space-800 text-space-200';
 
-/** Pill showing how an answer scored, e.g. "Cometa +20" or "Fora da base". */
+/** Pill showing how an answer scored, e.g. "Cometa +50" or "Fora da base". */
 @Component({
   selector: 'app-rarity-badge',
   host: { class: 'inline-flex' },
