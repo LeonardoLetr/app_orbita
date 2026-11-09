@@ -18,7 +18,7 @@ function makeCategory(id: string): Category {
 }
 
 describe('GameService', () => {
-  const categories = Array.from({ length: 12 }, (_, i) => makeCategory(`c${i}`));
+  const categories = Array.from({ length: 16 }, (_, i) => makeCategory(`c${i}`));
   let getAll: () => Promise<Category[]>;
   let game: GameService;
 
