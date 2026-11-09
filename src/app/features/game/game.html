@@ -61,13 +61,15 @@
       >
         <ng-container *ngTemplateOutlet="controls" />
         <div class="flex min-w-0 flex-1 flex-col items-center gap-1">
-          <p class="text-xs font-bold tracking-widest text-space-200 uppercase sm:text-sm">
+          <p
+            class="text-[0.7rem] font-bold tracking-wider whitespace-nowrap text-space-200 uppercase sm:text-sm sm:tracking-widest"
+          >
             Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
           </p>
           <ol class="flex gap-1" aria-hidden="true">
             @for (item of game.entries(); track item.category.id; let i = $index) {
               <li
-                class="h-1.5 w-5 rounded-full transition-colors sm:w-8"
+                class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
                 [class]="
                   i < game.index()
                     ? 'bg-nebula-400'
