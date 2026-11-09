@@ -1,4 +1,7 @@
 import { TestBed } from '@angular/core/testing';
+import { ProgressRepository } from '../data/progress-repository';
+import { GameModeId } from '../models/game-mode';
+import { EMPTY_PROGRESS, PlayerProgress } from '../models/progress';
 import { provideTestProgress } from '../../testing/test-providers';
 import { ProgressService } from './progress-service';
 
@@ -11,7 +14,7 @@ describe('ProgressService', () => {
   });
 
   function play(points: number, planetId: 'moon' | 'mars' | 'jupiter') {
-    return progress.record({ points, planetId, timerEnabled: true, answers: [] });
+    return progress.record({ points, planetId, mode: 'classic', answers: [] });
   }
 
   it('records the first round as a new record and a new planet', async () => {
@@ -56,5 +59,72 @@ describe('ProgressService', () => {
     expect(progress.totalRounds()).toBe(0);
     expect(progress.rounds()).toEqual([]);
     expect(progress.lastOutcome()).toBeUndefined();
+  });
+});
+
+describe('ProgressService with more than one mode', () => {
+  /** A stand-in for the extra modes still to come. */
+  const extra = 'extra' as GameModeId;
+  /** Records of a player who knows both modes. */
+  const bothModes = Object.fromEntries([
+    ['classic', 300],
+    [extra, 40],
+  ]) as PlayerProgress['bestByMode'];
+
+  function withSaved(saved: PlayerProgress): ProgressService {
+    TestBed.configureTestingModule({
+      providers: [
+        {
+          provide: ProgressRepository,
+          useValue: { load: async () => saved, addRound: async () => saved },
+        },
+      ],
+    });
+    return TestBed.inject(ProgressService);
+  }
+
+  it('keeps a record for each mode', async () => {
+    const progress = withSaved({
+      ...EMPTY_PROGRESS,
+      totalRounds: 5,
+      bestByMode: bothModes,
+    });
+    await progress.load();
+
+    expect(progress.bestFor('classic')).toBe(300);
+    expect(progress.bestFor(extra)).toBe(40);
+    expect(progress.bestPoints()).toBe(300);
+  });
+
+  it('compares a round only with the same mode', async () => {
+    const progress = withSaved({
+      ...EMPTY_PROGRESS,
+      totalRounds: 5,
+      bestByMode: bothModes,
+    });
+
+    const outcome = await progress.record({
+      mode: extra,
+      points: 50,
+      planetId: 'moon',
+      answers: [],
+    });
+
+    expect(outcome.isNewBest).toBe(true);
+    expect(outcome.isFirstRound).toBe(false);
+  });
+
+  it('treats the first round in a mode as a first round', async () => {
+    const progress = withSaved({ ...EMPTY_PROGRESS, totalRounds: 5, bestByMode: { classic: 300 } });
+
+    const outcome = await progress.record({
+      mode: extra,
+      points: 50,
+      planetId: 'moon',
+      answers: [],
+    });
+
+    expect(outcome.isFirstRound).toBe(true);
+    expect(progress.bestFor(extra)).toBe(0);
   });
 });

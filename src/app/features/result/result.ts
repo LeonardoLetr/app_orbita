@@ -36,7 +36,7 @@ export class Result {
 
   readonly entries = input.required<RoundEntry[]>();
   readonly points = input.required<number>();
-  /** Mode of the round, which sets the scale of the chart. */
+  /** Mode of the round: records and the chart only compare rounds of the same mode. */
   readonly mode = input<GameMode>(CLASSIC_MODE);
   readonly playAgain = output<void>();
 
@@ -51,7 +51,12 @@ export class Result {
   protected readonly currentId = computed(() =>
     this.progress.lastOutcome() ? this.progress.rounds()[0]?.id : undefined,
   );
-  protected readonly hasHistory = computed(() => this.progress.rounds().length > 1);
+  /** Saved rounds of this mode, newest first. */
+  protected readonly modeRounds = computed(() =>
+    this.progress.rounds().filter((round) => round.mode === this.mode().id),
+  );
+  protected readonly hasHistory = computed(() => this.modeRounds().length > 1);
+  protected readonly best = computed(() => this.progress.bestFor(this.mode().id));
 
   /** Each answer plus a few rare ones the player could have given instead. */
   protected readonly rows = computed(() =>

@@ -146,6 +146,7 @@ describe('GameService', () => {
     await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
 
     const [round] = progress.rounds();
+    expect(round.mode).toBe('classic');
     expect(round.points).toBe(100);
     expect(round.planetId).toBe('mars');
     expect(round.answers).toHaveLength(CLASSIC_CATEGORIES);

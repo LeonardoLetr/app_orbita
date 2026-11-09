@@ -22,7 +22,7 @@ describe('HistoryPage', () => {
     return TestBed.inject(ProgressService).record({
       points,
       planetId: 'mars',
-      timerEnabled: false,
+      mode: 'classic',
       answers: [
         {
           categoryId: 'fruit',

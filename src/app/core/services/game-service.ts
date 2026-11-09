@@ -119,8 +119,8 @@ export class GameService {
     const points = this.totalPoints();
     return this.progress.record({
       points,
+      mode: this.mode().id,
       planetId: this.scoring.destinationFor(points).id,
-      timerEnabled: this.timerEnabled(),
       answers: this.entries().map(({ category, result }) => ({
         categoryId: category.id,
         categoryTitle: category.title,

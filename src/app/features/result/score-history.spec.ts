@@ -8,7 +8,7 @@ function round(id: string, points: number): RoundRecord {
     playedAt: '2026-11-08T21:00:00.000Z',
     points,
     planetId: 'moon',
-    timerEnabled: true,
+    mode: 'classic',
     answers: [],
   };
 }
