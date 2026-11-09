@@ -18,9 +18,9 @@ const DATE = new Intl.DateTimeFormat('pt-BR', {
   selector: 'app-score-history',
   host: { class: 'block' },
   template: `
-    <figure class="rounded-3xl border border-space-800 bg-space-900/70 p-4 sm:p-5">
+    <figure class="panel p-4 sm:p-5">
       <figcaption class="flex flex-wrap items-baseline justify-between gap-x-3">
-        <span class="font-display text-lg font-bold">Suas últimas partidas</span>
+        <span class="font-display text-xl tracking-wide">Suas últimas partidas</span>
         <span class="text-sm whitespace-nowrap text-space-200">média {{ average() }} pts</span>
       </figcaption>
 
@@ -42,7 +42,7 @@ const DATE = new Intl.DateTimeFormat('pt-BR', {
               }
               <div
                 class="bar w-full max-w-7 rounded-t-[4px]"
-                [class]="bar.current ? 'bg-[#c78600]' : 'bg-[#5b628f]'"
+                [class]="bar.current ? 'bg-[#c78600]' : 'bg-[#6b5a9e]'"
                 [style.height.%]="bar.height"
                 [style.animation-delay.ms]="delay() + i * 60"
               ></div>
