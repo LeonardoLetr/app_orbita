@@ -50,8 +50,28 @@ test('keeps the answer bar on top of the keyboard', async ({ page, request }) =>
   await answer(page, categories, 'comet');
 
   const bar = (await page.locator('form').boundingBox())!;
-  const badge = (await page.locator('app-journey-scene .badge').boundingBox())!;
+  const card = page.locator('app-question-card [data-showing="result"]');
+  const box = (await card.boundingBox())!;
   expect(Math.round(bar.y + bar.height)).toBe(460);
-  expect(badge.y + badge.height).toBeLessThan(bar.y);
-  await expect(page.locator('app-journey-scene .badge')).toContainText('Cometa +50');
+  expect(box.y + box.height).toBeLessThan(bar.y);
+  await expect(card).toContainText('Cometa');
+});
+
+test('shows the result above the keyboard on an iPhone', async ({ page, request }) => {
+  const categories = await loadCategories(request);
+  await page.goto('/jogar');
+  await expect(page.locator('#answer[data-ready]')).toBeVisible();
+
+  // Safari keeps the page size and only shrinks the visible part above the keyboard.
+  await page.evaluate(() => {
+    const viewport = window.visualViewport!;
+    Object.defineProperty(viewport, 'height', { configurable: true, get: () => 380 });
+    viewport.dispatchEvent(new Event('resize'));
+  });
+  await answer(page, categories, 'comet');
+
+  const bar = (await page.locator('form').boundingBox())!;
+  const box = (await page.locator('app-question-card [data-showing="result"]').boundingBox())!;
+  expect(Math.round(bar.y + bar.height)).toBe(380);
+  expect(box.y + box.height).toBeLessThan(bar.y);
 });

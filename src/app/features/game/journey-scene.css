@@ -258,23 +258,6 @@
   opacity: 0;
 }
 
-/* Result of the answer, just below the rocket. */
-.badge-slot {
-  position: absolute;
-  top: calc(var(--rocket-y) + var(--u) * 12.5);
-  left: 50%;
-  translate: -50% 0;
-}
-
-/* Phone on its side (see the unit above): no room below the rocket, plenty beside it. */
-@media (orientation: landscape) and (max-height: 500px) and (min-aspect-ratio: 3/2) {
-  .badge-slot {
-    top: var(--rocket-y);
-    left: calc(50% + var(--u) * 9);
-    translate: 0 -50%;
-  }
-}
-
 @media (prefers-reduced-motion: no-preference) {
   /* The sky keeps streaming down, so the rocket always looks like it is flying. */
   .stars-far {

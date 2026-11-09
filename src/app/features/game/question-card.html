@@ -1,0 +1,58 @@
+<ng-template #backSide let-back>
+  @if (back.stars) {
+    <app-star-burst
+      [count]="back.stars"
+      [reach]="6"
+      [delay]="300"
+      [colors]="['bg-star-300', 'bg-candy-400', 'bg-white']"
+    />
+  }
+  <div class="back-content">
+    <p class="back-title">{{ back.title }}</p>
+    <p class="back-points">{{ back.points ? '+' + back.points : '0' }} pts</p>
+    @if (back.km) {
+      <p class="back-km">+{{ back.km }}</p>
+    }
+    @if (back.note) {
+      <p class="back-note">Valeu como “{{ back.note }}”</p>
+    }
+  </div>
+</ng-template>
+
+<div class="stack">
+  @if (leaving(); as back) {
+    <div class="leaving face back-face" [class]="back.tone" aria-hidden="true">
+      <ng-container *ngTemplateOutlet="backSide; context: { $implicit: back }" />
+    </div>
+  }
+
+  <!-- Re-created for each category, so every new one is dealt like a new card. -->
+  @for (current of [category()]; track current.id) {
+    <div class="deal">
+      <div
+        class="card"
+        [class.is-flipped]="!!back()"
+        [attr.data-showing]="back() ? 'result' : 'question'"
+      >
+        <div class="face front">
+          <p class="front-label">Categoria {{ number() }}</p>
+          <h1 id="category-title" class="front-title">{{ current.title }}</h1>
+          <p class="front-hint">
+            @if (next(); as next) {
+              Próximo: <b>{{ next.name }}</b> · faltam {{ next.missing }} pts
+            } @else {
+              Você chegou ao fim da rota!
+            }
+          </p>
+        </div>
+        <div class="face back-face" [class]="back()?.tone" aria-hidden="true">
+          @if (back(); as back) {
+            <ng-container *ngTemplateOutlet="backSide; context: { $implicit: back }" />
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="corner"><ng-content /></div>

@@ -11,14 +11,10 @@ import {
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
-import { Rarity } from '../../core/models/rarity';
-import { AnswerResult } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
-import { distanceAt, formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
+import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
-import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { RocketArt } from '../../shared/components/rocket-art';
-import { FlightBadge, FlightBadgeData } from './flight-badge';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
@@ -60,16 +56,6 @@ const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
     ...STOP_LOOKS[planet.id as RouteStop],
   }));
 
-const BADGE_LOOKS: Record<Rarity, { tone: FlightBadgeData['tone']; burst?: string[] }> = {
-  satellite: { tone: 'is-satellite' },
-  meteorite: { tone: 'is-meteorite' },
-  comet: { tone: 'is-comet', burst: ['bg-comet', 'bg-nebula-300'] },
-  pulsar: { tone: 'is-pulsar', burst: ['bg-pulsar', 'bg-comet', 'bg-star-300'] },
-  supernova: { tone: 'is-supernova', burst: ['bg-supernova', 'bg-star-300', 'bg-flare-500'] },
-};
-
-const ZERO_LABELS = { unknown: 'Fora da base', blank: 'Pulou', timeout: 'Tempo esgotado' } as const;
-
 /**
  * The journey seen from behind the rocket, used as the game background. After each
  * answer the rocket climbs by the points earned while the planets slide past, or
@@ -77,7 +63,7 @@ const ZERO_LABELS = { unknown: 'Fora da base', blank: 'Pulou', timeout: 'Tempo e
  */
 @Component({
   selector: 'app-journey-scene',
-  imports: [PlanetArt, RocketArt, FlightBadge],
+  imports: [PlanetArt, RocketArt],
   templateUrl: './journey-scene.html',
   styleUrl: './journey-scene.css',
   host: { 'aria-hidden': 'true' },
@@ -87,8 +73,6 @@ export class JourneyScene {
   readonly points = input.required<number>();
   /** Answers given so far; each new one plays an animation. */
   readonly answers = input.required<number>();
-  /** Result of the answer being revealed, shown next to the rocket. */
-  readonly result = input<AnswerResult>();
 
   protected readonly stops = STOPS;
   protected readonly position = computed(() => routePosition(this.points()));
@@ -98,32 +82,6 @@ export class JourneyScene {
   /** Planets light up as the rocket passes them. */
   protected readonly litIndex = signal(0);
   protected readonly arrivingIndex = signal(-1);
-  /** Distance covered by the last flight, already formatted. */
-  private readonly lastTrip = signal<{ answers: number; km: string } | undefined>(undefined);
-
-  protected readonly badge = computed<FlightBadgeData | undefined>(() => {
-    const result = this.result();
-    if (!result) {
-      return undefined;
-    }
-    const key = this.answers();
-    if (result.outcome === 'scored' && result.match) {
-      const look = BADGE_LOOKS[result.match.rarity];
-      const trip = this.lastTrip();
-      return {
-        key,
-        text: `${RARITY_LABELS[result.match.rarity]} +${result.points}`,
-        tone: look.tone,
-        burst: look.burst,
-        km: trip?.answers === key ? trip.km : undefined,
-        note:
-          result.match.text.toLowerCase() !== result.input.toLowerCase()
-            ? `Valeu como “${result.match.text}”`
-            : undefined,
-      };
-    }
-    return { key, text: ZERO_LABELS[result.outcome as keyof typeof ZERO_LABELS], tone: 'is-zero' };
-  });
 
   private readonly sound = inject(SoundService);
   private seenAnswers = 0;
@@ -158,7 +116,6 @@ export class JourneyScene {
     this.flightMs.set(duration);
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
-    this.lastTrip.set({ answers, km: formatDistance(distanceAt(points) - distanceAt(from)) });
 
     // Light each planet roughly when the rocket goes past it.
     const start = routePosition(from);

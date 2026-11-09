@@ -35,6 +35,11 @@ describe('Game', () => {
     return fixture.nativeElement as HTMLElement;
   }
 
+  /** Text on the back of the question card, once it turned over. */
+  function cardBack(element: HTMLElement): string {
+    return element.querySelector('[data-showing="result"] .back-face')?.textContent ?? '';
+  }
+
   async function answer(element: HTMLElement, text: string) {
     const input = element.querySelector<HTMLInputElement>('#answer')!;
     input.value = text;
@@ -55,7 +60,8 @@ describe('Game', () => {
 
     await answer(element, 'resposta 0');
 
-    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+    expect(cardBack(element)).toContain('Cometa');
+    expect(cardBack(element)).toMatch(/\+50\s*pts/);
     expect(element.querySelector('header')?.textContent).toMatch(/50\s*pts/);
     expect(element.querySelector('[aria-live]')?.textContent).toContain('Cometa, mais 50 pontos.');
   });
@@ -80,7 +86,7 @@ describe('Game', () => {
     await answer(element, 'resposta 0');
 
     expect(element.querySelector('#retry-message')?.textContent?.trim()).toBe('');
-    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+    expect(cardBack(element)).toContain('Cometa');
   });
 
   it('accepts a one-letter typo and says what it counted as', async () => {
@@ -88,7 +94,7 @@ describe('Game', () => {
 
     await answer(element, 'resposta 9');
 
-    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+    expect(cardBack(element)).toContain('Valeu como “Resposta 0”');
     expect(element.querySelector('[aria-live=polite]')?.textContent).toContain(
       'Valeu como Resposta 0.',
     );
