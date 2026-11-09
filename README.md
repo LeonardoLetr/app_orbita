@@ -121,6 +121,8 @@ Configuração única no repositório: **Settings → Pages → Build and deploy
 - [x] **Etapa 4** — Histórico, recorde e coleção de destinos no `localStorage`, e botão de jogar de novo
 - [x] **Etapa 5** — Polimento (acessibilidade, sons opcionais, testes) e deploy
 
+As próximas funcionalidades (novos modos de jogo, gamificação, conta com Google e duelo online) estão planejadas, com passo a passo, no [backlog](docs/backlog.md).
+
 ## Convenções de Git
 
 - Commits em inglês no padrão [Conventional Commits](https://www.conventionalcommits.org): `feat:`, `fix:`, `refactor:`, `style:`, `docs:`, `chore:`, `test:`.
