@@ -32,7 +32,7 @@ const NEUTRAL_STYLE = 'border-space-600 bg-space-800 text-space-200';
   host: { class: 'inline-flex' },
   template: `
     <span
-      class="inline-flex items-center rounded-full border-2 px-4 py-1 font-bold whitespace-nowrap"
+      class="inline-flex items-center rounded-full border-2 px-[1.15em] py-[0.3em] font-bold whitespace-nowrap"
       [class]="style()"
     >
       {{ label() }}
