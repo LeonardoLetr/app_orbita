@@ -80,13 +80,20 @@ export class GameService {
     }
   }
 
-  /** Scores the answer for the current category. Ignored unless a category is being played. */
+  /**
+   * Scores the answer for the current category. Ignored unless a category is being played.
+   * An answer that is not in the base is returned but not kept while there is time left,
+   * so the player can try another one.
+   */
   answer(input: string, timedOut = false): AnswerResult | undefined {
     if (this.status() !== 'playing') {
       return undefined;
     }
     const index = this.index();
     const result = this.scoring.score(this.entries()[index].category, input, timedOut);
+    if (result.outcome === 'unknown' && !timedOut) {
+      return result;
+    }
     this.entriesState.update((entries) =>
       entries.map((entry, i) => (i === index ? { ...entry, result } : entry)),
     );

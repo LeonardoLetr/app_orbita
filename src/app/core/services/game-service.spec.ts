@@ -71,9 +71,28 @@ describe('GameService', () => {
 
   it('ignores answers while revealing', async () => {
     await game.start();
-    game.answer('qualquer coisa');
+    game.answer('');
 
     expect(game.answer('outra')).toBeUndefined();
+  });
+
+  it('lets the player try again when an answer is not in the base', async () => {
+    await game.start();
+
+    const result = game.answer('Sereia');
+
+    expect(result?.outcome).toBe('unknown');
+    expect(game.status()).toBe('playing');
+    expect(game.current()?.result).toBeUndefined();
+  });
+
+  it('keeps an answer outside the base when time runs out', async () => {
+    await game.start();
+
+    game.answer('Sereia', true);
+
+    expect(game.status()).toBe('revealing');
+    expect(game.current()?.result?.outcome).toBe('unknown');
   });
 
   it('finishes after every category is answered', async () => {

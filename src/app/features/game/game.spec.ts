@@ -60,12 +60,38 @@ describe('Game', () => {
     expect(element.querySelector('[aria-live]')?.textContent).toContain('Cometa, mais 50 pontos.');
   });
 
-  it('shows when an answer is not in the base', async () => {
+  it('asks to try again when an answer is not in the base', async () => {
     const element = await render();
 
     await answer(element, 'Sereia');
 
-    expect(element.textContent).toContain('Fora da base');
+    const input = element.querySelector<HTMLInputElement>('#answer')!;
+    expect(element.querySelector('#retry-message')?.textContent).toContain('Tente outra');
+    expect(input.value).toBe('Sereia');
+    expect(input.readOnly).toBe(false);
+    expect(input.getAttribute('aria-invalid')).toBe('true');
+    expect(element.querySelector('h1')?.textContent).toContain('Categoria 0');
+  });
+
+  it('accepts the fixed answer after a retry', async () => {
+    const element = await render();
+    await answer(element, 'Sereia');
+
+    await answer(element, 'resposta 0');
+
+    expect(element.querySelector('#retry-message')?.textContent?.trim()).toBe('');
+    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+  });
+
+  it('accepts a one-letter typo and says what it counted as', async () => {
+    const element = await render();
+
+    await answer(element, 'resposta 9');
+
+    expect(element.querySelector('.badge')?.textContent).toContain('Cometa +50');
+    expect(element.querySelector('[aria-live=polite]')?.textContent).toContain(
+      'Valeu como Resposta 0.',
+    );
   });
 
   it('shows the journey scene and the next destination while playing', async () => {

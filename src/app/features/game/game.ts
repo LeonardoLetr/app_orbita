@@ -28,6 +28,13 @@ export function revealDelay(pointsBefore: number, pointsAfter: number): number {
   return Math.max(MIN_REVEAL_MS, flightDuration(pointsBefore, pointsAfter) + 700);
 }
 
+/** Friendly nudges when an answer is not in the base, used in turns. */
+const RETRY_MESSAGES = [
+  'Essa não está na lista. Tente outra!',
+  'Quase! Tente outra palavra.',
+  'Hmm, essa não vale. Tenta de novo!',
+];
+
 const ZERO_ANNOUNCEMENTS = {
   unknown: 'Fora da base, nenhum ponto.',
   blank: 'Categoria pulada.',
@@ -45,6 +52,8 @@ export class Game {
   private readonly scoring = inject(ScoringService);
   protected readonly countdown = new Countdown();
   protected readonly draft = signal('');
+  /** Message shown after an answer outside the base, while the player can try again. */
+  protected readonly retryMessage = signal('');
 
   protected readonly answered = computed(
     () => this.game.entries().filter((entry) => entry.result).length,
@@ -64,14 +73,20 @@ export class Game {
     if (!result) {
       return '';
     }
-    return result.match
-      ? `${RARITY_LABELS[result.match.rarity]}, mais ${result.points} pontos.`
-      : ZERO_ANNOUNCEMENTS[result.outcome as keyof typeof ZERO_ANNOUNCEMENTS];
+    if (!result.match) {
+      return ZERO_ANNOUNCEMENTS[result.outcome as keyof typeof ZERO_ANNOUNCEMENTS];
+    }
+    const counted =
+      result.match.text.toLowerCase() !== result.input.toLowerCase()
+        ? ` Valeu como ${result.match.text}.`
+        : '';
+    return `${RARITY_LABELS[result.match.rarity]}, mais ${result.points} pontos.${counted}`;
   });
 
   private readonly answerInput = viewChild<ElementRef<HTMLInputElement>>('answerInput');
   private readonly score = viewChild<ElementRef<HTMLElement>>('score');
   private revealTimer?: ReturnType<typeof setTimeout>;
+  private retries = 0;
 
   constructor() {
     inject(DestroyRef).onDestroy(() => this.stopTimers());
@@ -117,6 +132,7 @@ export class Game {
 
   private beginCategory(): void {
     this.clearField();
+    this.retryMessage.set('');
     if (this.game.status() === 'playing' && this.game.timerEnabled()) {
       this.countdown.start(SECONDS_PER_CATEGORY, () => this.finishCategory(true));
     }
@@ -126,6 +142,10 @@ export class Game {
     const before = this.game.totalPoints();
     const result = this.game.answer(this.draft(), timedOut);
     if (!result) {
+      return;
+    }
+    if (this.game.status() === 'playing') {
+      this.askToRetry();
       return;
     }
     this.countdown.stop();
@@ -141,6 +161,32 @@ export class Game {
       },
       revealDelay(before, before + result.points),
     );
+  }
+
+  /** The answer is not in the base: keep the category and the text so it can be fixed. */
+  private askToRetry(): void {
+    this.retryMessage.set(RETRY_MESSAGES[this.retries++ % RETRY_MESSAGES.length]);
+    this.sound.play('miss');
+    const field = this.answerInput()?.nativeElement;
+    const reduceMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (field?.animate && !reduceMotion) {
+      field.animate(
+        [
+          { translate: '0' },
+          { translate: '-0.5rem' },
+          { translate: '0.5rem' },
+          { translate: '-0.3rem' },
+          { translate: '0' },
+        ],
+        { duration: 380, easing: 'ease-in-out' },
+      );
+    }
+  }
+
+  /** Typing again hides the retry message. */
+  protected type(value: string): void {
+    this.draft.set(value);
+    this.retryMessage.set('');
   }
 
   /**
