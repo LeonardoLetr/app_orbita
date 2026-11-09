@@ -38,14 +38,14 @@ describe('Result', () => {
   }
 
   it('shows the planet reached and the next goal', () => {
-    const element = render([answered('Tubarão')], 30).nativeElement as HTMLElement;
+    const element = render([answered('Tubarão')], 50).nativeElement as HTMLElement;
 
     expect(element.querySelector('h1')?.textContent).toContain('Lua');
-    expect(element.textContent).toContain('Faltaram 10 pts para chegar a Marte.');
+    expect(element.textContent).toContain('Faltaram 50 pts para chegar a Marte.');
   });
 
   it('celebrates the end of the journey', () => {
-    const element = render([answered('Narval')], 150).nativeElement as HTMLElement;
+    const element = render([answered('Narval')], 700).nativeElement as HTMLElement;
 
     expect(element.querySelector('h1')?.textContent).toContain('Plutão');
     expect(element.textContent).toContain('ponto mais distante');

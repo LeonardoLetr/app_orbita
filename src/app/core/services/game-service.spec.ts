@@ -100,7 +100,7 @@ describe('GameService', () => {
 
     const [round] = progress.rounds();
     expect(round.points).toBe(100);
-    expect(round.planetId).toBe('uranus');
+    expect(round.planetId).toBe('mars');
     expect(round.answers).toHaveLength(CATEGORIES_PER_ROUND);
     expect(round.answers[1].result.outcome).toBe('blank');
   });

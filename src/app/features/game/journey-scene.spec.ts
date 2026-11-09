@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { AnswerResult } from '../../core/services/scoring-service';
+import { distanceAt, formatDistance } from '../../core/utils/journey';
 import { STORAGE, createMemoryStore } from '../../core/utils/storage';
 import { JourneyScene, flightDuration } from './journey-scene';
 
@@ -24,7 +25,7 @@ describe('JourneyScene', () => {
   const comet: AnswerResult = {
     input: 'Orca',
     outcome: 'scored',
-    points: 20,
+    points: 50,
     match: { text: 'Orca', rarity: 'comet' },
   };
 
@@ -71,20 +72,20 @@ describe('JourneyScene', () => {
   });
 
   it('climbs by the points earned and says how far it went', () => {
-    progress(20, 1, comet);
+    progress(50, 1, comet);
 
     expect(scene().classList).toContain('is-flying');
-    expect(scene().style.getPropertyValue('--pos')).toBe('1');
-    expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 20)}ms`);
+    expect(Number(scene().style.getPropertyValue('--pos'))).toBeCloseTo(1.17, 2);
+    expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50)}ms`);
     const badge = element().querySelector('.badge')!;
-    expect(badge.textContent).toContain('Cometa +20');
-    expect(badge.textContent).toContain('+384 mil km');
+    expect(badge.textContent).toContain('Cometa +50');
+    expect(badge.textContent).toContain(`+${formatDistance(distanceAt(50) - distanceAt(0))}`);
   });
 
   it('lights up the planets it passes', () => {
-    progress(20, 1, comet);
+    progress(50, 1, comet);
 
-    vi.advanceTimersByTime(flightDuration(0, 20));
+    vi.advanceTimersByTime(flightDuration(0, 50));
     fixture.detectChanges();
 
     expect(stop('Lua').classList).toContain('is-lit');
@@ -96,13 +97,13 @@ describe('JourneyScene', () => {
     progress(10, 2, { input: 'Sereia', outcome: 'unknown', points: 0 });
 
     expect(scene().classList).toContain('is-sputtering');
-    expect(scene().style.getPropertyValue('--pos')).toBe('0.5');
+    expect(scene().style.getPropertyValue('--pos')).toBe('0.25');
     expect(element().querySelector('.badge')?.textContent).toContain('Fora da base');
   });
 
   it('hides the badge once the answer is no longer shown', () => {
-    progress(20, 1, comet);
-    progress(20, 1);
+    progress(50, 1, comet);
+    progress(50, 1);
 
     expect(element().querySelector('.badge')).toBeNull();
   });

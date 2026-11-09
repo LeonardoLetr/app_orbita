@@ -72,7 +72,7 @@ describe('Game', () => {
     const element = await render();
 
     expect(element.querySelector('app-journey-scene')).not.toBeNull();
-    expect(element.textContent).toMatch(/Próximo:\s*Lua\s*· faltam\s*20 pts/);
+    expect(element.textContent).toMatch(/Próximo:\s*Lua\s*· faltam\s*40 pts/);
   });
 
   it('waits while the rocket flies before the next category', async () => {
