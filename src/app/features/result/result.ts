@@ -11,6 +11,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
@@ -34,6 +36,8 @@ export class Result {
 
   readonly entries = input.required<RoundEntry[]>();
   readonly points = input.required<number>();
+  /** Mode of the round, which sets the scale of the chart. */
+  readonly mode = input<GameMode>(CLASSIC_MODE);
   readonly playAgain = output<void>();
 
   private readonly heading = viewChild.required<ElementRef<HTMLElement>>('heading');

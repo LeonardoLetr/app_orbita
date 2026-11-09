@@ -1,15 +1,11 @@
 import { Injectable, PendingTasks, computed, inject, signal } from '@angular/core';
 import { CategoryRepository } from '../data/category-repository';
+import { CLASSIC_MODE } from '../data/game-modes';
 import { Category } from '../models/category';
-import { pickRandom } from '../utils/pick-random';
+import { GameMode } from '../models/game-mode';
 import { RANDOM } from '../utils/random';
 import { ProgressService } from './progress-service';
-import { AnswerResult, RARITY_POINTS, ScoringService } from './scoring-service';
-
-export const CATEGORIES_PER_ROUND = 7;
-export const SECONDS_PER_CATEGORY = 30;
-/** Best possible score in a round: every answer at the rarest level. */
-export const MAX_ROUND_POINTS = CATEGORIES_PER_ROUND * RARITY_POINTS.supernova;
+import { AnswerResult, ScoringService } from './scoring-service';
 
 export interface RoundEntry {
   category: Category;
@@ -24,7 +20,10 @@ export interface RoundEntry {
  */
 export type RoundStatus = 'idle' | 'loading' | 'error' | 'playing' | 'revealing' | 'finished';
 
-/** Holds the state of the current round: drawn categories, answers and score. */
+/**
+ * Holds the state of the current round: drawn categories, answers and score. What the
+ * round is like (how many categories, how long for each) comes from the rules of its mode.
+ */
 @Injectable({ providedIn: 'root' })
 export class GameService {
   private readonly repository = inject(CategoryRepository);
@@ -34,12 +33,15 @@ export class GameService {
   private readonly progress = inject(ProgressService);
 
   private readonly loadState = signal<'idle' | 'loading' | 'error' | 'ready'>('idle');
+  private readonly modeState = signal<GameMode>(CLASSIC_MODE);
   private readonly entriesState = signal<RoundEntry[]>([]);
   private readonly indexState = signal(0);
 
   /** Each category has a countdown; it is part of the game. Turned off only in tests. */
   readonly timerEnabled = signal(true);
 
+  /** Mode of the current round. */
+  readonly mode = this.modeState.asReadonly();
   readonly entries = this.entriesState.asReadonly();
   readonly index = this.indexState.asReadonly();
   readonly current = computed<RoundEntry | undefined>(() => this.entries()[this.index()]);
@@ -59,18 +61,19 @@ export class GameService {
     return current.result ? 'revealing' : 'playing';
   });
 
-  /** Draws new categories, avoiding the ones from the previous round when possible. */
-  async start(): Promise<void> {
+  /** Starts a round in the given mode, with the categories its rules pick. */
+  async start(mode: GameMode = CLASSIC_MODE): Promise<void> {
     const done = this.pendingTasks.add();
     this.loadState.set('loading');
     try {
       const categories = await this.repository.getAll();
       const previous = new Set(this.entries().map((entry) => entry.category.id));
-      const fresh = categories.filter((category) => !previous.has(category.id));
-      const pool = fresh.length >= CATEGORIES_PER_ROUND ? fresh : categories;
 
+      this.modeState.set(mode);
       this.entriesState.set(
-        pickRandom(pool, CATEGORIES_PER_ROUND, this.random).map((category) => ({ category })),
+        mode.rules
+          .pickCategories(categories, previous, this.random)
+          .map((category) => ({ category })),
       );
       this.indexState.set(0);
       this.loadState.set('ready');

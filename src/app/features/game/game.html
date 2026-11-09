@@ -225,6 +225,7 @@
     } @else if (status === 'finished') {
       <main class="mx-auto w-full max-w-2xl px-4 pt-2 sm:px-5">
         <app-result
+          [mode]="game.mode()"
           [entries]="game.entries()"
           [points]="game.totalPoints()"
           (playAgain)="newRound()"

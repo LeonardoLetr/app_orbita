@@ -14,9 +14,10 @@ function round(id: string, points: number): RoundRecord {
 }
 
 describe('ScoreHistory', () => {
-  function render(rounds: RoundRecord[], currentId?: string) {
+  function render(rounds: RoundRecord[], currentId?: string, max = 700) {
     const fixture = TestBed.createComponent(ScoreHistory);
     fixture.componentRef.setInput('rounds', rounds);
+    fixture.componentRef.setInput('max', max);
     fixture.componentRef.setInput('currentId', currentId);
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;
@@ -29,6 +30,14 @@ describe('ScoreHistory', () => {
     const bars = [...render(rounds, 'c').querySelectorAll<HTMLElement>('.bar')];
 
     expect(bars.map((bar) => bar.style.height)).toEqual(['30%', '20%', '50%']);
+  });
+
+  it('uses the scale of the mode', () => {
+    const element = render(rounds, 'c', 1400);
+    const bars = [...element.querySelectorAll<HTMLElement>('.bar')];
+
+    expect(bars.map((bar) => bar.style.height)).toEqual(['15%', '10%', '25%']);
+    expect(element.textContent).toContain('máx. 1400');
   });
 
   it('highlights the round just played and labels it', () => {
