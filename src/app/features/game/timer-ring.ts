@@ -51,8 +51,10 @@ export class TimerRing {
   readonly seconds = input.required<number>();
   /** Fraction of time left, from 1 down to 0. */
   readonly progress = input.required<number>();
+  /** Seconds left from which the ring shows the time as running out. */
+  readonly urgentAt = input(5);
 
   protected readonly radius = RADIUS;
   protected readonly length = LENGTH;
-  protected readonly urgent = computed(() => this.seconds() <= 5);
+  protected readonly urgent = computed(() => this.seconds() <= this.urgentAt());
 }

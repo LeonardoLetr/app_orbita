@@ -61,25 +61,34 @@
       >
         <ng-container *ngTemplateOutlet="controls" />
         <div class="flex min-w-0 flex-1 flex-col items-center gap-1">
-          <p
-            class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
-          >
-            Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
-          </p>
-          <ol class="flex gap-1" aria-hidden="true">
-            @for (item of game.entries(); track item.category.id; let i = $index) {
-              <li
-                class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
-                [class]="
-                  i < game.index()
-                    ? 'bg-candy-500'
-                    : i === game.index()
-                      ? 'bg-star-400'
-                      : 'bg-space-700'
-                "
-              ></li>
-            }
-          </ol>
+          @if (roundClock()) {
+            <!-- No fixed number of categories: count what was answered instead. -->
+            <p
+              class="font-display text-base tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-xl"
+            >
+              {{ validAnswers() }} {{ validAnswers() === 1 ? 'resposta' : 'respostas' }}
+            </p>
+          } @else {
+            <p
+              class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
+            >
+              Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+            </p>
+            <ol class="flex gap-1" aria-hidden="true">
+              @for (item of game.entries(); track item.category.id; let i = $index) {
+                <li
+                  class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
+                  [class]="
+                    i < game.index()
+                      ? 'bg-candy-500'
+                      : i === game.index()
+                        ? 'bg-star-400'
+                        : 'bg-space-700'
+                  "
+                ></li>
+              }
+            </ol>
+          }
         </div>
         <p
           class="w-[4.5rem] shrink-0 text-right font-display text-2xl text-star-400 [text-shadow:0.08em_0.08em_0_var(--color-candy-500)] sm:w-24 sm:text-3xl"
@@ -102,7 +111,11 @@
           [km]="revealKm()"
         >
           @if (game.timerEnabled()) {
-            <app-timer-ring [seconds]="countdown.seconds()" [progress]="countdown.progress()" />
+            <app-timer-ring
+              [seconds]="countdown.seconds()"
+              [progress]="countdown.progress()"
+              [urgentAt]="urgentAt()"
+            />
           }
         </app-question-card>
         @if (launching()) {
@@ -142,10 +155,11 @@
       (submit)="submit($event)"
     >
       @if (game.timerEnabled()) {
+        <!-- A clock for the whole round stands still, in view, while a result is shown. -->
         <div
           class="absolute top-0 left-0 h-1 transition-[width] duration-100 ease-linear"
-          [class]="countdown.seconds() <= 5 ? 'bg-flare-500' : 'bg-aurora-400'"
-          [style.width.%]="status === 'playing' ? countdown.progress() * 100 : 0"
+          [class]="countdown.seconds() <= urgentAt() ? 'bg-flare-500' : 'bg-aurora-400'"
+          [style.width.%]="status === 'playing' || roundClock() ? countdown.progress() * 100 : 0"
           aria-hidden="true"
         ></div>
       }

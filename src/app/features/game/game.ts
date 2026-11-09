@@ -8,6 +8,7 @@ import {
   effect,
   inject,
   signal,
+  untracked,
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
@@ -101,6 +102,14 @@ export class Game {
   protected readonly answered = computed(
     () => this.game.entries().filter((entry) => entry.result).length,
   );
+  /** One clock runs for the whole round, instead of one for each category. */
+  protected readonly roundClock = computed(() => this.game.mode().rules.clock.scope === 'round');
+  /** Seconds left from which the clock shows as running out. */
+  protected readonly urgentAt = computed(() => (this.roundClock() ? 10 : 5));
+  /** Answers that scored, counted where the round has no fixed number of categories. */
+  protected readonly validAnswers = computed(
+    () => this.game.entries().filter((entry) => entry.result?.match).length,
+  );
   protected readonly next = computed(() => this.scoring.nextDestination(this.game.totalPoints()));
   /** Next destination with the points still missing, for the question card. */
   protected readonly nextGoal = computed(() => {
@@ -158,6 +167,14 @@ export class Game {
 
     // Background music plays during the game screen, following its switch.
     effect(() => (this.music.enabled() ? this.music.start() : this.music.stop()));
+
+    // The last seconds of a clock that ends the round are counted out loud.
+    effect(() => {
+      const seconds = this.countdown.seconds();
+      if (seconds >= 1 && seconds <= 5 && untracked(this.roundClock)) {
+        untracked(() => this.sound.play('tick'));
+      }
+    });
 
     // Keep the keyboard on the answer field whenever a new category shows up. Without
     // scrolling: right after the launch the bar is still sliding in from below the screen,
@@ -239,7 +256,12 @@ export class Game {
   private beginCategory(): void {
     this.clearField();
     this.retryMessage.set('');
-    if (this.game.status() === 'playing' && this.game.timerEnabled()) {
+    if (this.game.status() !== 'playing' || !this.game.timerEnabled()) {
+      return;
+    }
+    if (this.roundClock() && this.game.index() > 0) {
+      this.countdown.resume();
+    } else {
       const { seconds } = this.game.mode().rules.clock;
       this.countdown.start(seconds, () => this.finishCategory(true));
     }
@@ -259,7 +281,14 @@ export class Game {
       return;
     }
     const { pace } = this.game.mode().rules;
-    this.countdown.stop();
+    const roundClock = this.roundClock();
+    if (roundClock) {
+      // A clock for the whole round only counts the time spent answering. Otherwise a rare
+      // answer would cost more of it, because its flight is longer.
+      this.countdown.pause();
+    } else {
+      this.countdown.stop();
+    }
     this.clearField();
     if (pace === 'calm') {
       // Put the phone keyboard away, so the whole flight can be seen. The field gets the
@@ -274,7 +303,11 @@ export class Game {
     this.sound.play(result.match ? result.match.rarity : 'miss');
     this.revealTimer = setTimeout(
       () => {
-        this.game.next();
+        if (roundClock && this.countdown.expired()) {
+          this.game.finish();
+        } else {
+          this.game.next();
+        }
         this.sound.play(this.game.status() === 'finished' ? 'finish' : 'deal');
         this.beginCategory();
       },
