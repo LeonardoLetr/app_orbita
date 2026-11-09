@@ -53,7 +53,7 @@ describe('Result', () => {
 
   it('suggests rare answers other than the one given', () => {
     const element = render([answered('Narval')], 30).nativeElement as HTMLElement;
-    const ideas = element.querySelector('li p.text-sm:last-child')?.textContent ?? '';
+    const ideas = element.querySelector('li .ideas')?.textContent ?? '';
 
     expect(ideas).toContain('Dugongo');
     expect(ideas).not.toContain('Narval');
@@ -90,6 +90,65 @@ describe('Result', () => {
     expect(element.textContent).toContain('Seu recorde: 90 pts');
     expect(element.textContent).not.toContain('Novo destino');
   });
+
+  it('charts the recent rounds once there is more than one', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 40, planetId: 'mars', timerEnabled: true, answers: [] });
+
+    let element = render([answered('Tubarão')], 40).nativeElement as HTMLElement;
+    expect(element.querySelector('app-score-history')).toBeNull();
+
+    await progress.record({ points: 80, planetId: 'mars', timerEnabled: true, answers: [] });
+    element = render([answered('Narval')], 80).nativeElement as HTMLElement;
+
+    expect(element.querySelector('app-score-history')?.textContent).toContain('agora');
+    expect(element.querySelector('app-score-history')?.textContent).toContain('média 60 pts');
+  });
+
+  it('shows the right spelling when a typo was forgiven', () => {
+    const element = render([answered('Narvak')], 100).nativeElement as HTMLElement;
+
+    expect(element.querySelector('ol li')?.textContent).toContain('Narvak');
+    expect(element.querySelector('ol li')?.textContent).toContain('→ Narval');
+  });
+
+  it('shares the round with the system share sheet', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, share });
+    try {
+      const fixture = render([answered('Narval')], 100);
+      shareButton(fixture.nativeElement).click();
+      await fixture.whenStable();
+
+      expect(share).toHaveBeenCalledWith({
+        text: expect.stringContaining('cheguei a Marte com 100 pts'),
+      });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('copies the round when the share sheet is not available', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, share: undefined, clipboard: { writeText } });
+    try {
+      const fixture = render([answered('Narval')], 100);
+      shareButton(fixture.nativeElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(writeText).toHaveBeenCalledWith(expect.stringContaining('🟠'));
+      expect(shareButton(fixture.nativeElement).textContent).toContain('Copiado!');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  function shareButton(element: HTMLElement): HTMLButtonElement {
+    return [...element.querySelectorAll('button')].find((button) =>
+      /Compartilhar|Copiado/.test(button.textContent ?? ''),
+    )!;
+  }
 
   it('moves focus to the result heading', async () => {
     const fixture = render([answered('Tubarão')], 10);

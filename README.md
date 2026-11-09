@@ -37,7 +37,8 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 | 480–599 | Netuno          |
 | 600–700 | Plutão          |
 
-- A tela de resultado mostra os pontos, o planeta, a pontuação de cada resposta e as respostas mais raras possíveis de cada categoria.
+- A tela de resultado mostra o foguete chegando em órbita do planeta alcançado, os pontos e quanto faltou para o próximo destino, um gráfico das últimas partidas com a média, cada resposta com o seu nível e as respostas mais raras possíveis de cada categoria.
+- O resultado pode ser **compartilhado** pelo menu do celular, ou copiado quando o navegador não tem esse menu.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música espacial de fundo.
 - Histórico (últimas 50 partidas), recorde, destinos alcançados e a preferência do cronômetro ficam salvos no `localStorage`, só no aparelho do jogador.

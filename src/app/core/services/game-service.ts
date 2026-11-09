@@ -5,10 +5,12 @@ import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
 import { PreferencesService } from './preferences-service';
 import { ProgressService } from './progress-service';
-import { AnswerResult, ScoringService } from './scoring-service';
+import { AnswerResult, RARITY_POINTS, ScoringService } from './scoring-service';
 
 export const CATEGORIES_PER_ROUND = 7;
 export const SECONDS_PER_CATEGORY = 30;
+/** Best possible score in a round: every answer at the rarest level. */
+export const MAX_ROUND_POINTS = CATEGORIES_PER_ROUND * RARITY_POINTS.supernova;
 
 export interface RoundEntry {
   category: Category;
