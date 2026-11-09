@@ -112,6 +112,44 @@ describe('Result', () => {
     expect(element.querySelector('ol li')?.textContent).toContain('→ Narval');
   });
 
+  it('shares the round with the system share sheet', async () => {
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, share });
+    try {
+      const fixture = render([answered('Narval')], 100);
+      shareButton(fixture.nativeElement).click();
+      await fixture.whenStable();
+
+      expect(share).toHaveBeenCalledWith({
+        text: expect.stringContaining('cheguei a Marte com 100 pts'),
+      });
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  it('copies the round when the share sheet is not available', async () => {
+    const writeText = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { ...navigator, share: undefined, clipboard: { writeText } });
+    try {
+      const fixture = render([answered('Narval')], 100);
+      shareButton(fixture.nativeElement).click();
+      await fixture.whenStable();
+      fixture.detectChanges();
+
+      expect(writeText).toHaveBeenCalledWith(expect.stringContaining('🟠'));
+      expect(shareButton(fixture.nativeElement).textContent).toContain('Copiado!');
+    } finally {
+      vi.unstubAllGlobals();
+    }
+  });
+
+  function shareButton(element: HTMLElement): HTMLButtonElement {
+    return [...element.querySelectorAll('button')].find((button) =>
+      /Compartilhar|Copiado/.test(button.textContent ?? ''),
+    )!;
+  }
+
   it('moves focus to the result heading', async () => {
     const fixture = render([answered('Tubarão')], 10);
     await fixture.whenStable();

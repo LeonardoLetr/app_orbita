@@ -1,11 +1,13 @@
 import {
   Component,
+  DOCUMENT,
   ElementRef,
   afterNextRender,
   computed,
   inject,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
@@ -16,6 +18,7 @@ import { RarityBadge } from '../../shared/components/rarity-badge';
 import { StarBurst } from '../../shared/components/star-burst';
 import { OrbitArrival } from './orbit-arrival';
 import { ScoreHistory } from './score-history';
+import { shareText } from './share-text';
 
 /** End-of-round screen: arrival at the destination, points, recent rounds and every answer. */
 @Component({
@@ -26,6 +29,7 @@ import { ScoreHistory } from './score-history';
 })
 export class Result {
   private readonly scoring = inject(ScoringService);
+  private readonly document = inject(DOCUMENT);
   protected readonly progress = inject(ProgressService);
 
   readonly entries = input.required<RoundEntry[]>();
@@ -63,8 +67,32 @@ export class Result {
     }),
   );
 
+  protected readonly canShare =
+    typeof navigator !== 'undefined' && (!!navigator.share || !!navigator.clipboard);
+  protected readonly copied = signal(false);
+
   constructor() {
     // The answer field disappears when the round ends; move focus to the result instead.
     afterNextRender(() => this.heading().nativeElement.focus());
+  }
+
+  protected async share(): Promise<void> {
+    const text = shareText(
+      this.destination(),
+      this.points(),
+      this.entries().map((entry) => entry.result),
+      this.document.baseURI,
+    );
+    try {
+      if (navigator.share) {
+        await navigator.share({ text });
+      } else {
+        await navigator.clipboard.writeText(text);
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 2000);
+      }
+    } catch {
+      // Sharing was cancelled or blocked: nothing to do.
+    }
   }
 }

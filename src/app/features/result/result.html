@@ -130,6 +130,15 @@
     >
       Jogar de novo
     </button>
+    @if (canShare) {
+      <button
+        type="button"
+        class="flex-1 rounded-2xl border-2 border-space-600 px-6 py-4 text-lg font-bold hover:border-space-400"
+        (click)="share()"
+      >
+        {{ copied() ? 'Copiado!' : 'Compartilhar' }}
+      </button>
+    }
   </div>
   <a
     routerLink="/"
