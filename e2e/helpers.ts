@@ -31,6 +31,6 @@ export async function answer(
   const text = rarity === 'skip' ? '' : category!.answers.find((a) => a.rarity === rarity)!.text;
   await field.fill(text);
   await field.press('Enter');
-  // The result appears as a badge next to the rocket.
-  await expect(page.locator('app-journey-scene .badge')).toBeVisible();
+  // The question card turns over to show the result.
+  await expect(page.locator('app-question-card [data-showing="result"]')).toHaveCount(1);
 }

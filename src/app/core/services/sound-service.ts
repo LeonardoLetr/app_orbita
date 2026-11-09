@@ -3,7 +3,7 @@ import { Rarity } from '../models/rarity';
 import { AudioOutput } from './audio-output';
 import { PreferencesService } from './preferences-service';
 
-export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish' | 'thrust';
+export type SoundEffect = Rarity | 'miss' | 'liftoff' | 'arrive' | 'finish' | 'thrust' | 'deal';
 
 interface Note {
   /** Frequency in Hz; a pair slides from the first to the second. */
@@ -49,6 +49,8 @@ const EFFECTS: Record<SoundEffect, Note[]> = {
   ],
   // Engine noise, see playThrust.
   thrust: [],
+  // A card swishing in, see playSwoosh.
+  deal: [],
   finish: [392, 523, 659, 784, 1047].map((freq, i) => ({
     freq,
     at: i * 0.11,
@@ -80,6 +82,10 @@ export class SoundService {
       this.playThrust(context, start, seconds);
       return;
     }
+    if (effect === 'deal') {
+      this.playSwoosh(context, start);
+      return;
+    }
     for (const note of EFFECTS[effect]) {
       this.playNote(context, note, start);
     }
@@ -106,6 +112,27 @@ export class SoundService {
     source.connect(filter).connect(gain).connect(context.destination);
     source.start(start);
     source.stop(start + seconds + 0.05);
+  }
+
+  /** Quick swish of air, as a new card slides in. */
+  private playSwoosh(context: AudioContext, start: number): void {
+    const source = context.createBufferSource();
+    source.buffer = this.noiseBuffer(context);
+
+    const filter = context.createBiquadFilter();
+    filter.type = 'bandpass';
+    filter.Q.value = 1.2;
+    filter.frequency.setValueAtTime(500, start);
+    filter.frequency.exponentialRampToValueAtTime(2600, start + 0.22);
+
+    const gain = context.createGain();
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(0.07, start + 0.05);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.24);
+
+    source.connect(filter).connect(gain).connect(context.destination);
+    source.start(start);
+    source.stop(start + 0.26);
   }
 
   private noiseBuffer(context: AudioContext): AudioBuffer {

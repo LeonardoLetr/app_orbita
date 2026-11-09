@@ -16,10 +16,12 @@ import { MusicService } from '../../core/services/music-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
 import { FitVisualViewport } from '../../shared/fit-visual-viewport';
+import { distanceAt, formatDistance } from '../../core/utils/journey';
 import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { Result } from '../result/result';
 import { Countdown } from './countdown';
 import { JourneyScene, flightDuration } from './journey-scene';
+import { QuestionCard } from './question-card';
 import { TimerRing } from './timer-ring';
 
 /** Shortest time an answer's result stays on screen. */
@@ -45,7 +47,15 @@ const ZERO_ANNOUNCEMENTS = {
 
 @Component({
   selector: 'app-game',
-  imports: [RouterLink, NgTemplateOutlet, Result, JourneyScene, TimerRing, FitVisualViewport],
+  imports: [
+    RouterLink,
+    NgTemplateOutlet,
+    Result,
+    JourneyScene,
+    QuestionCard,
+    TimerRing,
+    FitVisualViewport,
+  ],
   templateUrl: './game.html',
 })
 export class Game {
@@ -62,6 +72,15 @@ export class Game {
     () => this.game.entries().filter((entry) => entry.result).length,
   );
   protected readonly next = computed(() => this.scoring.nextDestination(this.game.totalPoints()));
+  /** Next destination with the points still missing, for the question card. */
+  protected readonly nextGoal = computed(() => {
+    const next = this.next();
+    return next
+      ? { name: next.name, missing: next.minPoints - this.game.totalPoints() }
+      : undefined;
+  });
+  /** Distance travelled with the answer being revealed. */
+  protected readonly revealKm = signal<string | undefined>(undefined);
 
   /** Spoken to screen reader users when time is about to run out. */
   protected readonly timeWarning = computed(() => {
@@ -159,13 +178,16 @@ export class Game {
     }
     this.countdown.stop();
     this.clearField();
+    this.revealKm.set(
+      result.points > 0
+        ? formatDistance(distanceAt(before + result.points) - distanceAt(before))
+        : undefined,
+    );
     this.sound.play(result.match ? result.match.rarity : 'miss');
     this.revealTimer = setTimeout(
       () => {
         this.game.next();
-        if (this.game.status() === 'finished') {
-          this.sound.play('finish');
-        }
+        this.sound.play(this.game.status() === 'finished' ? 'finish' : 'deal');
         this.beginCategory();
       },
       revealDelay(before, before + result.points),

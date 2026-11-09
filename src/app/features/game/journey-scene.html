@@ -50,10 +50,4 @@
       </div>
     </div>
   </div>
-
-  @if (badge(); as badge) {
-    @for (item of [badge]; track item.key) {
-      <app-flight-badge class="badge-slot" [badge]="item" />
-    }
-  }
 </div>

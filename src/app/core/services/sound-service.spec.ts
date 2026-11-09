@@ -60,4 +60,13 @@ describe('SoundService', () => {
     expect(fake.started.noises).toBe(1);
     expect(fake.context.createBiquadFilter).toHaveBeenCalled();
   });
+
+  it('swishes when a new card comes in', () => {
+    TestBed.inject(PreferencesService).soundEnabled.set(true);
+
+    TestBed.inject(SoundService).play('deal');
+
+    expect(fake.started.noises).toBe(1);
+    expect(fake.started.oscillators).toBe(0);
+  });
 });

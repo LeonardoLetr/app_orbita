@@ -37,6 +37,6 @@ test('accepts an answer with one wrong letter and shows the right spelling', asy
   await field.fill(chars.join(''));
   await field.press('Enter');
 
-  await expect(page.locator('app-journey-scene .badge')).toBeVisible();
-  await expect(page.locator('app-journey-scene .badge-note')).toContainText(target.text);
+  await expect(page.locator('app-question-card [data-showing="result"]')).toHaveCount(1);
+  await expect(page.locator('app-question-card .back-note')).toContainText(target.text);
 });
