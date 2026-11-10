@@ -62,11 +62,16 @@
         <ng-container *ngTemplateOutlet="controls" />
         <div class="flex min-w-0 flex-1 flex-col items-center gap-1">
           @if (roundClock()) {
-            <!-- No fixed number of categories: count what was answered instead. -->
+            <!--
+              No fixed number of categories: count what was answered instead. On two lines, so
+              a long count still fits between the buttons and the score on a narrow phone.
+            -->
             <p
-              class="font-display text-base tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-xl"
+              class="flex flex-col items-center font-display leading-none tracking-wider text-star-400 uppercase"
             >
-              {{ validAnswers() }} {{ validAnswers() === 1 ? 'resposta' : 'respostas' }}
+              <!-- The space keeps the two parts apart for screen readers. -->
+              <span class="text-xl sm:text-2xl">{{ validAnswers() }}&ngsp;</span>
+              <span class="text-[0.65rem] sm:text-sm">{{ answersLabel() }}</span>
             </p>
           } @else {
             <p

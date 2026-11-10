@@ -112,6 +112,9 @@ export class Game {
   protected readonly validAnswers = computed(
     () => this.game.entries().filter((entry) => entry.result?.match).length,
   );
+  protected readonly answersLabel = computed(() =>
+    this.validAnswers() === 1 ? 'resposta' : 'respostas',
+  );
   protected readonly next = computed(() => this.scoring.nextDestination(this.game.totalPoints()));
   /** Next destination with the points still missing, for the question card. */
   protected readonly nextGoal = computed(() => {
