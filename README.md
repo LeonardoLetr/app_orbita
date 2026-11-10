@@ -10,6 +10,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - Cada partida sorteia **7 categorias** de uma base local com **80 categorias** e cerca de **4.200 respostas** (ex.: "Animal que vive no mar", "País da África", "Constelação", "Dinossauro", "Brincadeira de criança").
 - As categorias aparecem **uma por vez** e o jogador digita uma resposta para cada uma, com **cronômetro de 30 segundos por categoria**. Se o tempo acabar, vale o que estiver digitado.
 - Cada categoria aparece num **cartão** no topo da tela. Ao responder, o cartão vira e mostra o nível, os pontos e quantos km o foguete percorreu; depois o próximo cartão entra e o anterior sai voando. Como o cartão fica no topo, o resultado aparece mesmo com o teclado do celular aberto.
+- O foguete nunca fica parado: entre as respostas ele continua subindo devagar e os planetas vão passando pela tela. Essa subida é só visual e não muda a pontuação.
 - O foguete sobe pela rota de planetas conforme os pontos ganhos: resposta rara voa longe, resposta que vale 0 faz o motor engasgar. Os planetas passam com o nome e a distância real até a Terra.
 - No celular, a barra de resposta fica colada em cima do teclado. Depois de enviar a resposta o teclado se fecha, para o voo aparecer na tela toda, e o campo volta a chamar o toque na próxima categoria.
 - As estrelas e o fogo do motor são desenhados em canvas: o céu corre sem parar atrás do foguete e, a cada voo, as estrelas viram riscos e o motor solta um rastro de fogo na velocidade da viagem. O cenário não muda de tamanho quando o teclado abre ou fecha.
@@ -43,7 +44,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - O resultado pode ser **compartilhado** pelo menu do celular, ou copiado quando o navegador não tem esse menu.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música animada, com melodia, baixo e bateria.
-- **Tempo acabando:** nos últimos segundos (7 de cada categoria, ou 10 do Relâmpago) as bordas da tela pulsam em vermelho, o relógio balança, a música acelera e toca um alarme, e os últimos 5 segundos têm um tique cada.
+- **Tempo acabando:** nos últimos segundos (7 de cada categoria, ou 10 do Relâmpago) as bordas da tela pulsam em vermelho, o relógio balança, e os últimos 5 segundos têm um tique cada. A música acelera aos poucos desde a metade do tempo, depois a bateria dobra e por fim toca um alarme.
 - **Patentes:** os pontos de todas as partidas, em qualquer modo, somam experiência (XP). O jogador começa como Cadete e sobe para Piloto (500 XP), Navegador (1.500), Capitão (3.500), Comandante (7.000), Almirante (12.000) e Lenda da Galáxia (20.000). A patente, com a sua insígnia e uma barra até a próxima, aparece na tela inicial e no resultado, que comemora cada subida.
 - Histórico (últimas 50 partidas), recorde, experiência, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
 

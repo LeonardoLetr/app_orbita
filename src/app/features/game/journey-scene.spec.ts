@@ -145,4 +145,43 @@ describe('JourneyScene', () => {
     fixture.detectChanges();
     expect(stop('Éris').classList).toContain('is-lit');
   });
+
+  describe('between answers', () => {
+    const lead = () =>
+      Number(element().querySelector<HTMLElement>('.drift')!.style.getPropertyValue('--lead'));
+
+    /** Lets the animation frames of some seconds run. */
+    function fly(seconds: number) {
+      vi.advanceTimersByTime(seconds * 1000);
+    }
+
+    it('keeps the route creeping down, so the planets never stand still', () => {
+      fly(1);
+      const early = lead();
+      fly(4);
+
+      expect(early).toBeGreaterThan(0);
+      expect(lead()).toBeGreaterThan(early);
+      expect(element().querySelector('.drift .world .stop')).not.toBeNull();
+    });
+
+    it('waits on the launch pad', () => {
+      fixture.componentRef.setInput('launching', true);
+      fixture.detectChanges();
+      fly(3);
+
+      expect(lead()).toBe(0);
+    });
+
+    it('starts over with a new round', () => {
+      fly(5);
+      progress(50, 1);
+      fly(5);
+      expect(lead()).toBeGreaterThan(0);
+
+      progress(0, 0);
+
+      expect(lead()).toBe(0);
+    });
+  });
 });

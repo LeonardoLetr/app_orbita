@@ -112,6 +112,18 @@ export class Game {
   protected readonly roundClock = computed(() => this.game.mode().rules.clock.scope === 'round');
   /** Seconds left from which the clock shows as running out. */
   protected readonly urgentAt = computed(() => (this.roundClock() ? 10 : 7));
+  /**
+   * How far the clock is into its second half, from 0 to 1: the music speeds up with it,
+   * little by little, long before the screen starts to pulse.
+   */
+  protected readonly hurry = computed(() => {
+    const status = this.game.status();
+    const counting = status === 'playing' || (status === 'revealing' && this.roundClock());
+    if (!counting || this.launching() || !this.game.timerEnabled()) {
+      return 0;
+    }
+    return Math.min(1, Math.max(0, 1 - this.countdown.progress() * 2));
+  });
   /** A category can be left without an answer in this mode. */
   protected readonly canSkip = computed(() => this.game.mode().rules.canSkip !== false);
   /**
@@ -217,7 +229,7 @@ export class Game {
     inject(DestroyRef).onDestroy(() => {
       this.stopTimers();
       this.music.stop();
-      this.music.urgent.set(false);
+      this.music.urgency.set(0);
     });
 
     // Background music plays during the game screen, following its switch.
@@ -232,7 +244,7 @@ export class Game {
     });
 
     // The music hurries up along with the clock.
-    effect(() => this.music.urgent.set(this.timeLow()));
+    effect(() => this.music.urgency.set(this.hurry()));
 
     // Keep the keyboard on the answer field whenever a new category shows up. Without
     // scrolling: right after the launch the bar is still sliding in from below the screen,

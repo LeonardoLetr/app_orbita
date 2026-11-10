@@ -40,6 +40,13 @@
   }
 }
 
+/* The slow climb between answers, on top of the flights: set frame by frame, no transition. */
+.drift {
+  position: absolute;
+  inset: 0;
+  translate: 0 calc(var(--lead, 0) * var(--gap));
+}
+
 /* The camera follows the rocket: the whole route slides down under it. */
 .world {
   position: absolute;

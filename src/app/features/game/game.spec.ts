@@ -438,42 +438,55 @@ describe('Game', () => {
       }
     });
 
-    it('pulses the screen and hurries the music in the last ten seconds', async () => {
+    it('pulses the screen in the last ten seconds', async () => {
       const element = await renderClocked();
-      const music = TestBed.inject(MusicService);
 
       await pass(49_000);
       expect(element.querySelector('.time-low')).toBeNull();
-      expect(music.urgent()).toBe(false);
 
       await pass(1_000);
       expect(element.querySelector('.time-low')).not.toBeNull();
       expect(element.querySelector('app-timer-ring')?.classList).toContain('is-urgent');
-      expect(music.urgent()).toBe(true);
+    });
+
+    it('hurries the music little by little through the second half of the clock', async () => {
+      await renderClocked();
+      const music = TestBed.inject(MusicService);
+
+      await pass(29_000);
+      expect(music.urgency()).toBe(0);
+
+      await pass(16_000);
+      expect(music.urgency()).toBeCloseTo(0.5, 1);
+
+      await pass(12_000);
+      expect(music.urgency()).toBeCloseTo(0.9, 1);
     });
 
     it('keeps the hurry on while a result is shown, since the round clock is still low', async () => {
       const element = await renderClocked();
       await pass(52_000);
+      const before = TestBed.inject(MusicService).urgency();
 
       await answer(element, 'resposta 0');
 
       expect(element.querySelector('.time-low')).not.toBeNull();
-      expect(TestBed.inject(MusicService).urgent()).toBe(true);
+      expect(TestBed.inject(MusicService).urgency()).toBeCloseTo(before, 1);
+      expect(before).toBeGreaterThan(0.6);
     });
 
-    it('hurries in the last seven seconds of a category clock, and calms down after it', async () => {
+    it('hurries with a category clock too, and calms down once the answer is in', async () => {
       const element = await renderClocked({ ...blitz, rules: CLASSIC_MODE.rules });
       const music = TestBed.inject(MusicService);
 
-      await pass(22_000);
-      expect(music.urgent()).toBe(false);
-      await pass(1_000);
-      expect(music.urgent()).toBe(true);
+      await pass(14_000);
+      expect(music.urgency()).toBe(0);
+      await pass(9_000);
+      expect(music.urgency()).toBeCloseTo(0.53, 1);
       expect(element.querySelector('.time-low')).not.toBeNull();
 
       await answer(element, 'resposta 0');
-      expect(music.urgent()).toBe(false);
+      expect(music.urgency()).toBe(0);
       expect(element.querySelector('.time-low')).toBeNull();
     });
 

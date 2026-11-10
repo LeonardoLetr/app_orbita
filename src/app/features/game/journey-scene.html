@@ -9,30 +9,33 @@
 >
   <app-star-field />
 
-  <!-- Everything on the route moves together, down, as the rocket climbs. -->
-  <div class="world">
-    <div class="earth">
-      <span class="land land-a"></span>
-      <span class="land land-b"></span>
-      <span class="land land-c"></span>
-    </div>
-
-    @for (stop of stops(); track stop.id) {
-      <div
-        class="stop"
-        [class.is-right]="stop.side === 'right'"
-        [class.is-lit]="stop.index <= litIndex()"
-        [class.is-arriving]="stop.index === arrivingIndex()"
-        [style.--i]="stop.index"
-        [style.--d]="stop.size"
-      >
-        <app-planet-art class="stop-art" [planet]="stop.id" />
-        <span class="stop-label">
-          <b>{{ stop.name }}</b>
-          <span>{{ stop.distance }}</span>
-        </span>
+  <!-- The rocket never stands still: between answers the route keeps sliding down, slowly. -->
+  <div #drift class="drift">
+    <!-- Everything on the route moves together, down, as the rocket climbs. -->
+    <div class="world">
+      <div class="earth">
+        <span class="land land-a"></span>
+        <span class="land land-b"></span>
+        <span class="land land-c"></span>
       </div>
-    }
+
+      @for (stop of stops(); track stop.id) {
+        <div
+          class="stop"
+          [class.is-right]="stop.side === 'right'"
+          [class.is-lit]="stop.index <= litIndex()"
+          [class.is-arriving]="stop.index === arrivingIndex()"
+          [style.--i]="stop.index"
+          [style.--d]="stop.size"
+        >
+          <app-planet-art class="stop-art" [planet]="stop.id" />
+          <span class="stop-label">
+            <b>{{ stop.name }}</b>
+            <span>{{ stop.distance }}</span>
+          </span>
+        </div>
+      }
+    </div>
   </div>
 
   @if (launching()) {

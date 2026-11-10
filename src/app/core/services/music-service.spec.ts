@@ -87,37 +87,67 @@ describe('MusicService', () => {
     expect(sounds()).toBe(stopped);
   });
 
+  /** Sounds started while the given seconds go by. */
+  function count(seconds: number): number {
+    const before = sounds();
+    pass(seconds);
+    return sounds() - before;
+  }
+
   it('plays faster and busier when time is running out', () => {
     TestBed.inject(PreferencesService).musicEnabled.set(true);
     music.start();
     pass(4);
-    const calmStart = sounds();
-    pass(4);
-    const calm = sounds() - calmStart;
+    const calm = count(4);
 
-    music.urgent.set(true);
-    pass(1);
-    const urgentStart = sounds();
-    pass(4);
-    const urgent = sounds() - urgentStart;
+    music.urgency.set(1);
+    pass(6);
 
-    expect(urgent).toBeGreaterThan(calm * 1.5);
+    expect(count(4)).toBeGreaterThan(calm * 1.5);
+  });
+
+  it('speeds up little by little, never all at once', () => {
+    TestBed.inject(PreferencesService).musicEnabled.set(true);
+    music.start();
+    pass(4);
+    const calm = count(2);
+
+    music.urgency.set(1);
+    const justAfter = count(2);
+    pass(4);
+    const later = count(2);
+
+    expect(justAfter).toBeGreaterThanOrEqual(calm);
+    expect(justAfter).toBeLessThan(later);
+  });
+
+  it('follows the urgency part of the way when there is still some time', () => {
+    TestBed.inject(PreferencesService).musicEnabled.set(true);
+    music.start();
+    pass(4);
+    const calm = count(4);
+
+    music.urgency.set(0.3);
+    pass(6);
+    const some = count(4);
+    music.urgency.set(1);
+    pass(6);
+    const full = count(4);
+
+    expect(some).toBeGreaterThan(calm);
+    expect(some).toBeLessThan(full);
   });
 
   it('calms down again when there is time', () => {
     TestBed.inject(PreferencesService).musicEnabled.set(true);
-    music.urgent.set(true);
+    music.urgency.set(1);
     music.start();
-    pass(4);
-    const urgentStart = sounds();
-    pass(4);
-    const urgent = sounds() - urgentStart;
+    pass(8);
+    const urgent = count(4);
 
-    music.urgent.set(false);
-    pass(1);
-    const calmStart = sounds();
-    pass(4);
+    music.urgency.set(0);
+    pass(6);
 
-    expect(sounds() - calmStart).toBeLessThan(urgent / 1.5);
+    expect(count(4)).toBeLessThan(urgent / 1.5);
   });
 });
