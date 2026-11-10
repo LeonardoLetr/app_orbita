@@ -1,6 +1,7 @@
 import type { AnswerResult } from '../services/scoring-service';
 import { GameModeId } from './game-mode';
 import { PlanetId } from './planet';
+import { ThemeId } from './theme';
 
 export interface RoundAnswer {
   categoryId: string;
@@ -14,6 +15,8 @@ export interface RoundRecord {
   /** ISO date and time. */
   playedAt: string;
   mode: GameModeId;
+  /** Theme of the round, in the mode played by theme. */
+  theme?: ThemeId;
   points: number;
   planetId: PlanetId;
   answers: RoundAnswer[];

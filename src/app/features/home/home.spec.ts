@@ -123,4 +123,10 @@ describe('Home', () => {
 
     expect(render().textContent).toContain('Destinos alcançados: 1 de 8');
   });
+
+  it('offers the rounds by theme', () => {
+    const link = render().querySelector<HTMLAnchorElement>('a[href="/jogar/tema"]');
+
+    expect(link?.textContent).toContain('Por tema');
+  });
 });

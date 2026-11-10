@@ -107,12 +107,20 @@
             <p
               class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
             >
-              Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+              @if (game.mode().theme; as theme) {
+                <!-- The marks below count the categories; the label says the theme. -->
+                {{ theme.name }}
+                <span class="sr-only">
+                  , categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+                </span>
+              } @else {
+                Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+              }
             </p>
             <ol class="flex gap-1" aria-hidden="true">
               @for (item of game.entries(); track item.category.id; let i = $index) {
                 <li
-                  class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
+                  class="h-1.5 w-3.5 rounded-full transition-colors max-[359px]:w-2.5 sm:w-8"
                   [class]="
                     i < game.index()
                       ? 'bg-candy-500'

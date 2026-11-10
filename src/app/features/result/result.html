@@ -5,12 +5,12 @@
   />
 
   <div class="flex flex-col items-center gap-1 text-center">
-    @if (modeName(); as name) {
+    @if (modeBadge(); as badge) {
       <p
         class="reveal mb-1 rounded-full border-[3px] border-ink bg-aurora-400 px-3 py-0.5 font-display tracking-wide text-ink"
         style="--delay: 1.4s"
       >
-        Modo {{ name }}
+        {{ badge }}
       </p>
     }
     <p
@@ -156,6 +156,15 @@
       </button>
     }
   </div>
+  @if (themesLink(); as link) {
+    <a
+      [routerLink]="link"
+      class="reveal inline-flex min-h-11 items-center self-center rounded-full px-4 font-extrabold text-space-50 underline decoration-candy-500 decoration-[3px] underline-offset-4 hover:text-star-400"
+      style="--delay: 3.15s"
+    >
+      Escolher outro tema
+    </a>
+  }
   <a
     routerLink="/"
     class="reveal inline-flex min-h-11 items-center self-center rounded-full px-4 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"

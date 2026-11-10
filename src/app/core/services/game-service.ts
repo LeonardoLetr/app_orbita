@@ -169,6 +169,7 @@ export class GameService {
     return this.progress.record({
       points,
       mode: this.mode().id,
+      ...(this.mode().theme ? { theme: this.mode().theme?.id } : {}),
       planetId: this.scoring.destinationFor(points, this.mode().rules.route).id,
       answers: this.entries().map(({ category, result }) => ({
         categoryId: category.id,

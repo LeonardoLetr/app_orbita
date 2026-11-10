@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CLASSIC_MODE, isMainMode } from '../../core/data/game-modes';
+import { CLASSIC_MODE, THEME_MODE, isMainMode, modeLink } from '../../core/data/game-modes';
 import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
@@ -61,7 +61,21 @@ export class Result {
     this.progress.lastOutcome() ? this.progress.rounds()[0]?.id : undefined,
   );
   /** Name of the mode, said only for rounds outside the main one. */
-  protected readonly modeName = computed(() => (isMainMode(this.mode()) ? '' : this.mode().name));
+  protected readonly modeName = computed(() => {
+    const mode = this.mode();
+    if (mode.theme) {
+      return `Tema ${mode.theme.name}`;
+    }
+    return isMainMode(mode) ? '' : mode.name;
+  });
+  /** The same on the badge above the destination: "Modo Relâmpago", "Tema Natureza". */
+  protected readonly modeBadge = computed(() =>
+    this.mode().theme || !this.modeName() ? this.modeName() : `Modo ${this.modeName()}`,
+  );
+  /** Where another theme can be picked, after a round played by theme. */
+  protected readonly themesLink = computed(() =>
+    this.mode().theme ? modeLink(THEME_MODE) : undefined,
+  );
   /** Saved rounds of this mode, newest first. */
   protected readonly modeRounds = computed(() =>
     this.progress.rounds().filter((round) => round.mode === this.mode().id),

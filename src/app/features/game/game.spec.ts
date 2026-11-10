@@ -501,6 +501,18 @@ describe('Game', () => {
     });
   });
 
+  it('says the theme of the round in the header', async () => {
+    const element = await renderMode({
+      ...CLASSIC_MODE,
+      slug: 'tema/natureza',
+      theme: { id: 'nature', name: 'Natureza', slug: 'natureza', tagline: '', tone: '' },
+    });
+    const header = element.querySelector('header')!;
+
+    expect(header.textContent).toContain('Natureza');
+    expect(header.textContent).toMatch(/categoria 1 de 5/);
+  });
+
   it('keeps short results on screen for a minimum time', () => {
     expect(revealDelay(10, 10)).toBe(MIN_REVEAL_MS);
     expect(revealDelay(0, 30)).toBeGreaterThan(revealDelay(0, 10));
