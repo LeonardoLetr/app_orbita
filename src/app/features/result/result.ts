@@ -16,6 +16,8 @@ import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
+import { rankFor } from '../../core/utils/ranks';
+import { RankBadge } from '../../shared/components/rank-badge';
 import { RarityBadge } from '../../shared/components/rarity-badge';
 import { StarBurst } from '../../shared/components/star-burst';
 import { OrbitArrival } from './orbit-arrival';
@@ -30,7 +32,7 @@ const FOLDED_ROWS = 10;
 /** End-of-round screen: arrival at the destination, points, recent rounds and every answer. */
 @Component({
   selector: 'app-result',
-  imports: [RouterLink, RarityBadge, StarBurst, OrbitArrival, ScoreHistory],
+  imports: [RouterLink, RarityBadge, RankBadge, StarBurst, OrbitArrival, ScoreHistory],
   templateUrl: './result.html',
   styleUrl: './result.css',
 })
@@ -120,6 +122,24 @@ export class Result {
       ? this.rows()
       : this.rows().slice(0, FOLDED_ROWS),
   );
+
+  /** Experience of the round and where it left the player in the career. */
+  protected readonly career = computed(() => {
+    const outcome = this.progress.lastOutcome();
+    if (!outcome) {
+      return undefined;
+    }
+    const standing = this.progress.standing();
+    const before = rankFor(this.progress.xp() - outcome.xpGained);
+    return {
+      gained: outcome.xpGained,
+      standing,
+      rankUp: outcome.rankUp,
+      // The bar fills from where it was, or from empty after moving up a rank.
+      from: Math.round((outcome.rankUp ? 0 : before.progress) * 100),
+      to: Math.round(standing.progress * 100),
+    };
+  });
 
   protected readonly canShare =
     typeof navigator !== 'undefined' && (!!navigator.share || !!navigator.clipboard);

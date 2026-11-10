@@ -12,7 +12,7 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 | M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | Feito    |
 | M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 | A fazer  |
 | G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  | A fazer  |
-| G2     | Patentes                               | `feat/ranks`           | P       | —                  | A fazer  |
+| G2     | Patentes                               | `feat/ranks`           | P       | —                  | Feito    |
 | G3     | Álbum de figurinhas                    | `feat/sticker-album`   | G       | — (cresce com M/G) | A fazer  |
 | G4     | Foguete personalizável                 | `feat/rocket-hangar`   | M       | G2 e G3 (em parte) | A fazer  |
 | N1     | Projeto Firebase                       | `chore/firebase-setup` | P       | ação do Leonardo   | A fazer  |
@@ -327,6 +327,14 @@ Com uma média perto de 200 pontos por partida, o jogador vira Piloto em umas 3 
 **Testes:** `rankFor` nos limites de cada patente; XP inicial a partir do histórico; resultado mostrando a subida de patente.
 
 **Pronto quando:** a patente aparece na tela inicial, sobe na hora certa e a comemoração acontece uma vez só.
+
+**Situação:** feito, com a tabela do rascunho.
+
+**Como ficou, onde difere do plano**
+
+- A insígnia é um escudo: uma a três divisas nas três primeiras patentes, uma a três estrelas nas três seguintes e uma estrela grande com coroa na última.
+- A subida de patente é comemorada com estrelas no resultado. Não há um som próprio para ela.
+- Apagar o histórico também zera a experiência.
 
 ### G3 · Álbum de figurinhas
 

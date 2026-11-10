@@ -12,3 +12,16 @@
     translate: 0 0.75rem;
   }
 }
+
+/* The experience bar fills from where it was before the round. */
+@media (prefers-reduced-motion: no-preference) {
+  .xp-bar {
+    animation: xp-fill 900ms 2.4s cubic-bezier(0.2, 0.8, 0.3, 1) backwards;
+  }
+}
+
+@keyframes xp-fill {
+  from {
+    width: var(--from);
+  }
+}

@@ -2,6 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { GAME_MODES } from '../data/game-modes';
 import { ProgressRepository } from '../data/progress-repository';
 import { GameMode, GameModeId } from '../models/game-mode';
+import { Rank } from '../models/rank';
+import { rankFor } from '../utils/ranks';
 import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
 
 /** What a finished round changed in the player's progress. */
@@ -11,6 +13,10 @@ export interface RoundOutcome {
   /** Beat the record of this mode. */
   isNewBest: boolean;
   isNewPlanet: boolean;
+  /** Experience earned with the round. */
+  xpGained: number;
+  /** The rank reached with this round, when it moved the player up. */
+  rankUp?: Rank;
 }
 
 /** Best score of the player in one mode. */
@@ -40,6 +46,9 @@ export class ProgressService {
     }));
   });
   readonly totalRounds = computed(() => this.state().totalRounds);
+  readonly xp = computed(() => this.state().xp);
+  /** Where the player stands in the career. */
+  readonly standing = computed(() => rankFor(this.xp()));
   readonly reachedPlanets = computed(() => new Set(this.state().reachedPlanets));
   /** Outcome of the last round recorded in this session. */
   readonly lastOutcome = this.lastOutcomeState.asReadonly();
@@ -76,7 +85,12 @@ export class ProgressService {
       isFirstRound: !(round.mode in before.bestByMode),
       isNewBest: round.points > (before.bestByMode[round.mode] ?? 0),
       isNewPlanet: !before.reachedPlanets.includes(round.planetId),
+      xpGained: Math.max(0, round.points),
     };
+    const reached = rankFor(before.xp + outcome.xpGained);
+    if (reached.level > rankFor(before.xp).level) {
+      outcome.rankUp = reached.rank;
+    }
     this.lastOutcomeState.set(outcome);
 
     const playedAt = new Date();

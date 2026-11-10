@@ -171,4 +171,48 @@ describe('LocalProgressRepository', () => {
 
     expect(progress.rounds.map((saved) => [saved.id, saved.theme])).toEqual([['a', 'nature']]);
   });
+
+  describe('experience', () => {
+    it('adds the points of every round', async () => {
+      await repository.addRound(round('a', 120, 'mars'));
+      const progress = await repository.addRound(round('b', 300, 'saturn'));
+
+      expect(progress.xp).toBe(420);
+      expect((await repository.load()).xp).toBe(420);
+    });
+
+    it('keeps counting after the history drops old rounds', async () => {
+      store.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({
+          version: 2,
+          rounds: [round('a', 100, 'mars')],
+          totalRounds: 80,
+          xp: 9000,
+        }),
+      );
+
+      expect((await repository.load()).xp).toBe(9000);
+      expect((await repository.addRound(round('b', 50, 'moon'))).xp).toBe(9050);
+    });
+
+    it('starts from the rounds in the history for progress saved before there were ranks', async () => {
+      store.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({
+          version: 2,
+          rounds: [round('b', 300, 'saturn'), round('a', 120, 'mars')],
+          totalRounds: 2,
+        }),
+      );
+
+      expect((await repository.load()).xp).toBe(420);
+    });
+
+    it('goes back to zero when the progress is cleared', async () => {
+      await repository.addRound(round('a', 120, 'mars'));
+
+      expect((await repository.clear()).xp).toBe(0);
+    });
+  });
 });

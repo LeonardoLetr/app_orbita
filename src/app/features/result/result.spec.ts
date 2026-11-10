@@ -335,6 +335,56 @@ describe('Result', () => {
     });
   });
 
+  describe('career', () => {
+    it('shows the experience of the round and what is left for the next rank', async () => {
+      const progress = TestBed.inject(ProgressService);
+      await progress.record({ points: 100, planetId: 'mars', mode: 'classic', answers: [] });
+
+      const element = render([answered('Narval')], 100).nativeElement as HTMLElement;
+      const career = element.querySelector('section[aria-labelledby="career-title"]')!;
+
+      expect(career.textContent).toContain('Cadete');
+      expect(career.textContent).toMatch(/\+100 XP\s*· faltam 400 para Piloto/);
+      expect(career.textContent).not.toContain('Nova patente');
+      expect(career.querySelector<HTMLElement>('.xp-bar')?.style.width).toBe('20%');
+    });
+
+    it('celebrates a new rank', async () => {
+      const progress = TestBed.inject(ProgressService);
+      await progress.record({ points: 450, planetId: 'uranus', mode: 'classic', answers: [] });
+      await progress.record({ points: 100, planetId: 'mars', mode: 'classic', answers: [] });
+
+      const element = render([answered('Narval')], 100).nativeElement as HTMLElement;
+      const career = element.querySelector('section[aria-labelledby="career-title"]')!;
+
+      expect(career.textContent).toContain('Nova patente: Piloto!');
+      expect(career.querySelector('app-star-burst')).not.toBeNull();
+      // The bar starts over on the way to the next rank.
+      expect(career.querySelector<HTMLElement>('.xp-bar')?.style.getPropertyValue('--from')).toBe(
+        '0%',
+      );
+    });
+
+    it('fills the bar from where it was before the round', async () => {
+      const progress = TestBed.inject(ProgressService);
+      await progress.record({ points: 100, planetId: 'mars', mode: 'classic', answers: [] });
+      await progress.record({ points: 150, planetId: 'mars', mode: 'classic', answers: [] });
+
+      const bar = (
+        render([answered('Narval')], 150).nativeElement as HTMLElement
+      ).querySelector<HTMLElement>('.xp-bar')!;
+
+      expect(bar.style.getPropertyValue('--from')).toBe('20%');
+      expect(bar.style.width).toBe('50%');
+    });
+
+    it('is not shown before the round is saved', () => {
+      const element = render([answered('Narval')], 100).nativeElement as HTMLElement;
+
+      expect(element.querySelector('section[aria-labelledby="career-title"]')).toBeNull();
+    });
+  });
+
   it('moves focus to the result heading', async () => {
     const fixture = render([answered('Tubarão')], 10);
     await fixture.whenStable();

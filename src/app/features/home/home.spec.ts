@@ -71,7 +71,9 @@ describe('Home', () => {
 
     const element = render();
 
-    expect(element.querySelector('#progress-title + dl dd')?.textContent).toContain('75 pts');
+    expect(
+      element.querySelector('section[aria-labelledby="progress-title"] dl dd')?.textContent,
+    ).toContain('75 pts');
     expect(element.querySelector('a[href="/jogar/relampago"]')?.textContent).toContain(
       'Recorde: 480 pts',
     );
@@ -81,7 +83,7 @@ describe('Home', () => {
     const progress = TestBed.inject(ProgressService);
     await progress.record({ points: 480, planetId: 'neptune', mode: 'blitz', answers: [] });
 
-    const record = render().querySelector('#progress-title + dl dd');
+    const record = render().querySelector('section[aria-labelledby="progress-title"] dl dd');
 
     expect(record?.textContent).not.toContain('pts');
     expect(record?.textContent).toContain('nenhuma partida no modo Clássico ainda');
@@ -128,5 +130,18 @@ describe('Home', () => {
     const link = render().querySelector<HTMLAnchorElement>('a[href="/jogar/tema"]');
 
     expect(link?.textContent).toContain('Por tema');
+  });
+
+  it('shows the rank and the way to the next one', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 700, planetId: 'pluto', mode: 'classic', answers: [] });
+
+    const element = render();
+    const card = element.querySelector('section[aria-labelledby="progress-title"]')!;
+
+    expect(card.textContent).toContain('Piloto');
+    expect(card.textContent).toMatch(/700 XP · faltam 800 para Navegador/);
+    expect(card.querySelector('app-rank-badge')).not.toBeNull();
+    expect(card.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow')).toBe('20');
   });
 });
