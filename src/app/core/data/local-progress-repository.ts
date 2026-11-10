@@ -38,6 +38,7 @@ export class LocalProgressRepository extends ProgressRepository {
       reachedPlanets: current.reachedPlanets.includes(round.planetId)
         ? current.reachedPlanets
         : [...current.reachedPlanets, round.planetId],
+      xp: current.xp + Math.max(0, round.points),
     };
     writeJson(this.store, PROGRESS_KEY, { version: VERSION, ...progress });
     return progress;
@@ -69,6 +70,7 @@ export class LocalProgressRepository extends ProgressRepository {
       totalRounds: Math.max(toCount(saved['totalRounds']), rounds.length),
       bestByMode: toBestByMode(saved['bestByMode'], rounds),
       reachedPlanets,
+      xp: toXp(saved['xp'], rounds),
     };
   }
 }
@@ -121,6 +123,16 @@ function toBestByMode(value: unknown, rounds: RoundRecord[]): PlayerProgress['be
     best[round.mode] = Math.max(best[round.mode] ?? 0, round.points);
   }
   return best;
+}
+
+/**
+ * Experience saved, or, for progress saved before there were ranks, the points of the
+ * rounds still in the history (an estimate: only the latest rounds are kept).
+ */
+function toXp(value: unknown, rounds: RoundRecord[]): number {
+  return typeof value === 'number'
+    ? toCount(value)
+    : rounds.reduce((total, round) => total + Math.max(0, round.points), 0);
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

@@ -18,7 +18,7 @@ describe('ProgressService', () => {
   }
 
   it('records the first round as a new record and a new planet', async () => {
-    expect(await play(45, 'mars')).toEqual({
+    expect(await play(45, 'mars')).toMatchObject({
       isFirstRound: true,
       isNewBest: true,
       isNewPlanet: true,
@@ -31,12 +31,12 @@ describe('ProgressService', () => {
   it('only flags what actually changed', async () => {
     await play(70, 'jupiter');
 
-    expect(await play(45, 'mars')).toEqual({
+    expect(await play(45, 'mars')).toMatchObject({
       isFirstRound: false,
       isNewBest: false,
       isNewPlanet: true,
     });
-    expect(await play(75, 'jupiter')).toEqual({
+    expect(await play(75, 'jupiter')).toMatchObject({
       isFirstRound: false,
       isNewBest: true,
       isNewPlanet: false,
@@ -59,6 +59,48 @@ describe('ProgressService', () => {
     expect(progress.totalRounds()).toBe(0);
     expect(progress.rounds()).toEqual([]);
     expect(progress.lastOutcome()).toBeUndefined();
+  });
+});
+
+describe('ProgressService career', () => {
+  let progress: ProgressService;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({ providers: [provideTestProgress()] });
+    progress = TestBed.inject(ProgressService);
+  });
+
+  const play = (points: number) =>
+    progress.record({ points, planetId: 'moon', mode: 'classic', answers: [] });
+
+  it('starts as a cadet with no experience', () => {
+    expect(progress.xp()).toBe(0);
+    expect(progress.standing().rank.name).toBe('Cadete');
+  });
+
+  it('earns the points of each round as experience, in any mode', async () => {
+    const outcome = await play(300);
+    await progress.record({ points: 150, planetId: 'moon', mode: 'blitz', answers: [] });
+
+    expect(outcome.xpGained).toBe(300);
+    expect(progress.xp()).toBe(450);
+    expect(progress.standing().missing).toBe(50);
+  });
+
+  it('says so when a round moves the player up a rank, and only then', async () => {
+    expect((await play(300)).rankUp).toBeUndefined();
+
+    const promoted = await play(250);
+    expect(promoted.rankUp?.name).toBe('Piloto');
+    expect(progress.standing().rank.name).toBe('Piloto');
+
+    expect((await play(100)).rankUp).toBeUndefined();
+  });
+
+  it('names the rank reached when a round jumps over one', async () => {
+    await play(400);
+
+    expect((await play(1200)).rankUp?.name).toBe('Navegador');
   });
 });
 

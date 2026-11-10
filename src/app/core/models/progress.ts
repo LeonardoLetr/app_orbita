@@ -30,6 +30,8 @@ export interface PlayerProgress {
   /** Best score in each mode already played (a mode never played has no entry). */
   bestByMode: Partial<Record<GameModeId, number>>;
   reachedPlanets: PlanetId[];
+  /** Experience: the points of every round ever played, in any mode. */
+  xp: number;
 }
 
 export const EMPTY_PROGRESS: PlayerProgress = {
@@ -37,4 +39,5 @@ export const EMPTY_PROGRESS: PlayerProgress = {
   totalRounds: 0,
   bestByMode: {},
   reachedPlanets: [],
+  xp: 0,
 };
