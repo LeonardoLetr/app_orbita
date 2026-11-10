@@ -12,7 +12,8 @@ import { ProgressService } from '../../core/services/progress-service';
   template: `
     <section aria-labelledby="modes-title" class="flex flex-col gap-3">
       <h2 id="modes-title" class="text-xl text-space-200">Outros modos</h2>
-      <ul class="grid grid-cols-2 gap-3">
+      <!-- A single mode takes the whole row instead of leaving half of it empty. -->
+      <ul class="grid gap-3" [class.grid-cols-2]="modes().length > 1">
         @for (mode of modes(); track mode.id; let odd = $odd) {
           <li [class]="odd ? 'rotate-1' : '-rotate-1'">
             <a

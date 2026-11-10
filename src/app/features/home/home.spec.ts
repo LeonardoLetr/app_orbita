@@ -55,6 +55,28 @@ describe('Home', () => {
     expect(element.querySelector('a[href="/historico"]')).not.toBeNull();
   });
 
+  it('offers the blitz mode below the main button', () => {
+    const element = render();
+    const link = element.querySelector<HTMLAnchorElement>('a[href="/jogar/relampago"]');
+
+    expect(element.textContent).toContain('Outros modos');
+    expect(link?.textContent).toContain('Relâmpago');
+    expect(link?.textContent).toContain('60 segundos');
+  });
+
+  it('keeps the record of each mode apart', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 75, planetId: 'moon', mode: 'classic', answers: [] });
+    await progress.record({ points: 480, planetId: 'neptune', mode: 'blitz', answers: [] });
+
+    const element = render();
+
+    expect(element.querySelector('#progress-title + dl dd')?.textContent).toContain('75 pts');
+    expect(element.querySelector('a[href="/jogar/relampago"]')?.textContent).toContain(
+      'Recorde: 480 pts',
+    );
+  });
+
   it('turns music on from the home screen', () => {
     const element = render();
     const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');

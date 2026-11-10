@@ -1,20 +1,14 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CLASSIC_RULES } from '../../core/data/classic-rules';
+import { BLITZ_MODE } from '../../core/data/game-modes';
 import { GameMode, GameModeId } from '../../core/models/game-mode';
 import { ProgressService } from '../../core/services/progress-service';
 import { provideTestProgress } from '../../testing/test-providers';
 import { ModePicker } from './mode-picker';
 
 describe('ModePicker', () => {
-  /** Stand-ins for the extra modes still to come. */
-  const blitz: GameMode = {
-    id: 'classic',
-    name: 'Relâmpago',
-    tagline: '60 segundos para responder o máximo que der.',
-    slug: 'relampago',
-    rules: CLASSIC_RULES,
-  };
+  const blitz = BLITZ_MODE;
+  /** A stand-in for the extra modes still to come. */
   const survival: GameMode = {
     ...blitz,
     id: 'survival' as GameModeId,
@@ -45,6 +39,14 @@ describe('ModePicker', () => {
     expect(links[0].textContent).toContain('60 segundos');
     expect(links[0].getAttribute('href')).toBe('/jogar/relampago');
     expect(links[1].getAttribute('href')).toBe('/jogar/sobrevivencia');
+  });
+
+  it('puts the modes side by side', () => {
+    expect(render([blitz, survival]).querySelector('ul')?.classList).toContain('grid-cols-2');
+  });
+
+  it('gives the whole row to a single mode', () => {
+    expect(render([blitz]).querySelector('ul')?.classList).not.toContain('grid-cols-2');
   });
 
   it('shows the record only for modes already played', async () => {
