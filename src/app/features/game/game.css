@@ -79,3 +79,23 @@
     scale: 1.6;
   }
 }
+
+/* Time is running out: a red glow closes in from the edges, beating faster than a heart. */
+.time-low {
+  box-shadow: inset 0 0 5rem 1.25rem color-mix(in srgb, var(--color-flare-500) 80%, transparent);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .time-low {
+    animation: time-low 480ms ease-in-out infinite alternate;
+  }
+}
+
+@keyframes time-low {
+  from {
+    opacity: 0.4;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -111,7 +111,25 @@ export class Game {
   /** One clock runs for the whole round, instead of one for each category. */
   protected readonly roundClock = computed(() => this.game.mode().rules.clock.scope === 'round');
   /** Seconds left from which the clock shows as running out. */
-  protected readonly urgentAt = computed(() => (this.roundClock() ? 10 : 5));
+  protected readonly urgentAt = computed(() => (this.roundClock() ? 10 : 7));
+  /** A category can be left without an answer in this mode. */
+  protected readonly canSkip = computed(() => this.game.mode().rules.canSkip !== false);
+  /**
+   * Time is about to run out: the screen pulses and the music speeds up. A clock for the
+   * whole round stays low while a result is shown; one per category only while it runs.
+   */
+  protected readonly timeLow = computed(() => {
+    const seconds = this.countdown.seconds();
+    const status = this.game.status();
+    const counting = status === 'playing' || (status === 'revealing' && this.roundClock());
+    return (
+      counting &&
+      !this.launching() &&
+      this.game.timerEnabled() &&
+      seconds > 0 &&
+      seconds <= this.urgentAt()
+    );
+  });
   /** The clock of the whole round ran out: the answer on screen is the last one. */
   protected readonly timeUp = computed(() => this.roundClock() && this.countdown.expired());
   /** Answers that scored, counted where the round has no fixed number of categories. */
@@ -199,18 +217,22 @@ export class Game {
     inject(DestroyRef).onDestroy(() => {
       this.stopTimers();
       this.music.stop();
+      this.music.urgent.set(false);
     });
 
     // Background music plays during the game screen, following its switch.
     effect(() => (this.music.enabled() ? this.music.start() : this.music.stop()));
 
-    // The last seconds of a clock that ends the round are counted out loud.
+    // The last seconds of every clock are counted out loud.
     effect(() => {
       const seconds = this.countdown.seconds();
-      if (seconds >= 1 && seconds <= 5 && untracked(this.roundClock)) {
+      if (seconds >= 1 && seconds <= 5 && untracked(() => this.game.status()) === 'playing') {
         untracked(() => this.sound.play('tick'));
       }
     });
+
+    // The music hurries up along with the clock.
+    effect(() => this.music.urgent.set(this.timeLow()));
 
     // Keep the keyboard on the answer field whenever a new category shows up. Without
     // scrolling: right after the launch the bar is still sliding in from below the screen,

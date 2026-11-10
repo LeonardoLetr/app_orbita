@@ -8,9 +8,28 @@ const LENGTH = 2 * Math.PI * RADIUS;
   selector: 'app-timer-ring',
   host: {
     class: 'relative block size-14 shrink-0 sm:size-16 short:size-11',
+    '[class.is-urgent]': 'urgent()',
     role: 'timer',
     '[attr.aria-label]': '"Tempo restante: " + seconds() + " segundos"',
   },
+  styles: `
+    @media (prefers-reduced-motion: no-preference) {
+      :host(.is-urgent) {
+        animation: hurry 480ms ease-in-out infinite alternate;
+      }
+    }
+
+    @keyframes hurry {
+      from {
+        scale: 1;
+        rotate: -4deg;
+      }
+      to {
+        scale: 1.14;
+        rotate: 4deg;
+      }
+    }
+  `,
   template: `
     <svg
       viewBox="0 0 44 44"
