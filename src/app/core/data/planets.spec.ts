@@ -1,6 +1,9 @@
-import { PLANETS } from './planets';
+import { DEEP_SPACE, EXTENDED_ROUTE, PLANETS } from './planets';
 
-describe('PLANETS', () => {
+describe.each([
+  ['PLANETS', PLANETS],
+  ['EXTENDED_ROUTE', EXTENDED_ROUTE],
+])('%s', (_name, PLANETS) => {
   it('starts at zero points', () => {
     expect(PLANETS[0].minPoints).toBe(0);
   });
@@ -24,5 +27,14 @@ describe('PLANETS', () => {
       expect(planet.fact.trim(), planet.id).not.toBe('');
       expect(planet.toName.toLowerCase(), planet.id).toContain(planet.name.toLowerCase());
     }
+  });
+});
+
+describe('EXTENDED_ROUTE', () => {
+  it('goes on from Pluto to the nearest star', () => {
+    expect(EXTENDED_ROUTE.slice(0, PLANETS.length)).toEqual(PLANETS);
+    expect(EXTENDED_ROUTE.slice(PLANETS.length)).toEqual(DEEP_SPACE);
+    expect(EXTENDED_ROUTE.at(-1)?.id).toBe('proxima');
+    expect(new Set(EXTENDED_ROUTE.map((stop) => stop.id)).size).toBe(13);
   });
 });

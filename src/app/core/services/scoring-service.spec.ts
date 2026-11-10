@@ -1,3 +1,4 @@
+import { EXTENDED_ROUTE } from '../data/planets';
 import { TestBed } from '@angular/core/testing';
 import { Category } from '../models/category';
 import { ScoringService } from './scoring-service';
@@ -162,5 +163,13 @@ describe('ScoringService', () => {
 
       expect(scoring.rarestAnswers(fruit, 3, lichia)).not.toContain(lichia);
     });
+  });
+
+  it('finds destinations on a longer route when given one', () => {
+    expect(scoring.destinationFor(900).id).toBe('pluto');
+    expect(scoring.destinationFor(900, EXTENDED_ROUTE).id).toBe('eris');
+    expect(scoring.nextDestination(900)).toBeUndefined();
+    expect(scoring.nextDestination(900, EXTENDED_ROUTE)?.id).toBe('heliopause');
+    expect(scoring.nextDestination(2200, EXTENDED_ROUTE)).toBeUndefined();
   });
 });

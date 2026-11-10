@@ -24,6 +24,8 @@ import { shareText } from './share-text';
 
 /** Answers after this one come in together, so a long list does not keep the player waiting. */
 const STAGGERED_ROWS = 10;
+/** A longer list of answers starts folded, showing this many. */
+const FOLDED_ROWS = 10;
 
 /** End-of-round screen: arrival at the destination, points, recent rounds and every answer. */
 @Component({
@@ -45,10 +47,14 @@ export class Result {
 
   private readonly heading = viewChild.required<ElementRef<HTMLElement>>('heading');
 
-  protected readonly destination = computed(() => this.scoring.destinationFor(this.points()));
+  protected readonly destination = computed(() =>
+    this.scoring.destinationFor(this.points(), this.mode().rules.route),
+  );
   /** "a" or "à", taken from the destination's name ("a Saturno", "à Lua"). */
   protected readonly preposition = computed(() => this.destination().toName.split(' ')[0]);
-  protected readonly next = computed(() => this.scoring.nextDestination(this.points()));
+  protected readonly next = computed(() =>
+    this.scoring.nextDestination(this.points(), this.mode().rules.route),
+  );
 
   /** The round just played, once it is saved. */
   protected readonly currentId = computed(() =>
@@ -62,14 +68,15 @@ export class Result {
   );
   protected readonly hasHistory = computed(() => this.modeRounds().length > 1);
   protected readonly best = computed(() => this.progress.bestFor(this.mode().id));
-  /** For rounds against a single clock: how many answers fit in it. */
+  /** For rounds with no fixed number of categories: how many answers fit in the clock or in the lives. */
   protected readonly pace = computed(() => {
-    const { clock } = this.mode().rules;
-    if (clock.scope !== 'round') {
-      return '';
-    }
+    const { clock, lives } = this.mode().rules;
     const answers = this.entries().filter((entry) => entry.result?.match).length;
-    return `${answers} ${answers === 1 ? 'resposta' : 'respostas'} em ${clock.seconds} segundos`;
+    const count = `${answers} ${answers === 1 ? 'resposta' : 'respostas'}`;
+    if (lives !== undefined) {
+      return `${count} antes de perder as ${lives} vidas`;
+    }
+    return clock.scope === 'round' ? `${count} em ${clock.seconds} segundos` : '';
   });
 
   /** Each answer plus a few rare ones the player could have given instead. */
@@ -90,6 +97,14 @@ export class Result {
           .map((answer) => answer.text),
       };
     }),
+  );
+
+  /** A long list starts folded, so the buttons below it stay within reach. */
+  protected readonly unfolded = signal(false);
+  protected readonly shownRows = computed(() =>
+    this.unfolded() || this.rows().length <= FOLDED_ROWS + 2
+      ? this.rows()
+      : this.rows().slice(0, FOLDED_ROWS),
   );
 
   protected readonly canShare =

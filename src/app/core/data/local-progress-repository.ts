@@ -3,7 +3,7 @@ import { PlanetId } from '../models/planet';
 import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
 import { STORAGE, readJson, writeJson } from '../utils/storage';
 import { GAME_MODES, isGameModeId } from './game-modes';
-import { PLANETS } from './planets';
+import { EXTENDED_ROUTE } from './planets';
 import { ProgressRepository } from './progress-repository';
 
 export const PROGRESS_KEY = 'orbita:progress';
@@ -14,7 +14,7 @@ export const MAX_SAVED_ROUNDS = 50;
  */
 const VERSION = 2;
 
-const PLANET_IDS = new Set<string>(PLANETS.map((planet) => planet.id));
+const PLANET_IDS = new Set<string>(EXTENDED_ROUTE.map((planet) => planet.id));
 
 /** Saves progress in the browser, so it stays on this device only. */
 @Injectable()

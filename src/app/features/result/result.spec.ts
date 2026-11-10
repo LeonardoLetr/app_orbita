@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BLITZ_SECONDS } from '../../core/data/blitz-rules';
-import { BLITZ_MODE } from '../../core/data/game-modes';
+import { BLITZ_MODE, SURVIVAL_MODE } from '../../core/data/game-modes';
 import { Category } from '../../core/models/category';
 import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
@@ -218,21 +218,79 @@ describe('Result', () => {
       expect(chart?.textContent).not.toContain('máx.');
     });
 
-    it('brings a long list of answers in without making the last ones wait', () => {
+    function longRound() {
       const entries = Array.from({ length: 30 }, (_, i): RoundEntry => ({
         ...answered('Tubarão'),
         category: { ...sea, id: `c${i}` },
       }));
+      return render(entries, 300, BLITZ_MODE);
+    }
 
-      const element = render(entries, 300, BLITZ_MODE).nativeElement as HTMLElement;
+    it('folds a long list of answers until asked for all of it', () => {
+      const fixture = longRound();
+      const element = fixture.nativeElement as HTMLElement;
+      expect(element.querySelectorAll('ol > li')).toHaveLength(10);
+
+      const more = [...element.querySelectorAll('button')].find((button) =>
+        button.textContent?.includes('Ver as 30 respostas'),
+      )!;
+      more.click();
+      fixture.detectChanges();
+
+      expect(element.querySelectorAll('ol > li')).toHaveLength(30);
+      expect(element.textContent).not.toContain('Ver as 30 respostas');
+    });
+
+    it('brings the answers in one after the other, without making the last ones wait', () => {
+      const fixture = longRound();
+      const element = fixture.nativeElement as HTMLElement;
+      [...element.querySelectorAll('button')]
+        .find((button) => button.textContent?.includes('Ver as'))!
+        .click();
+      fixture.detectChanges();
       const delays = [...element.querySelectorAll<HTMLElement>('ol > li')].map((row) =>
         parseFloat(row.style.getPropertyValue('--delay')),
       );
 
-      expect(delays).toHaveLength(30);
       expect(delays[1]).toBeGreaterThan(delays[0]);
       expect(delays[29]).toBe(delays[10]);
       expect(delays[29]).toBeLessThan(3.5);
+    });
+
+    it('shows a list that is only a little longer in full', () => {
+      const entries = Array.from({ length: 12 }, (_, i): RoundEntry => ({
+        ...answered('Tubarão'),
+        category: { ...sea, id: `c${i}` },
+      }));
+
+      const element = render(entries, 120, BLITZ_MODE).nativeElement as HTMLElement;
+
+      expect(element.querySelectorAll('ol > li')).toHaveLength(12);
+    });
+  });
+
+  describe('after a round played with lives', () => {
+    it('says how many answers came before the lives ran out', () => {
+      const entries = [answered('Narval'), answered(''), answered('Tubarão'), answered('')];
+
+      const element = render(entries, 110, SURVIVAL_MODE).nativeElement as HTMLElement;
+
+      expect(element.textContent).toContain('Modo Sobrevivência');
+      expect(element.textContent).toContain('2 respostas antes de perder as 3 vidas');
+    });
+
+    it('arrives at the stops beyond Pluto, and aims at the next one', () => {
+      const element = render([answered('Narval')], 900, SURVIVAL_MODE).nativeElement as HTMLElement;
+
+      expect(element.querySelector('h1')?.textContent).toContain('Éris');
+      expect(element.textContent).toContain('Faltaram 100 pts para chegar à heliopausa.');
+      expect(element.textContent).toContain('Curiosidade sobre Éris');
+    });
+
+    it('stops at Pluto in the modes of the classic route', () => {
+      const element = render([answered('Narval')], 900, BLITZ_MODE).nativeElement as HTMLElement;
+
+      expect(element.querySelector('h1')?.textContent).toContain('Plutão');
     });
   });
 

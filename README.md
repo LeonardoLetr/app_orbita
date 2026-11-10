@@ -55,6 +55,13 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
   - Quando o tempo acaba, vale o que estiver digitado.
   - Pontos e destinos são os mesmos do Clássico. O topo da tela conta as respostas que pontuaram, e o resultado diz quantas couberam nos 60 segundos.
 
+- **Sobrevivência:** a partida dura enquanto durarem as **3 vidas**. Também fica em "Outros modos".
+  - Perde uma vida quem pula a categoria ou deixa o tempo acabar sem uma resposta válida. Resposta fora da lista continua podendo ser corrigida até o tempo acabar.
+  - O tempo encurta: 30 segundos nas categorias 1 a 7, 25 nas 8 a 14, 20 nas 15 a 21 e 15 daí em diante.
+  - As categorias saem embaralhadas, sem repetir até que todas tenham passado.
+  - A rota continua depois de Plutão: Éris (800 pontos), heliopausa (1.000), Voyager 1 (1.300), Nuvem de Oort (1.700) e Proxima Centauri (2.200), com distâncias da NASA.
+  - O topo da tela mostra o número da categoria e as vidas, e o botão de pular avisa que custa uma vida.
+
 Cada modo tem o seu próprio recorde e o seu próprio gráfico de partidas. O histórico mostra em que modo cada partida foi jogada.
 
 ## Stack
@@ -99,9 +106,11 @@ As regras da partida não ficam no motor do jogo: cada modo é um item da lista 
 - `pickCategories`: quais categorias entram e em que ordem;
 - `clock`: um relógio para cada categoria (`category`) ou um só para a partida inteira (`round`), que a encerra quando zera, e quantos segundos ele tem;
 - `pace`: `calm` mostra o voo inteiro depois de cada resposta e recolhe o teclado; `quick` encurta voos e resultados e deixa o teclado aberto;
+- `lives`: vidas, nos modos em que a partida só acaba quando elas acabam;
+- `route`: as paradas que o foguete pode alcançar (a rota clássica, até Plutão, ou a estendida);
 - `maxPoints`: a pontuação máxima, quando o modo tem um número fixo de categorias. Sem ela, o gráfico de partidas ajusta a escala à melhor partida.
 
-Hoje existem o Clássico (`core/data/classic-rules.ts`) e o Relâmpago (`core/data/blitz-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
+Hoje existem o Clássico (`core/data/classic-rules.ts`), o Relâmpago (`core/data/blitz-rules.ts`) e a Sobrevivência (`core/data/survival-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
 
 Cada partida salva guarda o modo em que foi jogada. O progresso gravado por versões anteriores do jogo continua sendo lido, como partidas do modo Clássico.
 

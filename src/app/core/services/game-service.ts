@@ -7,6 +7,9 @@ import { RANDOM } from '../utils/random';
 import { ProgressService } from './progress-service';
 import { AnswerResult, ScoringService } from './scoring-service';
 
+/** Categories kept away from the start of a new draw in a round that asks them all again. */
+const RECENT_CATEGORIES = 7;
+
 export interface RoundEntry {
   category: Category;
   result?: AnswerResult;
@@ -36,6 +39,7 @@ export class GameService {
   private readonly modeState = signal<GameMode>(CLASSIC_MODE);
   private readonly entriesState = signal<RoundEntry[]>([]);
   private readonly indexState = signal(0);
+  private categories: Category[] = [];
 
   /** Each category has a countdown; it is part of the game. Turned off only in tests. */
   readonly timerEnabled = signal(true);
@@ -48,6 +52,16 @@ export class GameService {
   readonly totalPoints = computed(() =>
     this.entries().reduce((total, entry) => total + (entry.result?.points ?? 0), 0),
   );
+
+  /** Lives left, in modes played with lives. One goes with each category left without a valid answer. */
+  readonly lives = computed(() => {
+    const lives = this.mode().rules.lives;
+    if (lives === undefined) {
+      return undefined;
+    }
+    const missed = this.entries().filter((entry) => entry.result && !entry.result.match).length;
+    return Math.max(0, lives - missed);
+  });
 
   readonly status = computed<RoundStatus>(() => {
     const load = this.loadState();
@@ -67,6 +81,7 @@ export class GameService {
     this.loadState.set('loading');
     try {
       const categories = await this.repository.getAll();
+      this.categories = categories;
       const previous = new Set(this.entries().map((entry) => entry.category.id));
 
       this.modeState.set(mode);
@@ -109,6 +124,12 @@ export class GameService {
     if (this.status() !== 'revealing') {
       return;
     }
+    const lives = this.lives();
+    if (lives === 0) {
+      this.dropUnasked();
+    } else if (lives !== undefined && this.index() + 1 >= this.entries().length) {
+      this.drawAgain();
+    }
     this.indexState.update((index) => index + 1);
     if (this.status() === 'finished') {
       void this.saveRound();
@@ -123,9 +144,24 @@ export class GameService {
     if (this.status() !== 'revealing') {
       return;
     }
+    this.dropUnasked();
+    this.next();
+  }
+
+  private dropUnasked(): void {
     const asked = this.index() + 1;
     this.entriesState.update((entries) => entries.slice(0, asked));
-    this.next();
+  }
+
+  /** Every category was asked and the round goes on: draws them again, the latest ones last. */
+  private drawAgain(): void {
+    const latest = new Set(
+      this.entries()
+        .slice(-RECENT_CATEGORIES)
+        .map((entry) => entry.category.id),
+    );
+    const more = this.mode().rules.pickCategories(this.categories, latest, this.random);
+    this.entriesState.update((entries) => [...entries, ...more.map((category) => ({ category }))]);
   }
 
   private saveRound() {
@@ -133,7 +169,7 @@ export class GameService {
     return this.progress.record({
       points,
       mode: this.mode().id,
-      planetId: this.scoring.destinationFor(points).id,
+      planetId: this.scoring.destinationFor(points, this.mode().rules.route).id,
       answers: this.entries().map(({ category, result }) => ({
         categoryId: category.id,
         categoryTitle: category.title,

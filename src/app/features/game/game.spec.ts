@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { provideRouter, Routes } from '@angular/router';
 import { RouterTestingHarness } from '@angular/router/testing';
-import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { CLASSIC_MODE, SURVIVAL_MODE } from '../../core/data/game-modes';
 import { GameMode } from '../../core/models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
 import { CategoryRepository } from '../../core/data/category-repository';
@@ -391,6 +391,22 @@ describe('Game', () => {
       expect(element.querySelector('#result-title')).not.toBeNull();
     });
 
+    it('gives later categories the time their position asks for', async () => {
+      const element = await renderClocked({
+        ...blitz,
+        rules: {
+          ...blitz.rules,
+          clock: { scope: 'category', seconds: 30, secondsAt: (index) => (index === 0 ? 30 : 12) },
+        },
+      });
+      expect(secondsLeft(element)).toBe('30');
+
+      await answer(element, 'resposta 0');
+      await afterReveal();
+
+      expect(secondsLeft(element)).toBe('12');
+    });
+
     function countTicks() {
       const play = vi.spyOn(TestBed.inject(SoundService), 'play');
       return () => play.mock.calls.filter(([effect]) => effect === 'tick').length;
@@ -418,6 +434,70 @@ describe('Game', () => {
       }
 
       expect(ticks()).toBe(0);
+    });
+  });
+
+  describe('with lives', () => {
+    const lit = (element: HTMLElement) => element.querySelectorAll('header .life[data-lit]');
+    const sendButton = (element: HTMLElement) =>
+      element.querySelector<HTMLButtonElement>('form button[type=submit]')!;
+
+    it('shows the category number with no end, and the lives', async () => {
+      const element = await renderMode(SURVIVAL_MODE);
+      const header = element.querySelector('header')!;
+
+      expect(header.textContent).toContain('Categoria 1');
+      expect(header.textContent).not.toContain('Categoria 1 de');
+      expect(header.querySelectorAll('.life')).toHaveLength(3);
+      expect(lit(element)).toHaveLength(3);
+      expect(header.textContent).toContain('Vidas: 3 de 3');
+    });
+
+    it('warns that skipping costs a life, only while nothing is typed', async () => {
+      const element = await renderMode(SURVIVAL_MODE);
+      expect(sendButton(element).textContent).toMatch(/Pular\s*−1 vida/);
+
+      const input = element.querySelector<HTMLInputElement>('#answer')!;
+      input.value = 'algo';
+      input.dispatchEvent(new Event('input'));
+      await fixture.whenStable();
+
+      expect(sendButton(element).textContent?.trim()).toBe('Enviar');
+    });
+
+    it('does not mention lives in the modes without them', async () => {
+      const element = await render();
+
+      expect(sendButton(element).textContent?.trim()).toBe('Pular');
+      expect(element.querySelector('.life')).toBeNull();
+    });
+
+    it('takes a life, blinks and says so when a category is skipped', async () => {
+      const element = await renderMode(SURVIVAL_MODE);
+
+      await answer(element, '');
+
+      expect(lit(element)).toHaveLength(2);
+      expect(element.querySelector('.life-flash')).not.toBeNull();
+      expect(element.querySelector('[aria-live=polite]')?.textContent).toBe(
+        'Categoria pulada. Menos uma vida: restam 2.',
+      );
+    });
+
+    it('keeps the lives for an answer that scores', async () => {
+      const element = await renderMode(SURVIVAL_MODE);
+
+      await answer(element, 'resposta 0');
+
+      expect(lit(element)).toHaveLength(3);
+      expect(element.querySelector('.life-flash')).toBeNull();
+    });
+
+    it('shows the next stops of the longer route', async () => {
+      const element = await renderMode(SURVIVAL_MODE);
+
+      expect(element.querySelectorAll('app-journey-scene .stop')).toHaveLength(12);
+      expect(element.querySelector('app-journey-scene')?.textContent).toContain('Proxima Centauri');
     });
   });
 

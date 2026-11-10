@@ -8,7 +8,7 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 | ------ | -------------------------------------- | ---------------------- | ------- | ------------------ | -------- |
 | M0     | Base para modos de jogo                | `feat/game-modes`      | M       | —                  | Feito    |
 | M1     | Modo Relâmpago                         | `feat/blitz-mode`      | M       | M0                 | Feito    |
-| M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 | A fazer  |
+| M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 | Feito    |
 | M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | A fazer  |
 | M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 | A fazer  |
 | G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  | A fazer  |
@@ -173,6 +173,16 @@ As distâncias desta tabela são aproximadas e precisam ser conferidas em fonte 
 **Testes:** perda de vida, fim da partida, tempo decrescente, rota estendida em `journey.spec.ts`, formatação de trilhões; ponta a ponta perdendo as 3 vidas.
 
 **Pronto quando:** dá para jogar até perder as vidas, passar de Plutão mostra as paradas novas com distância e curiosidade, e o recorde do modo é salvo.
+
+**Situação:** feito.
+
+**Como ficou, onde difere do plano**
+
+- As distâncias das paradas novas foram conferidas em páginas da NASA: Éris a 68 UA (10,1 bilhões de km), heliopausa a 121 UA (18,2 bilhões), Voyager 1 a um dia-luz no fim de 2026 (25,9 bilhões), borda interna da Nuvem de Oort a 2.000 UA (300 bilhões) e Proxima Centauri a 4,2 anos-luz (40 trilhões).
+- As regras ganharam `lives` e `route`, e o relógio ganhou `secondsAt` (tempo por posição da categoria). O fim da partida por vidas ficou no `GameService`, sem um `isOver` nas regras.
+- O resultado diz "N respostas antes de perder as 3 vidas". O recorde continua sendo de pontos; não há recorde separado de categorias.
+- Lista de respostas com mais de 12 itens começa recolhida, mostrando 10, em qualquer modo.
+- Na tela inicial, "Destinos alcançados" conta só as 8 paradas clássicas.
 
 **A decidir:** os tempos e os pontos das paradas (ajustar jogando); se a rota estendida também vale no Relâmpago.
 

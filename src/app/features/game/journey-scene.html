@@ -17,7 +17,7 @@
       <span class="land land-c"></span>
     </div>
 
-    @for (stop of stops; track stop.id) {
+    @for (stop of stops(); track stop.id) {
       <div
         class="stop"
         [class.is-right]="stop.side === 'right'"

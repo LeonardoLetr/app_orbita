@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { PLANETS } from '../data/planets';
 import { Answer, Category } from '../models/category';
-import { Planet } from '../models/planet';
+import { Planet, Route } from '../models/planet';
 import { RARITIES, Rarity } from '../models/rarity';
 import { editDistance } from '../utils/edit-distance';
 import { normalizeAnswer } from '../utils/normalize-answer';
@@ -89,13 +89,13 @@ export class ScoringService {
   }
 
   /** Farthest planet reached with the given points. */
-  destinationFor(points: number): Planet {
-    return PLANETS.filter((planet) => points >= planet.minPoints).at(-1) ?? PLANETS[0];
+  destinationFor(points: number, route: Route = PLANETS): Planet {
+    return route.filter((planet) => points >= planet.minPoints).at(-1) ?? route[0];
   }
 
   /** Next planet after the one reached, or undefined at the end of the journey. */
-  nextDestination(points: number): Planet | undefined {
-    return PLANETS.find((planet) => planet.minPoints > points);
+  nextDestination(points: number, route: Route = PLANETS): Planet | undefined {
+    return route.find((planet) => planet.minPoints > points);
   }
 
   /**

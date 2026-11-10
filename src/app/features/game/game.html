@@ -80,6 +80,29 @@
               <span class="text-xl sm:text-2xl">{{ validAnswers() }}&ngsp;</span>
               <span class="text-[0.65rem] sm:text-sm">{{ answersLabel() }}</span>
             </p>
+          } @else if (lifeMarks(); as marks) {
+            <!-- No end in sight: the category number and the lives left, as little rockets. -->
+            <p
+              class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase max-[359px]:text-[0.65rem] sm:text-base"
+            >
+              Categoria {{ game.index() + 1 }}
+            </p>
+            <p class="flex gap-1.5">
+              <span class="sr-only">Vidas: {{ game.lives() }} de {{ marks.length }}</span>
+              @for (lit of marks; track $index) {
+                <svg
+                  viewBox="0 0 16 16"
+                  class="life size-4 transition-colors duration-500 sm:size-5"
+                  [class]="lit ? 'fill-candy-400' : 'fill-space-700'"
+                  [attr.data-lit]="lit ? '' : null"
+                  aria-hidden="true"
+                >
+                  <path
+                    d="M8 .5c2.6 2.1 3.6 5 3.6 8.5H4.4C4.4 5.5 5.4 2.6 8 .5zM4.4 9.5 2 13h2.8zM11.6 9.5 14 13h-2.8zM6.3 10.5h3.4L8 15.5z"
+                  />
+                </svg>
+              }
+            </p>
           } @else {
             <p
               class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
@@ -103,7 +126,7 @@
           }
         </div>
         <p
-          class="w-[4.5rem] shrink-0 text-right font-display text-2xl text-star-400 [text-shadow:0.08em_0.08em_0_var(--color-candy-500)] sm:w-24 sm:text-3xl"
+          class="min-w-[4.5rem] shrink-0 text-right font-display text-2xl whitespace-nowrap text-star-400 [text-shadow:0.08em_0.08em_0_var(--color-candy-500)] sm:min-w-24 sm:text-3xl"
         >
           <span #score class="inline-block">{{ game.totalPoints() }}</span>
           <span class="text-sm sm:text-lg">pts</span>
@@ -150,7 +173,13 @@
       [answers]="answered()"
       [launching]="launching()"
       [pace]="game.mode().rules.pace"
+      [route]="route()"
     />
+
+    @if (lifeLost()) {
+      <!-- A red blink over the scene when a life goes. -->
+      <div class="life-flash pointer-events-none absolute inset-0 z-[5]" aria-hidden="true"></div>
+    }
 
     <p class="sr-only" aria-live="polite">{{ resultAnnouncement() }}</p>
     <p class="sr-only" aria-live="polite">{{ timeWarning() }}</p>
@@ -222,7 +251,19 @@
           [disabled]="status === 'revealing'"
           (mousedown)="$event.preventDefault()"
         >
-          {{ draft().trim() ? 'Enviar' : 'Pular' }}
+          @if (draft().trim()) {
+            Enviar
+          } @else if (lifeMarks()) {
+            <!-- Skipping is never free where there are lives. -->
+            <span class="flex flex-col items-center leading-none">
+              Pular
+              <span class="mt-0.5 font-sans text-[0.65rem] font-extrabold tracking-normal">
+                −1 vida
+              </span>
+            </span>
+          } @else {
+            Pular
+          }
         </button>
       </div>
     </form>

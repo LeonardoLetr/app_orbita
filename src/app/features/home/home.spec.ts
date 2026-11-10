@@ -106,4 +106,21 @@ describe('Home', () => {
 
     expect(TestBed.inject(PreferencesService).soundEnabled()).toBe(true);
   });
+
+  it('offers the survival mode next to the blitz mode', () => {
+    const element = render();
+
+    expect(element.querySelector('a[href="/jogar/sobrevivencia"]')?.textContent).toContain(
+      'Sobrevivência',
+    );
+    expect(element.querySelector('app-mode-picker ul')?.classList).toContain('grid-cols-2');
+  });
+
+  it('counts only the stops of the classic route among the destinations reached', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 900, planetId: 'eris', mode: 'survival', answers: [] });
+    await progress.record({ points: 50, planetId: 'moon', mode: 'classic', answers: [] });
+
+    expect(render().textContent).toContain('Destinos alcançados: 1 de 8');
+  });
 });
