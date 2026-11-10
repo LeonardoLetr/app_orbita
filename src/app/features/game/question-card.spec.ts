@@ -23,6 +23,25 @@ describe('cardBack', () => {
   it('says why nothing was scored', () => {
     expect(cardBack({ input: '', outcome: 'blank', points: 0 }).title).toBe('Pulou');
     expect(cardBack({ input: 'x', outcome: 'timeout', points: 0 }).title).toBe('Tempo esgotado');
+    expect(cardBack({ input: 'x', outcome: 'unknown', points: 0 }).title).toBe('Fora da lista');
+  });
+
+  it('says the time ran out when the round ended with nothing scored', () => {
+    const typed = cardBack({ input: 'x', outcome: 'unknown', points: 0 }, undefined, true);
+
+    expect(typed.title).toBe('Tempo esgotado');
+    expect(typed.points).toBe(0);
+  });
+
+  it('still shows the level of an answer that scored as the round ended', () => {
+    const back = cardBack(
+      { input: 'Orca', outcome: 'scored', points: 50, match: { text: 'Orca', rarity: 'comet' } },
+      '1,1 milhão de km',
+      true,
+    );
+
+    expect(back.title).toBe('Cometa');
+    expect(back.points).toBe(50);
   });
 });
 

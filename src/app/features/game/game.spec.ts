@@ -231,7 +231,6 @@ describe('Game', () => {
       rules: {
         clock: { scope: 'round', seconds: 60 },
         pace: 'quick',
-        maxPoints: 500,
         pickCategories: (all) => [...all],
       },
     };
@@ -322,6 +321,9 @@ describe('Game', () => {
 
       await pass(60_000);
       expect(cardBack(element)).toContain('Cometa');
+      expect(element.querySelector('[aria-live=polite]')?.textContent).toBe(
+        'Cometa, mais 50 pontos. Tempo esgotado.',
+      );
 
       await afterReveal();
       const game = TestBed.inject(GameService);
@@ -341,6 +343,21 @@ describe('Game', () => {
       await afterReveal();
       expect(TestBed.inject(GameService).entries()).toHaveLength(1);
       expect(element.querySelector('#result-title')).not.toBeNull();
+    });
+
+    it('says the time ran out, not that the text left typed is outside the list', async () => {
+      const element = await renderClocked();
+      const input = element.querySelector<HTMLInputElement>('#answer')!;
+      input.value = 'Sereia';
+      input.dispatchEvent(new Event('input'));
+
+      await pass(60_000);
+
+      expect(cardBack(element)).toContain('Tempo esgotado');
+      expect(cardBack(element)).not.toContain('Fora da lista');
+      expect(element.querySelector('[aria-live=polite]')?.textContent).toBe('Tempo esgotado.');
+      // The history still keeps what was typed.
+      expect(TestBed.inject(GameService).current()?.result?.outcome).toBe('unknown');
     });
 
     it('asks nothing else when an answer comes in right as the clock runs out', async () => {

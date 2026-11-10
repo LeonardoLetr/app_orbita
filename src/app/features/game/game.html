@@ -109,6 +109,7 @@
           [next]="nextGoal()"
           [result]="status === 'revealing' ? entry.result : undefined"
           [km]="revealKm()"
+          [timeUp]="timeUp()"
         >
           @if (game.timerEnabled()) {
             <app-timer-ring

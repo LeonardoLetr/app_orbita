@@ -106,6 +106,8 @@ export class Game {
   protected readonly roundClock = computed(() => this.game.mode().rules.clock.scope === 'round');
   /** Seconds left from which the clock shows as running out. */
   protected readonly urgentAt = computed(() => (this.roundClock() ? 10 : 5));
+  /** The clock of the whole round ran out: the answer on screen is the last one. */
+  protected readonly timeUp = computed(() => this.roundClock() && this.countdown.expired());
   /** Answers that scored, counted where the round has no fixed number of categories. */
   protected readonly validAnswers = computed(
     () => this.game.entries().filter((entry) => entry.result?.match).length,
@@ -134,14 +136,17 @@ export class Game {
     if (!result) {
       return '';
     }
+    const timeUp = this.timeUp();
     if (!result.match) {
-      return ZERO_ANNOUNCEMENTS[result.outcome as keyof typeof ZERO_ANNOUNCEMENTS];
+      const reason = timeUp ? 'timeout' : (result.outcome as keyof typeof ZERO_ANNOUNCEMENTS);
+      return ZERO_ANNOUNCEMENTS[reason];
     }
     const counted =
       result.match.text.toLowerCase() !== result.input.toLowerCase()
         ? ` Valeu como ${result.match.text}.`
         : '';
-    return `${RARITY_LABELS[result.match.rarity]}, mais ${result.points} pontos.${counted}`;
+    const ending = timeUp ? ` ${ZERO_ANNOUNCEMENTS.timeout}` : '';
+    return `${RARITY_LABELS[result.match.rarity]}, mais ${result.points} pontos.${counted}${ending}`;
   });
 
   private readonly answerInput = viewChild<ElementRef<HTMLInputElement>>('answerInput');
