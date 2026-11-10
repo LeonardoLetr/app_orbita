@@ -7,9 +7,15 @@ const STEPS = 16;
 const BARS = 4;
 /** Steps planned at a time: a change of pace is heard within one beat. */
 const CHUNK = 4;
-/** Beats per minute of the tune, and of the same tune when time is running out. */
+/** Beats per minute of the tune, and of the same tune when time has all but run out. */
 const TEMPO = 118;
-const URGENT_TEMPO = 164;
+const URGENT_TEMPO = 168;
+/** The most the pace changes from one beat to the next, so it is never a sudden jump. */
+const TEMPO_STEP = 7;
+/** How hurried the tune must be (0 to 1) for the drums to double up and the alarm to sound. */
+const BUSY_HATS = 0.4;
+const BUSY_KICK = 0.6;
+const ALARM = 0.8;
 const VOLUME = 0.13;
 
 /** C, G, A minor and F: one chord for each bar, as bass note and triad. */
@@ -40,21 +46,23 @@ const BASS_JUMPS = [6, 14];
 
 /**
  * Generated game music: an upbeat little tune with bass, chords and drums, made on the
- * fly with Web Audio, so there is no file to download. While `urgent` is on, the same tune
- * runs faster, the drums double up and an alarm beeps on every beat.
+ * fly with Web Audio, so there is no file to download. As `urgency` grows, the same tune
+ * runs faster little by little, then the drums double up and at last an alarm beeps on
+ * every beat.
  */
 @Injectable({ providedIn: 'root' })
 export class MusicService {
   private readonly output = inject(AudioOutput);
   readonly enabled = inject(PreferencesService).musicEnabled;
-  /** Time is running out: the music speeds up and sounds the alarm. */
-  readonly urgent = signal(false);
+  /** How close the time is to running out, from 0 (plenty left) to 1 (none). */
+  readonly urgency = signal(0);
 
   private master?: GainNode;
   private noise?: AudioBuffer;
   private timer?: ReturnType<typeof setTimeout>;
   private step = 0;
   private nextAt = 0;
+  private tempo = TEMPO;
 
   get playing(): boolean {
     return this.master !== undefined;
@@ -77,6 +85,7 @@ export class MusicService {
     this.noise = this.createNoise(context);
 
     this.step = 0;
+    this.tempo = TEMPO;
     this.nextAt = now + 0.1;
     this.scheduleNext(context);
   }
@@ -100,10 +109,14 @@ export class MusicService {
 
   /** Plans a few steps ahead, then wakes up shortly before they end to plan the next ones. */
   private scheduleNext(context: AudioContext): void {
-    const urgent = this.urgent();
-    const stepSeconds = 60 / (urgent ? URGENT_TEMPO : TEMPO) / 4;
+    // The pace follows the urgency a few beats per minute at a time, up and down.
+    const urgency = Math.min(1, Math.max(0, this.urgency()));
+    const target = TEMPO + (URGENT_TEMPO - TEMPO) * urgency;
+    this.tempo += Math.min(TEMPO_STEP, Math.max(-TEMPO_STEP, target - this.tempo));
+    const hurry = (this.tempo - TEMPO) / (URGENT_TEMPO - TEMPO);
+    const stepSeconds = 60 / this.tempo / 4;
     for (let i = 0; i < CHUNK; i++) {
-      this.playStep(context, this.step, this.nextAt, stepSeconds, urgent);
+      this.playStep(context, this.step, this.nextAt, stepSeconds, hurry);
       this.step = (this.step + 1) % (STEPS * BARS);
       this.nextAt += stepSeconds;
     }
@@ -116,7 +129,7 @@ export class MusicService {
     step: number,
     at: number,
     stepSeconds: number,
-    urgent: boolean,
+    hurry: number,
   ): void {
     const bar = Math.floor(step / STEPS);
     const beat = step % STEPS;
@@ -136,17 +149,17 @@ export class MusicService {
     }
 
     // Drums: kick on the beat, snare on the back beat, hats in between.
-    if (beat % 8 === 0 || (urgent && beat % 4 === 0)) {
+    if (beat % 8 === 0 || (hurry >= BUSY_KICK && beat % 4 === 0)) {
       this.kick(context, at);
     }
     if (beat % 8 === 4) {
       this.hit(context, at, 0.12, 1800, 0.35);
     }
-    if (urgent || beat % 4 === 2) {
+    if (hurry >= BUSY_HATS || beat % 4 === 2) {
       this.hit(context, at, 0.04, 7000, 0.14);
     }
     // The alarm: two high notes taking turns on every beat.
-    if (urgent && beat % 4 === 0) {
+    if (hurry >= ALARM && beat % 4 === 0) {
       this.note(context, 'square', beat % 8 === 0 ? 1318.51 : 1046.5, at, stepSeconds * 1.5, 0.2);
     }
   }
