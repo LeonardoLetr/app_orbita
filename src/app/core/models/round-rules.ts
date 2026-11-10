@@ -1,4 +1,5 @@
 import { Category } from './category';
+import { Route } from './planet';
 
 /**
  * What the countdown covers: each category gets its own, or a single one runs for the
@@ -7,6 +8,11 @@ import { Category } from './category';
 export interface RoundClock {
   readonly scope: 'category' | 'round';
   readonly seconds: number;
+  /**
+   * Seconds for the category at a position in the round (from 0), where the time changes
+   * as the round goes on. Without it every category gets `seconds`.
+   */
+  secondsAt?(index: number): number;
 }
 
 /**
@@ -28,6 +34,14 @@ export interface RoundRules {
    * fixed number of categories have none.
    */
   readonly maxPoints?: number;
+  /**
+   * Lives the player starts with. One is lost with each category that ends without a
+   * valid answer, and the round goes on, drawing categories again as needed, until
+   * none is left. Without it the round ends when its categories or its clock run out.
+   */
+  readonly lives?: number;
+  /** Stops the rocket can reach. The classic route, up to Pluto, when not given. */
+  readonly route?: Route;
   /**
    * Categories of a new round, in the order they are asked. `previous` has the ids of
    * the round just played, so they can be avoided.

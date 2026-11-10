@@ -48,3 +48,34 @@
     box-shadow: 0 0 0 0.35rem var(--color-star-400);
   }
 }
+
+/* A life was lost. */
+.life-flash {
+  background: var(--color-flare-500);
+  opacity: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .life-flash {
+    animation: life-flash 600ms ease-out both;
+  }
+
+  .life:not([data-lit]) {
+    animation: life-out 500ms ease-out;
+  }
+}
+
+@keyframes life-flash {
+  0% {
+    opacity: 0.35;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes life-out {
+  0% {
+    scale: 1.6;
+  }
+}

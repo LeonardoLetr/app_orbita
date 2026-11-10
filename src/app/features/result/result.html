@@ -92,7 +92,7 @@
   <div class="flex flex-col gap-3">
     <h2 class="reveal text-3xl" style="--delay: 2.4s">Suas respostas</h2>
     <ol class="flex flex-col gap-2">
-      @for (row of rows(); track row.entry.category.id; let i = $index) {
+      @for (row of shownRows(); track $index; let i = $index) {
         <!-- The category gets the whole width; the answer shares its line with the level. -->
         <li
           class="reveal grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-3 rounded-2xl border-[3px] border-space-700 bg-space-900 px-4 py-3"
@@ -124,6 +124,15 @@
         </li>
       }
     </ol>
+    @if (shownRows().length < rows().length) {
+      <button
+        type="button"
+        class="btn btn-secondary self-center px-5 py-2 text-lg"
+        (click)="unfolded.set(true)"
+      >
+        Ver as {{ rows().length }} respostas
+      </button>
+    }
   </div>
 
   <aside class="reveal sticker rotate-1 px-5 py-4" style="--delay: 3s">

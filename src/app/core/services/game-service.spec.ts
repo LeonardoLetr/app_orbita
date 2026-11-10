@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
 import { CLASSIC_CATEGORIES } from '../data/classic-rules';
-import { CLASSIC_MODE } from '../data/game-modes';
+import { CLASSIC_MODE, SURVIVAL_MODE } from '../data/game-modes';
 import { Category } from '../models/category';
 import { GameMode } from '../models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
@@ -206,5 +206,93 @@ describe('GameService', () => {
     await game.start();
 
     expect(game.status()).toBe('error');
+  });
+
+  describe('with lives', () => {
+    const answerRight = () => game.answer(`${game.current()!.category.id} comum`);
+
+    it('starts with the lives of the mode, and has none in modes without them', async () => {
+      await game.start();
+      expect(game.lives()).toBeUndefined();
+
+      await game.start(SURVIVAL_MODE);
+      expect(game.lives()).toBe(3);
+    });
+
+    it('loses a life when a category is skipped or its time runs out', async () => {
+      await game.start(SURVIVAL_MODE);
+
+      game.answer('');
+      expect(game.lives()).toBe(2);
+      game.next();
+
+      game.answer('Sereia', true);
+      expect(game.lives()).toBe(1);
+    });
+
+    it('keeps the lives for valid answers and while the player tries again', async () => {
+      await game.start(SURVIVAL_MODE);
+
+      game.answer('Sereia');
+      expect(game.lives()).toBe(3);
+      answerRight();
+      game.next();
+
+      expect(game.lives()).toBe(3);
+      expect(game.status()).toBe('playing');
+    });
+
+    it('ends when the last life goes, keeping only the categories asked', async () => {
+      await game.start(SURVIVAL_MODE);
+      answerRight();
+      game.next();
+      for (let i = 0; i < 3; i++) {
+        expect(game.status()).toBe('playing');
+        game.answer('');
+        game.next();
+      }
+
+      expect(game.status()).toBe('finished');
+      expect(game.lives()).toBe(0);
+      expect(game.entries()).toHaveLength(4);
+      expect(game.totalPoints()).toBe(10);
+
+      const progress = TestBed.inject(ProgressService);
+      await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
+      expect(progress.rounds()[0].mode).toBe('survival');
+      expect(progress.rounds()[0].answers).toHaveLength(4);
+    });
+
+    it('draws the categories again when they were all asked, not repeating the latest', async () => {
+      await game.start(SURVIVAL_MODE);
+      for (let i = 0; i < categories.length; i++) {
+        answerRight();
+        game.next();
+      }
+
+      expect(game.status()).toBe('playing');
+      expect(game.entries()).toHaveLength(categories.length * 2);
+      const ids = game.entries().map((entry) => entry.category.id);
+      expect(ids[categories.length]).not.toBe(ids[categories.length - 1]);
+      expect(new Set(ids.slice(categories.length)).size).toBe(categories.length);
+    });
+
+    it('saves a destination beyond Pluto', async () => {
+      await game.start(SURVIVAL_MODE);
+      // Nine rare answers: 900 points, past Eris.
+      for (let i = 0; i < 9; i++) {
+        game.answer(`${game.current()!.category.id} rara`);
+        game.next();
+      }
+      for (let i = 0; i < 3; i++) {
+        game.answer('');
+        game.next();
+      }
+
+      const progress = TestBed.inject(ProgressService);
+      await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
+      expect(progress.rounds()[0].planetId).toBe('eris');
+      expect(progress.reachedPlanets().has('eris')).toBe(true);
+    });
   });
 });

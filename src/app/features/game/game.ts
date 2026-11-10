@@ -14,7 +14,9 @@ import {
 import { NgTemplateOutlet } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { PLANETS } from '../../core/data/planets';
 import { GameMode } from '../../core/models/game-mode';
+import { Route } from '../../core/models/planet';
 import { RoundPace } from '../../core/models/round-rules';
 import { GameService } from '../../core/services/game-service';
 import { MusicService } from '../../core/services/music-service';
@@ -43,8 +45,9 @@ export function revealDelay(
   pointsBefore: number,
   pointsAfter: number,
   pace: RoundPace = 'calm',
+  route?: Route,
 ): number {
-  const flight = flightDuration(pointsBefore, pointsAfter, pace);
+  const flight = flightDuration(pointsBefore, pointsAfter, pace, route);
   return pace === 'quick'
     ? Math.max(QUICK_REVEAL_MS, flight)
     : Math.max(MIN_REVEAL_MS, flight + 700);
@@ -58,6 +61,9 @@ export const SHOW_LAUNCH = new InjectionToken<boolean>('SHOW_LAUNCH', {
   providedIn: 'root',
   factory: () => !globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches,
 });
+
+/** How long the screen flashes when a life is lost. */
+const LIFE_LOST_MS = 600;
 
 /** Countdown beats before liftoff, in milliseconds from the start of the launch. */
 const COUNTDOWN_BEATS = [0, 600, 1200];
@@ -115,7 +121,21 @@ export class Game {
   protected readonly answersLabel = computed(() =>
     this.validAnswers() === 1 ? 'resposta' : 'respostas',
   );
-  protected readonly next = computed(() => this.scoring.nextDestination(this.game.totalPoints()));
+  /** Stops the rocket can reach in this mode. */
+  protected readonly route = computed(() => this.game.mode().rules.route ?? PLANETS);
+  protected readonly next = computed(() =>
+    this.scoring.nextDestination(this.game.totalPoints(), this.route()),
+  );
+  /** Lives as a row of marks, lit while they last, in modes played with lives. */
+  protected readonly lifeMarks = computed(() => {
+    const total = this.game.mode().rules.lives;
+    const left = this.game.lives();
+    return total === undefined || left === undefined
+      ? undefined
+      : Array.from({ length: total }, (_, index) => index < left);
+  });
+  /** Lit for a moment when a life is lost. */
+  protected readonly lifeLost = signal(false);
   /** Next destination with the points still missing, for the question card. */
   protected readonly nextGoal = computed(() => {
     const next = this.next();
@@ -142,7 +162,14 @@ export class Game {
     const timeUp = this.timeUp();
     if (!result.match) {
       const reason = timeUp ? 'timeout' : (result.outcome as keyof typeof ZERO_ANNOUNCEMENTS);
-      return ZERO_ANNOUNCEMENTS[reason];
+      const lives = this.game.lives();
+      const left =
+        lives === undefined
+          ? ''
+          : lives === 0
+            ? ' Acabaram as vidas.'
+            : ` Menos uma vida: ${lives === 1 ? 'resta 1' : `restam ${lives}`}.`;
+      return ZERO_ANNOUNCEMENTS[reason] + left;
     }
     const counted =
       result.match.text.toLowerCase() !== result.input.toLowerCase()
@@ -155,6 +182,7 @@ export class Game {
   private readonly answerInput = viewChild<ElementRef<HTMLInputElement>>('answerInput');
   private readonly score = viewChild<ElementRef<HTMLElement>>('score');
   private revealTimer?: ReturnType<typeof setTimeout>;
+  private lifeTimer?: ReturnType<typeof setTimeout>;
   private retries = 0;
   private readonly showLaunch = inject(SHOW_LAUNCH);
   /** Each mode has its own address, which says how this screen plays. */
@@ -270,7 +298,8 @@ export class Game {
     if (this.roundClock() && this.game.index() > 0) {
       this.countdown.resume();
     } else {
-      const { seconds } = this.game.mode().rules.clock;
+      const clock = this.game.mode().rules.clock;
+      const seconds = clock.secondsAt?.(this.game.index()) ?? clock.seconds;
       this.countdown.start(seconds, () => this.finishCategory(true));
     }
   }
@@ -288,8 +317,13 @@ export class Game {
       this.askToRetry();
       return;
     }
-    const { pace } = this.game.mode().rules;
+    const { pace, route } = this.game.mode().rules;
     const roundClock = this.roundClock();
+    if (!result.match && this.lifeMarks()) {
+      this.lifeLost.set(true);
+      clearTimeout(this.lifeTimer);
+      this.lifeTimer = setTimeout(() => this.lifeLost.set(false), LIFE_LOST_MS);
+    }
     if (roundClock) {
       // A clock for the whole round only counts the time spent answering. Otherwise a rare
       // answer would cost more of it, because its flight is longer.
@@ -305,7 +339,7 @@ export class Game {
     }
     this.revealKm.set(
       result.points > 0
-        ? formatDistance(distanceAt(before + result.points) - distanceAt(before))
+        ? formatDistance(distanceAt(before + result.points, route) - distanceAt(before, route))
         : undefined,
     );
     this.sound.play(result.match ? result.match.rarity : 'miss');
@@ -319,7 +353,7 @@ export class Game {
         this.sound.play(this.game.status() === 'finished' ? 'finish' : 'deal');
         this.beginCategory();
       },
-      revealDelay(before, before + result.points, pace),
+      revealDelay(before, before + result.points, pace, route),
     );
   }
 
@@ -365,5 +399,6 @@ export class Game {
     this.countdown.stop();
     this.clearLaunch();
     clearTimeout(this.revealTimer);
+    clearTimeout(this.lifeTimer);
   }
 }

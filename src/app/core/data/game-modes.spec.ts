@@ -5,6 +5,7 @@ import {
   BLITZ_MODE,
   CLASSIC_MODE,
   GAME_MODES,
+  SURVIVAL_MODE,
   isGameModeId,
   isMainMode,
   modeLabel,
@@ -54,5 +55,12 @@ describe('game modes', () => {
     expect(GAME_MODES).toContain(BLITZ_MODE);
     expect(isMainMode(BLITZ_MODE)).toBe(false);
     expect(BLITZ_MODE.tagline).toContain(`${BLITZ_SECONDS} segundos`);
+  });
+
+  it('offers the survival mode as an extra, saying how many lives it has', () => {
+    expect(GAME_MODES).toContain(SURVIVAL_MODE);
+    expect(modeLink(SURVIVAL_MODE)).toBe('/jogar/sobrevivencia');
+    expect(modeLabel('survival')).toBe('Sobrevivência');
+    expect(SURVIVAL_MODE.tagline).toContain('3 vidas');
   });
 });

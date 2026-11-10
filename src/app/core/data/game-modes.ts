@@ -1,6 +1,7 @@
 import { GameMode, GameModeId } from '../models/game-mode';
 import { BLITZ_RULES, BLITZ_SECONDS } from './blitz-rules';
 import { CLASSIC_RULES } from './classic-rules';
+import { SURVIVAL_LIVES, SURVIVAL_RULES } from './survival-rules';
 
 export const CLASSIC_MODE: GameMode = {
   id: 'classic',
@@ -17,8 +18,16 @@ export const BLITZ_MODE: GameMode = {
   rules: BLITZ_RULES,
 };
 
+export const SURVIVAL_MODE: GameMode = {
+  id: 'survival',
+  name: 'Sobrevivência',
+  tagline: `${SURVIVAL_LIVES} vidas para ir além de Plutão, com o tempo cada vez mais curto.`,
+  slug: 'sobrevivencia',
+  rules: SURVIVAL_RULES,
+};
+
 /** Every way of playing, the main one first. */
-export const GAME_MODES: readonly GameMode[] = [CLASSIC_MODE, BLITZ_MODE];
+export const GAME_MODES: readonly GameMode[] = [CLASSIC_MODE, BLITZ_MODE, SURVIVAL_MODE];
 
 /** The main mode opens with the big button on the home screen; the others are extras. */
 export function isMainMode(mode: GameMode): boolean {
