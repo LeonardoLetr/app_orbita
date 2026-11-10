@@ -42,7 +42,8 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - A tela de resultado mostra o foguete chegando em órbita do planeta alcançado, os pontos e quanto faltou para o próximo destino, um gráfico das últimas partidas com a média, cada resposta com o seu nível e as respostas mais raras possíveis de cada categoria.
 - O resultado pode ser **compartilhado** pelo menu do celular, ou copiado quando o navegador não tem esse menu.
 - **Jogar de novo** sorteia novas categorias, sem limite.
-- **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música espacial de fundo.
+- **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música animada, com melodia, baixo e bateria.
+- **Tempo acabando:** nos últimos segundos (7 de cada categoria, ou 10 do Relâmpago) as bordas da tela pulsam em vermelho, o relógio balança, a música acelera e toca um alarme, e os últimos 5 segundos têm um tique cada.
 - Histórico (últimas 50 partidas), recorde, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Modos de jogo
@@ -52,12 +53,13 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
   - O relógio só anda enquanto o jogador pensa e digita. Ele para enquanto o cartão mostra o resultado, para que uma resposta rara (que tem o voo mais longo) não custe mais tempo.
   - Os voos são curtos e o teclado do celular fica aberto do começo ao fim.
   - Nos últimos 10 segundos o relógio fica vermelho e, com os sons ligados, os últimos 5 têm um tique por segundo.
+  - Não dá para pular categoria: ela só passa com uma resposta válida.
   - Quando o tempo acaba, vale o que estiver digitado.
   - Pontos e destinos são os mesmos do Clássico. O topo da tela conta as respostas que pontuaram, e o resultado diz quantas couberam nos 60 segundos.
 
 - **Sobrevivência:** a partida dura enquanto durarem as **3 vidas**. Também fica em "Outros modos".
   - Perde uma vida quem pula a categoria ou deixa o tempo acabar sem uma resposta válida. Resposta fora da lista continua podendo ser corrigida até o tempo acabar.
-  - O tempo encurta: 30 segundos nas categorias 1 a 7, 25 nas 8 a 14, 20 nas 15 a 21 e 15 daí em diante.
+  - O tempo encurta a cada 5 categorias: 30 segundos nas categorias 1 a 5, 25 nas 6 a 10, 20 nas 11 a 15, 15 nas 16 a 20 e 12 daí em diante.
   - As categorias saem embaralhadas, sem repetir até que todas tenham passado.
   - A rota continua depois de Plutão: Éris (800 pontos), heliopausa (1.000), Voyager 1 (1.300), Nuvem de Oort (1.700) e Proxima Centauri (2.200), com distâncias da NASA.
   - O topo da tela mostra o número da categoria e as vidas, e o botão de pular avisa que custa uma vida.
