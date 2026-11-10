@@ -50,8 +50,15 @@
 @if (inRound) {
   @let entry = game.current()!;
 
-  <!-- The round fills exactly the visible screen, so the answer bar rests on the keyboard. -->
-  <div appFitVisualViewport class="fixed inset-x-0 top-0 flex h-dvh flex-col overflow-hidden">
+  <!--
+    The round fills exactly the visible screen, so the answer bar rests on the keyboard. What
+    overflows is clipped, not hidden, where the browser can: a clipped box cannot be scrolled,
+    so focusing the answer field while it slides in does not push the round out of place.
+  -->
+  <div
+    appFitVisualViewport
+    class="fixed inset-x-0 top-0 flex h-dvh flex-col overflow-hidden supports-[overflow:clip]:overflow-clip"
+  >
     <!-- The shade grows with the top text, so planets passing under it never hurt reading. -->
     <div
       class="relative z-10 bg-[linear-gradient(to_bottom,rgb(15_6_40/0.95)_60%,transparent)] pb-4"
@@ -61,25 +68,39 @@
       >
         <ng-container *ngTemplateOutlet="controls" />
         <div class="flex min-w-0 flex-1 flex-col items-center gap-1">
-          <p
-            class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
-          >
-            Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
-          </p>
-          <ol class="flex gap-1" aria-hidden="true">
-            @for (item of game.entries(); track item.category.id; let i = $index) {
-              <li
-                class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
-                [class]="
-                  i < game.index()
-                    ? 'bg-candy-500'
-                    : i === game.index()
-                      ? 'bg-star-400'
-                      : 'bg-space-700'
-                "
-              ></li>
-            }
-          </ol>
+          @if (roundClock()) {
+            <!--
+              No fixed number of categories: count what was answered instead. On two lines, so
+              a long count still fits between the buttons and the score on a narrow phone.
+            -->
+            <p
+              class="flex flex-col items-center font-display leading-none tracking-wider text-star-400 uppercase"
+            >
+              <!-- The space keeps the two parts apart for screen readers. -->
+              <span class="text-xl sm:text-2xl">{{ validAnswers() }}&ngsp;</span>
+              <span class="text-[0.65rem] sm:text-sm">{{ answersLabel() }}</span>
+            </p>
+          } @else {
+            <p
+              class="font-display text-xs tracking-wider whitespace-nowrap text-star-400 uppercase sm:text-base"
+            >
+              Categoria {{ game.index() + 1 }} de {{ game.entries().length }}
+            </p>
+            <ol class="flex gap-1" aria-hidden="true">
+              @for (item of game.entries(); track item.category.id; let i = $index) {
+                <li
+                  class="h-1.5 w-3.5 rounded-full transition-colors sm:w-8"
+                  [class]="
+                    i < game.index()
+                      ? 'bg-candy-500'
+                      : i === game.index()
+                        ? 'bg-star-400'
+                        : 'bg-space-700'
+                  "
+                ></li>
+              }
+            </ol>
+          }
         </div>
         <p
           class="w-[4.5rem] shrink-0 text-right font-display text-2xl text-star-400 [text-shadow:0.08em_0.08em_0_var(--color-candy-500)] sm:w-24 sm:text-3xl"
@@ -100,9 +121,14 @@
           [next]="nextGoal()"
           [result]="status === 'revealing' ? entry.result : undefined"
           [km]="revealKm()"
+          [timeUp]="timeUp()"
         >
           @if (game.timerEnabled()) {
-            <app-timer-ring [seconds]="countdown.seconds()" [progress]="countdown.progress()" />
+            <app-timer-ring
+              [seconds]="countdown.seconds()"
+              [progress]="countdown.progress()"
+              [urgentAt]="urgentAt()"
+            />
           }
         </app-question-card>
         @if (launching()) {
@@ -123,6 +149,7 @@
       [points]="game.totalPoints()"
       [answers]="answered()"
       [launching]="launching()"
+      [pace]="game.mode().rules.pace"
     />
 
     <p class="sr-only" aria-live="polite">{{ resultAnnouncement() }}</p>
@@ -141,10 +168,11 @@
       (submit)="submit($event)"
     >
       @if (game.timerEnabled()) {
+        <!-- A clock for the whole round stands still, in view, while a result is shown. -->
         <div
           class="absolute top-0 left-0 h-1 transition-[width] duration-100 ease-linear"
-          [class]="countdown.seconds() <= 5 ? 'bg-flare-500' : 'bg-aurora-400'"
-          [style.width.%]="status === 'playing' ? countdown.progress() * 100 : 0"
+          [class]="countdown.seconds() <= urgentAt() ? 'bg-flare-500' : 'bg-aurora-400'"
+          [style.width.%]="status === 'playing' || roundClock() ? countdown.progress() * 100 : 0"
           aria-hidden="true"
         ></div>
       }

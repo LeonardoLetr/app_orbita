@@ -6,7 +6,8 @@ export const CLASSIC_CATEGORIES = 7;
 
 /** The original game: seven categories, half a minute for each. */
 export const CLASSIC_RULES: RoundRules = {
-  secondsPerCategory: 30,
+  clock: { scope: 'category', seconds: 30 },
+  pace: 'calm',
   maxPoints: CLASSIC_CATEGORIES * RARITY_POINTS.supernova,
 
   /** Draws the categories, avoiding the ones from the previous round when possible. */

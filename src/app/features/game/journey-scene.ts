@@ -13,6 +13,7 @@ import {
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
 import { PlanetId } from '../../core/models/planet';
+import { RoundPace } from '../../core/models/round-rules';
 import { SoundService } from '../../core/services/sound-service';
 import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
@@ -24,8 +25,14 @@ import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
 const ARRIVE_MS = 1400;
-const MIN_FLIGHT_MS = 1300;
-const MAX_FLIGHT_MS = 6000;
+/**
+ * Shortest and longest flight and what each stop on the way adds, in milliseconds.
+ * Quick rounds keep every flight short.
+ */
+const FLIGHTS: Record<RoundPace, { min: number; max: number; perStop: number }> = {
+  calm: { min: 1300, max: 6000, perStop: 1800 },
+  quick: { min: 500, max: 1200, perStop: 500 },
+};
 /** The climb off the Earth, after the countdown. */
 const LAUNCH_CLIMB_MS = 2600;
 /** Distance between two stops, in scene units (the --gap of the CSS). */
@@ -39,12 +46,17 @@ const ROCKET_UNITS = 10.5;
  * How long the rocket flies between two scores: longer trips take longer,
  * but never so long that the round drags.
  */
-export function flightDuration(fromPoints: number, toPoints: number): number {
+export function flightDuration(
+  fromPoints: number,
+  toPoints: number,
+  pace: RoundPace = 'calm',
+): number {
   const stops = routePosition(toPoints) - routePosition(fromPoints);
   if (stops <= 0) {
     return 0;
   }
-  return Math.round(Math.min(MAX_FLIGHT_MS, MIN_FLIGHT_MS + 1800 * Math.sqrt(stops)));
+  const { min, max, perStop } = FLIGHTS[pace];
+  return Math.round(Math.min(max, min + perStop * Math.sqrt(stops)));
 }
 
 type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
@@ -89,6 +101,8 @@ export class JourneyScene {
   readonly answers = input.required<number>();
   /** Start of the round: the rocket takes off from the ground. */
   readonly launching = input(false);
+  /** Quick rounds have shorter flights. */
+  readonly pace = input<RoundPace>('calm');
 
   /** The rocket has left the launch pad. */
   protected readonly liftoff = signal(false);
@@ -96,7 +110,7 @@ export class JourneyScene {
   protected readonly stops = STOPS;
   protected readonly position = computed(() => routePosition(this.points()));
   protected readonly flying = signal(false);
-  protected readonly flightMs = signal(MIN_FLIGHT_MS);
+  protected readonly flightMs = signal(FLIGHTS.calm.min);
   protected readonly sputtering = signal(false);
   /** Planets light up as the rocket passes them. */
   protected readonly litIndex = signal(0);
@@ -152,7 +166,7 @@ export class JourneyScene {
       return;
     }
 
-    const duration = flightDuration(from, points);
+    const duration = flightDuration(from, points, this.pace());
     this.flightMs.set(duration);
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);

@@ -93,7 +93,15 @@
       <dl class="grid grid-cols-2 gap-4">
         <div>
           <dt class="text-sm font-extrabold">Recorde</dt>
-          <dd class="font-display text-3xl text-candy-600">{{ progress.bestPoints() }} pts</dd>
+          <dd class="font-display text-3xl text-candy-600">
+            <!-- The record of the main mode; the other modes show theirs on their cards. -->
+            @if (progress.played('classic')) {
+              {{ progress.bestPoints() }} pts
+            } @else {
+              <span aria-hidden="true">—</span>
+              <span class="sr-only">nenhuma partida no modo Clássico ainda</span>
+            }
+          </dd>
         </div>
         <div>
           <dt class="text-sm font-extrabold">Partidas</dt>

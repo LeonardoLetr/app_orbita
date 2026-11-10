@@ -1,4 +1,5 @@
 import { GameMode, GameModeId } from '../models/game-mode';
+import { BLITZ_RULES, BLITZ_SECONDS } from './blitz-rules';
 import { CLASSIC_RULES } from './classic-rules';
 
 export const CLASSIC_MODE: GameMode = {
@@ -8,8 +9,16 @@ export const CLASSIC_MODE: GameMode = {
   rules: CLASSIC_RULES,
 };
 
+export const BLITZ_MODE: GameMode = {
+  id: 'blitz',
+  name: 'Relâmpago',
+  tagline: `${BLITZ_SECONDS} segundos para responder o máximo que conseguir.`,
+  slug: 'relampago',
+  rules: BLITZ_RULES,
+};
+
 /** Every way of playing, the main one first. */
-export const GAME_MODES: readonly GameMode[] = [CLASSIC_MODE];
+export const GAME_MODES: readonly GameMode[] = [CLASSIC_MODE, BLITZ_MODE];
 
 /** The main mode opens with the big button on the home screen; the others are extras. */
 export function isMainMode(mode: GameMode): boolean {

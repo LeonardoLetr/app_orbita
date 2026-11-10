@@ -4,24 +4,24 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 
 ## Visão geral
 
-| Código | Item                                   | Branch                 | Tamanho | Depende de         |
-| ------ | -------------------------------------- | ---------------------- | ------- | ------------------ |
-| M0     | Base para modos de jogo                | `feat/game-modes`      | M       | —                  |
-| M1     | Modo Relâmpago                         | `feat/blitz-mode`      | M       | M0                 |
-| M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 |
-| M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 |
-| M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 |
-| G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  |
-| G2     | Patentes                               | `feat/ranks`           | P       | —                  |
-| G3     | Álbum de figurinhas                    | `feat/sticker-album`   | G       | — (cresce com M/G) |
-| G4     | Foguete personalizável                 | `feat/rocket-hangar`   | M       | G2 e G3 (em parte) |
-| N1     | Projeto Firebase                       | `chore/firebase-setup` | P       | ação do Leonardo   |
-| N2     | Login com Google                       | `feat/google-sign-in`  | M       | N1                 |
-| N3     | Progresso na nuvem                     | `feat/cloud-progress`  | G       | N2                 |
-| D1     | Duelo online: salas                    | `feat/duel-rooms`      | M       | N1                 |
-| D2     | Duelo online: partida sincronizada     | `feat/duel-match`      | G       | D1                 |
-| D3     | Duelo online: dois foguetes e revanche | `feat/duel-scene`      | M       | D2                 |
-| D4     | Duelo online: quedas de conexão        | `feat/duel-reconnect`  | M       | D2                 |
+| Código | Item                                   | Branch                 | Tamanho | Depende de         | Situação |
+| ------ | -------------------------------------- | ---------------------- | ------- | ------------------ | -------- |
+| M0     | Base para modos de jogo                | `feat/game-modes`      | M       | —                  | Feito    |
+| M1     | Modo Relâmpago                         | `feat/blitz-mode`      | M       | M0                 | Feito    |
+| M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 | A fazer  |
+| M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | A fazer  |
+| M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 | A fazer  |
+| G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  | A fazer  |
+| G2     | Patentes                               | `feat/ranks`           | P       | —                  | A fazer  |
+| G3     | Álbum de figurinhas                    | `feat/sticker-album`   | G       | — (cresce com M/G) | A fazer  |
+| G4     | Foguete personalizável                 | `feat/rocket-hangar`   | M       | G2 e G3 (em parte) | A fazer  |
+| N1     | Projeto Firebase                       | `chore/firebase-setup` | P       | ação do Leonardo   | A fazer  |
+| N2     | Login com Google                       | `feat/google-sign-in`  | M       | N1                 | A fazer  |
+| N3     | Progresso na nuvem                     | `feat/cloud-progress`  | G       | N2                 | A fazer  |
+| D1     | Duelo online: salas                    | `feat/duel-rooms`      | M       | N1                 | A fazer  |
+| D2     | Duelo online: partida sincronizada     | `feat/duel-match`      | G       | D1                 | A fazer  |
+| D3     | Duelo online: dois foguetes e revanche | `feat/duel-scene`      | M       | D2                 | A fazer  |
+| D4     | Duelo online: quedas de conexão        | `feat/duel-reconnect`  | M       | D2                 | A fazer  |
 
 Tamanho é relativo, não é prazo: **P** mexe em uma regra ou uma tela; **M** em algumas telas e serviços; **G** envolve várias telas, arte nova ou sincronização.
 
@@ -79,6 +79,15 @@ Hoje as regras da partida estão fixas no `GameService` (7 categorias, 30 segund
 
 **Pronto quando:** o Clássico está idêntico ao de hoje, o seletor de modos existe, as partidas salvas têm `mode` e o progresso de quem já joga foi preservado.
 
+**Situação:** feito.
+
+**Como ficou, onde difere do plano**
+
+- `RoundRules` tem só o que os modos existentes usam: `pickCategories`, `clock`, `pace` e `maxPoints`. `isOver`, `lives` e `accepts` entram com os modos que precisarem deles (Sobrevivência e Letra sorteada).
+- `GameService.start()` recebe o modo, que já traz as regras. Tema e letra viram parâmetros quando esses modos chegarem.
+- Cada modo tem a sua rota fixa (`/jogar/nome-do-modo`), criada a partir da lista de modos, em vez de uma rota `jogar/:mode`.
+- O progresso salvo passou para a versão 2, com migração da versão 1: as partidas antigas viram partidas do Clássico.
+
 ### M1 · Modo Relâmpago
 
 **Branch:** `feat/blitz-mode` · **Tamanho:** M · **Depende de:** M0
@@ -111,7 +120,20 @@ Hoje as regras da partida estão fixas no `GameService` (7 categorias, 30 segund
 
 **Pronto quando:** dá para jogar uma partida inteira de Relâmpago no celular com o teclado aberto o tempo todo, o recorde do modo é salvo e o Clássico não mudou.
 
-**A decidir:** 60 ou 90 segundos (começar com 60 e ajustar jogando).
+**Situação:** feito, com 60 segundos (decidido depois de ver uma partida gravada).
+
+**Como ficou, onde difere do plano**
+
+- A duração vem das regras do modo (`core/data/blitz-rules.ts`), que os testes trocam por outras. Não foi preciso um token; nos testes de ponta a ponta o relógio da página é controlado.
+- Quando o relógio zera sem pontuar, o cartão mostra "Tempo esgotado", mesmo que tenha ficado algo digitado fora da lista.
+- O topo da tela conta só as respostas que pontuaram. Pulos não entram.
+- A partida também acaba se as categorias terminarem antes do tempo.
+- A tela inicial e o histórico mostram um recorde para cada modo.
+
+**A observar jogando**
+
+- Pular não gasta relógio, porque ele para em todo cartão de resultado. Dá para pular até achar uma categoria fácil. Se isso deixar o modo fácil demais, a saída é o relógio continuar correndo durante o cartão de quem pulou.
+- No iPhone o teclado só abre com um toque, então o começo dos 60 segundos vai nesse toque. Se incomodar, o relógio pode esperar o primeiro toque no campo.
 
 ### M2 · Modo Sobrevivência
 

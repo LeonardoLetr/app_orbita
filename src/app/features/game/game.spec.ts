@@ -7,8 +7,9 @@ import { provideTestProgress } from '../../testing/test-providers';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
+import { SoundService } from '../../core/services/sound-service';
 import { RANDOM } from '../../core/utils/random';
-import { Game, MIN_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
+import { Game, MIN_REVEAL_MS, QUICK_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
 
 describe('Game', () => {
   const categories: Category[] = Array.from({ length: 5 }, (_, i) => ({
@@ -40,6 +41,15 @@ describe('Game', () => {
     fixture = TestBed.createComponent(Game);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
+  }
+
+  /** Renders the game at the address of a mode, the way the router does. */
+  async function renderMode(mode: GameMode) {
+    configure(false, [{ path: 'jogar/modo', component: Game, data: { mode } }]);
+    const harness = await RouterTestingHarness.create('/jogar/modo');
+    fixture = harness.fixture;
+    await fixture.whenStable();
+    return harness.routeNativeElement as HTMLElement;
   }
 
   /** Text on the back of the question card, once it turned over. */
@@ -188,18 +198,237 @@ describe('Game', () => {
       slug: 'curto',
       rules: { ...CLASSIC_MODE.rules, pickCategories: (all) => all.slice(0, 2) },
     };
-    configure(false, [{ path: 'jogar/curto', component: Game, data: { mode: short } }]);
 
-    const harness = await RouterTestingHarness.create('/jogar/curto');
-    fixture = harness.fixture;
-    await fixture.whenStable();
+    const element = await renderMode(short);
 
     expect(TestBed.inject(GameService).mode()).toBe(short);
-    expect(harness.routeNativeElement?.textContent).toContain('Categoria 1 de 2');
+    expect(element.textContent).toContain('Categoria 1 de 2');
+  });
+
+  it('keeps the keyboard and moves on sooner in quick rounds', async () => {
+    const quick: GameMode = {
+      ...CLASSIC_MODE,
+      name: 'Rápido',
+      slug: 'rapido',
+      rules: { ...CLASSIC_MODE.rules, pace: 'quick' },
+    };
+    const element = await renderMode(quick);
+    const input = element.querySelector<HTMLInputElement>('#answer')!;
+
+    await answer(element, 'resposta 0');
+    expect(document.activeElement).toBe(input);
+
+    await new Promise((resolve) => setTimeout(resolve, revealDelay(0, 50, 'quick') + 100));
+    await fixture.whenStable();
+    expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
+  });
+
+  describe('against a single clock for the whole round', () => {
+    const blitz: GameMode = {
+      ...CLASSIC_MODE,
+      name: 'Relâmpago',
+      slug: 'relampago',
+      rules: {
+        clock: { scope: 'round', seconds: 60 },
+        pace: 'quick',
+        pickCategories: (all) => [...all],
+      },
+    };
+    /** Long enough for a quick result to give way to the next category. */
+    const REVEAL = revealDelay(0, 600, 'quick') + 100;
+
+    // Only the clock is faked: the screen still renders and reveals in real time.
+    beforeEach(() => vi.useFakeTimers({ toFake: ['Date', 'setInterval', 'clearInterval'] }));
+    afterEach(() => {
+      fixture.destroy();
+      vi.useRealTimers();
+    });
+
+    async function renderClocked(mode = blitz) {
+      configure(false, [{ path: 'jogar/modo', component: Game, data: { mode } }]);
+      TestBed.inject(GameService).timerEnabled.set(true);
+      const harness = await RouterTestingHarness.create('/jogar/modo');
+      fixture = harness.fixture;
+      await fixture.whenStable();
+      return harness.routeNativeElement as HTMLElement;
+    }
+
+    async function pass(ms: number) {
+      vi.advanceTimersByTime(ms);
+      await fixture.whenStable();
+    }
+
+    async function afterReveal() {
+      await new Promise((resolve) => setTimeout(resolve, REVEAL));
+      await fixture.whenStable();
+    }
+
+    function secondsLeft(element: HTMLElement): string | undefined {
+      return element.querySelector('app-timer-ring')?.textContent?.trim();
+    }
+
+    it('counts the answers that scored instead of the categories', async () => {
+      const element = await renderClocked();
+      const header = element.querySelector('header')!;
+      expect(header.textContent).toContain('0 respostas');
+      expect(header.textContent).not.toContain('Categoria');
+
+      await answer(element, 'resposta 0');
+      expect(header.textContent).toContain('1 resposta');
+      expect(header.textContent).not.toContain('1 respostas');
+
+      await afterReveal();
+      await answer(element, '');
+      expect(header.textContent).toContain('1 resposta');
+    });
+
+    it('starts the clock once and stops it while a result is shown', async () => {
+      const element = await renderClocked();
+      expect(secondsLeft(element)).toBe('60');
+
+      await pass(10_000);
+      expect(secondsLeft(element)).toBe('50');
+
+      await answer(element, 'resposta 0');
+      await pass(30_000);
+      expect(secondsLeft(element)).toBe('50');
+
+      await afterReveal();
+      expect(element.querySelector('h1')?.textContent).toContain('Categoria 1');
+      expect(secondsLeft(element)).toBe('50');
+
+      await pass(5_000);
+      expect(secondsLeft(element)).toBe('45');
+    });
+
+    it('keeps the clock running while the player tries again', async () => {
+      const element = await renderClocked();
+
+      await answer(element, 'Sereia');
+      await pass(5_000);
+
+      expect(element.querySelector('#retry-message')?.textContent).toContain('Tente outra');
+      expect(secondsLeft(element)).toBe('55');
+    });
+
+    it('ends the round when the clock runs out, scoring what is typed', async () => {
+      const element = await renderClocked();
+      await answer(element, 'resposta 0');
+      await afterReveal();
+      const input = element.querySelector<HTMLInputElement>('#answer')!;
+      input.value = 'resposta 1';
+      input.dispatchEvent(new Event('input'));
+
+      await pass(60_000);
+      expect(cardBack(element)).toContain('Cometa');
+      expect(element.querySelector('[aria-live=polite]')?.textContent).toBe(
+        'Cometa, mais 50 pontos. Tempo esgotado.',
+      );
+
+      await afterReveal();
+      const game = TestBed.inject(GameService);
+      expect(game.status()).toBe('finished');
+      expect(game.totalPoints()).toBe(100);
+      // The three categories that were never asked are left out.
+      expect(game.entries().map((entry) => entry.category.id)).toEqual(['c0', 'c1']);
+      expect(element.querySelector('#result-title')).not.toBeNull();
+    });
+
+    it('says the time ran out when nothing was typed', async () => {
+      const element = await renderClocked();
+
+      await pass(60_000);
+
+      expect(cardBack(element)).toContain('Tempo esgotado');
+      await afterReveal();
+      expect(TestBed.inject(GameService).entries()).toHaveLength(1);
+      expect(element.querySelector('#result-title')).not.toBeNull();
+    });
+
+    it('says the time ran out, not that the text left typed is outside the list', async () => {
+      const element = await renderClocked();
+      const input = element.querySelector<HTMLInputElement>('#answer')!;
+      input.value = 'Sereia';
+      input.dispatchEvent(new Event('input'));
+
+      await pass(60_000);
+
+      expect(cardBack(element)).toContain('Tempo esgotado');
+      expect(cardBack(element)).not.toContain('Fora da lista');
+      expect(element.querySelector('[aria-live=polite]')?.textContent).toBe('Tempo esgotado.');
+      // The history still keeps what was typed.
+      expect(TestBed.inject(GameService).current()?.result?.outcome).toBe('unknown');
+    });
+
+    it('asks nothing else when an answer comes in right as the clock runs out', async () => {
+      const element = await renderClocked();
+      await pass(59_950);
+      // The last instant, between two updates of the clock.
+      vi.setSystemTime(Date.now() + 80);
+
+      await answer(element, 'resposta 0');
+      expect(cardBack(element)).toContain('Cometa');
+
+      await afterReveal();
+      const game = TestBed.inject(GameService);
+      expect(game.status()).toBe('finished');
+      expect(game.entries()).toHaveLength(1);
+      expect(game.totalPoints()).toBe(50);
+    });
+
+    it('ends when the categories run out before the clock', async () => {
+      const element = await renderClocked({
+        ...blitz,
+        rules: { ...blitz.rules, pickCategories: (all) => all.slice(0, 2) },
+      });
+
+      await answer(element, '');
+      await afterReveal();
+      await answer(element, '');
+      await afterReveal();
+
+      expect(TestBed.inject(GameService).status()).toBe('finished');
+      expect(element.querySelector('#result-title')).not.toBeNull();
+    });
+
+    function countTicks() {
+      const play = vi.spyOn(TestBed.inject(SoundService), 'play');
+      return () => play.mock.calls.filter(([effect]) => effect === 'tick').length;
+    }
+
+    it('counts the last five seconds out loud', async () => {
+      await renderClocked();
+      const ticks = countTicks();
+
+      await pass(54_000);
+      expect(ticks()).toBe(0);
+
+      for (let second = 1; second <= 5; second++) {
+        await pass(1_000);
+        expect(ticks()).toBe(second);
+      }
+    });
+
+    it('stays silent when each category has its own clock', async () => {
+      await renderClocked({ ...blitz, rules: CLASSIC_MODE.rules });
+      const ticks = countTicks();
+
+      for (let second = 0; second < 29; second++) {
+        await pass(1_000);
+      }
+
+      expect(ticks()).toBe(0);
+    });
   });
 
   it('keeps short results on screen for a minimum time', () => {
     expect(revealDelay(10, 10)).toBe(MIN_REVEAL_MS);
     expect(revealDelay(0, 30)).toBeGreaterThan(revealDelay(0, 10));
+  });
+
+  it('shows results for a shorter time in quick rounds', () => {
+    expect(revealDelay(10, 10, 'quick')).toBe(QUICK_REVEAL_MS);
+    expect(revealDelay(0, 600, 'quick')).toBeGreaterThan(QUICK_REVEAL_MS);
+    expect(revealDelay(0, 600, 'quick')).toBeLessThan(MIN_REVEAL_MS);
   });
 });

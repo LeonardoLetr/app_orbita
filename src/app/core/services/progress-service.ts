@@ -1,6 +1,7 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
+import { GAME_MODES } from '../data/game-modes';
 import { ProgressRepository } from '../data/progress-repository';
-import { GameModeId } from '../models/game-mode';
+import { GameMode, GameModeId } from '../models/game-mode';
 import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
 
 /** What a finished round changed in the player's progress. */
@@ -10,6 +11,12 @@ export interface RoundOutcome {
   /** Beat the record of this mode. */
   isNewBest: boolean;
   isNewPlanet: boolean;
+}
+
+/** Best score of the player in one mode. */
+export interface ModeRecord {
+  mode: GameMode;
+  points: number;
 }
 
 /** Player history, record and reached planets, kept in sync with the repository. */
@@ -24,6 +31,14 @@ export class ProgressService {
   readonly rounds = computed(() => this.state().rounds);
   /** Record in the classic mode, the one shown on the home screen. */
   readonly bestPoints = computed(() => this.bestFor('classic'));
+  /** Records of the modes already played, in the order the modes are offered. */
+  readonly records = computed<ModeRecord[]>(() => {
+    const best = this.state().bestByMode;
+    return GAME_MODES.filter((mode) => mode.id in best).map((mode) => ({
+      mode,
+      points: best[mode.id] ?? 0,
+    }));
+  });
   readonly totalRounds = computed(() => this.state().totalRounds);
   readonly reachedPlanets = computed(() => new Set(this.state().reachedPlanets));
   /** Outcome of the last round recorded in this session. */
@@ -36,6 +51,11 @@ export class ProgressService {
   /** Best score in a mode, 0 when it was never played. */
   bestFor(mode: GameModeId): number {
     return this.state().bestByMode[mode] ?? 0;
+  }
+
+  /** Whether at least one round of the mode was played. */
+  played(mode: GameModeId): boolean {
+    return mode in this.state().bestByMode;
   }
 
   /** Loads saved progress once. A failure leaves the progress empty. */

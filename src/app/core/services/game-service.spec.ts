@@ -153,6 +153,47 @@ describe('GameService', () => {
     expect(round.answers[1].result.outcome).toBe('blank');
   });
 
+  it('can end before every category is asked, keeping only the ones that were', async () => {
+    await game.start();
+    game.answer(`${game.current()!.category.id} rara`);
+    game.next();
+    const second = game.current()!.category.id;
+    game.answer('', true);
+
+    game.finish();
+
+    expect(game.status()).toBe('finished');
+    expect(game.entries()).toHaveLength(2);
+    expect(game.entries()[1].category.id).toBe(second);
+    expect(game.totalPoints()).toBe(100);
+
+    const progress = TestBed.inject(ProgressService);
+    await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
+    expect(progress.rounds()[0].answers).toHaveLength(2);
+  });
+
+  it('only ends early once the current answer is in', async () => {
+    await game.start();
+
+    game.finish();
+
+    expect(game.status()).toBe('playing');
+    expect(game.entries()).toHaveLength(CLASSIC_CATEGORIES);
+  });
+
+  it('avoids in the next round only the categories that were asked', async () => {
+    await game.start();
+    const [asked, neverAsked] = game.entries().map((entry) => entry.category.id);
+    game.answer('');
+    game.finish();
+
+    await game.start();
+    const next = game.entries().map((entry) => entry.category.id);
+
+    expect(next).not.toContain(asked);
+    expect(next).toContain(neverAsked);
+  });
+
   it('records a timeout when time runs out with nothing typed', async () => {
     await game.start();
 

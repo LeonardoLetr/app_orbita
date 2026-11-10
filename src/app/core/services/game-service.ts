@@ -115,6 +115,19 @@ export class GameService {
     }
   }
 
+  /**
+   * Ends the round after the answer being revealed, leaving out the categories that were
+   * never asked. For rounds that end by the clock, not by running out of categories.
+   */
+  finish(): void {
+    if (this.status() !== 'revealing') {
+      return;
+    }
+    const asked = this.index() + 1;
+    this.entriesState.update((entries) => entries.slice(0, asked));
+    this.next();
+  }
+
   private saveRound() {
     const points = this.totalPoints();
     return this.progress.record({

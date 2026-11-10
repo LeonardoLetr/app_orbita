@@ -38,6 +38,9 @@
       ></span>
       pts
     </p>
+    @if (pace(); as pace) {
+      <p class="reveal font-extrabold" style="--delay: 1.75s">{{ pace }}</p>
+    }
     <p class="reveal text-space-200" style="--delay: 1.8s">
       @if (next(); as next) {
         Faltaram <strong class="text-star-400">{{ next.minPoints - points() }} pts</strong> para
@@ -93,7 +96,7 @@
         <!-- The category gets the whole width; the answer shares its line with the level. -->
         <li
           class="reveal grid grid-cols-[1.25rem_minmax(0,1fr)_auto] items-center gap-x-3 rounded-2xl border-[3px] border-space-700 bg-space-900 px-4 py-3"
-          [style.--delay]="2.5 + i * 0.08 + 's'"
+          [style.--delay]="row.delay + 's'"
         >
           <span class="row-span-2 text-center font-display text-xl text-candy-400">
             {{ i + 1 }}

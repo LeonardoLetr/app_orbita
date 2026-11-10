@@ -1,8 +1,9 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
-import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { BLITZ_SECONDS } from '../../core/data/blitz-rules';
+import { BLITZ_MODE } from '../../core/data/game-modes';
 import { Category } from '../../core/models/category';
-import { GameMode, GameModeId } from '../../core/models/game-mode';
+import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
@@ -156,13 +157,7 @@ describe('Result', () => {
   }
 
   describe('in an extra mode', () => {
-    /** A stand-in for the extra modes still to come. */
-    const blitz: GameMode = {
-      ...CLASSIC_MODE,
-      id: 'blitz' as GameModeId,
-      name: 'Relâmpago',
-      slug: 'relampago',
-    };
+    const blitz = BLITZ_MODE;
 
     it('says which mode was played', () => {
       const element = render([answered('Narval')], 100, blitz).nativeElement as HTMLElement;
@@ -186,6 +181,58 @@ describe('Result', () => {
 
       expect(element.querySelector('app-score-history')).toBeNull();
       expect(element.textContent).not.toContain('320');
+    });
+  });
+
+  describe('after a round against a single clock', () => {
+    it('says how many answers fit in it, leaving out the ones that scored nothing', () => {
+      const entries = [answered('Narval'), answered(''), answered('Tubarão')];
+
+      const element = render(entries, 110, BLITZ_MODE).nativeElement as HTMLElement;
+
+      expect(element.textContent).toContain(`2 respostas em ${BLITZ_SECONDS} segundos`);
+      expect(element.querySelectorAll('ol > li')).toHaveLength(3);
+    });
+
+    it('says it in the singular for one answer', () => {
+      const element = render([answered('Narval')], 100, BLITZ_MODE).nativeElement as HTMLElement;
+
+      expect(element.textContent).toContain(`1 resposta em ${BLITZ_SECONDS} segundos`);
+    });
+
+    it('does not count the answers of rounds with a clock per category', () => {
+      const element = render([answered('Narval')], 100).nativeElement as HTMLElement;
+
+      expect(element.textContent).not.toContain('segundos');
+    });
+
+    it('charts its rounds on a scale that follows the best one', async () => {
+      const progress = TestBed.inject(ProgressService);
+      await progress.record({ points: 450, planetId: 'uranus', mode: 'blitz', answers: [] });
+      await progress.record({ points: 820, planetId: 'pluto', mode: 'blitz', answers: [] });
+
+      const element = render([answered('Narval')], 820, BLITZ_MODE).nativeElement as HTMLElement;
+      const chart = element.querySelector('app-score-history');
+
+      expect(chart?.textContent).toContain('900 pts');
+      expect(chart?.textContent).not.toContain('máx.');
+    });
+
+    it('brings a long list of answers in without making the last ones wait', () => {
+      const entries = Array.from({ length: 30 }, (_, i): RoundEntry => ({
+        ...answered('Tubarão'),
+        category: { ...sea, id: `c${i}` },
+      }));
+
+      const element = render(entries, 300, BLITZ_MODE).nativeElement as HTMLElement;
+      const delays = [...element.querySelectorAll<HTMLElement>('ol > li')].map((row) =>
+        parseFloat(row.style.getPropertyValue('--delay')),
+      );
+
+      expect(delays).toHaveLength(30);
+      expect(delays[1]).toBeGreaterThan(delays[0]);
+      expect(delays[29]).toBe(delays[10]);
+      expect(delays[29]).toBeLessThan(3.5);
     });
   });
 

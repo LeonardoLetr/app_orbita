@@ -32,6 +32,11 @@ describe('CLASSIC_RULES', () => {
     );
   });
 
+  it('gives half a minute to each category, at a calm pace', () => {
+    expect(CLASSIC_RULES.clock).toEqual({ scope: 'category', seconds: 30 });
+    expect(CLASSIC_RULES.pace).toBe('calm');
+  });
+
   it('can reach at most seven supernovas', () => {
     expect(CLASSIC_RULES.maxPoints).toBe(700);
   });

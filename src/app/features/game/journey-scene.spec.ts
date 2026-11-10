@@ -16,6 +16,13 @@ describe('flightDuration', () => {
     expect(long).toBeGreaterThan(short);
     expect(flightDuration(0, 150)).toBeLessThanOrEqual(6000);
   });
+
+  it('is short in quick rounds, whatever the distance', () => {
+    expect(flightDuration(20, 20, 'quick')).toBe(0);
+    expect(flightDuration(0, 10, 'quick')).toBeLessThan(flightDuration(0, 10));
+    expect(flightDuration(0, 10, 'quick')).toBeLessThan(flightDuration(0, 100, 'quick'));
+    expect(flightDuration(0, 600, 'quick')).toBe(1200);
+  });
 });
 
 describe('JourneyScene', () => {
@@ -68,6 +75,17 @@ describe('JourneyScene', () => {
     expect(scene().classList).toContain('is-flying');
     expect(Number(scene().style.getPropertyValue('--pos'))).toBeCloseTo(1.17, 2);
     expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50)}ms`);
+  });
+
+  it('flies faster in quick rounds', () => {
+    fixture.componentRef.setInput('pace', 'quick');
+    progress(50, 1);
+
+    expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50, 'quick')}ms`);
+
+    vi.advanceTimersByTime(flightDuration(0, 50, 'quick'));
+    fixture.detectChanges();
+    expect(scene().classList).not.toContain('is-flying');
   });
 
   it('lights up the planets it passes', () => {

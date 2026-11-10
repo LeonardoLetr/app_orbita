@@ -46,9 +46,13 @@ const ZERO_TITLES = {
 /** How long the previous card takes to fly away when a new one comes in. */
 export const DEAL_MS = 500;
 
-export function cardBack(result: AnswerResult, km?: string): CardBack {
+/**
+ * `timeUp` says the clock of the whole round ran out with this answer: when it scored
+ * nothing, that is what the card tells, whatever was left typed.
+ */
+export function cardBack(result: AnswerResult, km?: string, timeUp = false): CardBack {
   if (!result.match) {
-    const title = ZERO_TITLES[result.outcome as keyof typeof ZERO_TITLES];
+    const title = ZERO_TITLES[timeUp ? 'timeout' : (result.outcome as keyof typeof ZERO_TITLES)];
     return { title, points: 0, tone: 'bg-space-200', stars: 0 };
   }
   const look = LEVEL_LOOKS[result.match.rarity];
@@ -89,10 +93,12 @@ export class QuestionCard {
   readonly km = input<string>();
   /** Kept out of sight (with its space saved) until the launch ends, then dealt. */
   readonly waiting = input(false);
+  /** The clock of the whole round ran out: this card is the last one. */
+  readonly timeUp = input(false);
 
   protected readonly back = computed(() => {
     const result = this.result();
-    return result ? cardBack(result, this.km()) : undefined;
+    return result ? cardBack(result, this.km(), this.timeUp()) : undefined;
   });
 
   /** The back of the previous card, flying away while the new one comes in. */

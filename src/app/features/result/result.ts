@@ -22,6 +22,9 @@ import { OrbitArrival } from './orbit-arrival';
 import { ScoreHistory } from './score-history';
 import { shareText } from './share-text';
 
+/** Answers after this one come in together, so a long list does not keep the player waiting. */
+const STAGGERED_ROWS = 10;
+
 /** End-of-round screen: arrival at the destination, points, recent rounds and every answer. */
 @Component({
   selector: 'app-result',
@@ -59,10 +62,19 @@ export class Result {
   );
   protected readonly hasHistory = computed(() => this.modeRounds().length > 1);
   protected readonly best = computed(() => this.progress.bestFor(this.mode().id));
+  /** For rounds against a single clock: how many answers fit in it. */
+  protected readonly pace = computed(() => {
+    const { clock } = this.mode().rules;
+    if (clock.scope !== 'round') {
+      return '';
+    }
+    const answers = this.entries().filter((entry) => entry.result?.match).length;
+    return `${answers} ${answers === 1 ? 'resposta' : 'respostas'} em ${clock.seconds} segundos`;
+  });
 
   /** Each answer plus a few rare ones the player could have given instead. */
   protected readonly rows = computed(() =>
-    this.entries().map((entry) => {
+    this.entries().map((entry, index) => {
       const result = entry.result;
       const counted =
         result?.match && result.match.text.toLowerCase() !== result.input.toLowerCase()
@@ -71,6 +83,8 @@ export class Result {
       return {
         entry,
         counted,
+        /** When the row comes in, in seconds. */
+        delay: 2.5 + Math.min(index, STAGGERED_ROWS) * 0.08,
         ideas: this.scoring
           .rarestAnswers(entry.category, 3, result?.match)
           .map((answer) => answer.text),
