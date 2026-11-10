@@ -2,12 +2,17 @@ import { Injectable, inject } from '@angular/core';
 import { PlanetId } from '../models/planet';
 import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
 import { STORAGE, readJson, writeJson } from '../utils/storage';
+import { GAME_MODES, isGameModeId } from './game-modes';
 import { PLANETS } from './planets';
 import { ProgressRepository } from './progress-repository';
 
 export const PROGRESS_KEY = 'orbita:progress';
 export const MAX_SAVED_ROUNDS = 50;
-const VERSION = 1;
+/**
+ * Format of the saved data. Version 1 had a single record and rounds without a mode;
+ * it is still read, as rounds of the classic mode (see `upgrade`).
+ */
+const VERSION = 2;
 
 const PLANET_IDS = new Set<string>(PLANETS.map((planet) => planet.id));
 
@@ -25,7 +30,10 @@ export class LocalProgressRepository extends ProgressRepository {
     const progress: PlayerProgress = {
       rounds: [round, ...current.rounds].slice(0, MAX_SAVED_ROUNDS),
       totalRounds: current.totalRounds + 1,
-      bestPoints: Math.max(current.bestPoints, round.points),
+      bestByMode: {
+        ...current.bestByMode,
+        [round.mode]: Math.max(current.bestByMode[round.mode] ?? 0, round.points),
+      },
       reachedPlanets: current.reachedPlanets.includes(round.planetId)
         ? current.reachedPlanets
         : [...current.reachedPlanets, round.planetId],
@@ -45,8 +53,8 @@ export class LocalProgressRepository extends ProgressRepository {
 
   /** Reads saved progress, falling back to empty progress when it is missing or broken. */
   private read(): PlayerProgress {
-    const saved = readJson(this.store, PROGRESS_KEY);
-    if (!isRecord(saved) || saved['version'] !== VERSION) {
+    const saved = upgrade(readJson(this.store, PROGRESS_KEY));
+    if (!saved) {
       return EMPTY_PROGRESS;
     }
 
@@ -58,10 +66,60 @@ export class LocalProgressRepository extends ProgressRepository {
     return {
       rounds,
       totalRounds: Math.max(toCount(saved['totalRounds']), rounds.length),
-      bestPoints: toCount(saved['bestPoints']),
+      bestByMode: toBestByMode(saved['bestByMode'], rounds),
       reachedPlanets,
     };
   }
+}
+
+/**
+ * Brings data saved by an older version to the current format. Gives nothing back for
+ * data that is missing, broken or from a version this code does not know.
+ */
+function upgrade(saved: unknown): Record<string, unknown> | undefined {
+  if (!isRecord(saved)) {
+    return undefined;
+  }
+  if (saved['version'] === VERSION) {
+    return saved;
+  }
+  if (saved['version'] === 1) {
+    const rounds = Array.isArray(saved['rounds']) ? saved['rounds'] : [];
+    const played = rounds.length > 0 || toCount(saved['totalRounds']) > 0;
+    return {
+      ...saved,
+      version: VERSION,
+      rounds: rounds.map(upgradeRound),
+      bestByMode: played ? { classic: saved['bestPoints'] } : {},
+    };
+  }
+  return undefined;
+}
+
+/** Version 1 only had the classic mode, and a timer switch that no longer exists. */
+function upgradeRound(round: unknown): unknown {
+  if (!isRecord(round)) {
+    return round;
+  }
+  const upgraded: Record<string, unknown> = { ...round, mode: 'classic' };
+  delete upgraded['timerEnabled'];
+  return upgraded;
+}
+
+/** Records of the modes that exist, never below the saved rounds of each mode. */
+function toBestByMode(value: unknown, rounds: RoundRecord[]): PlayerProgress['bestByMode'] {
+  const best: PlayerProgress['bestByMode'] = {};
+  if (isRecord(value)) {
+    for (const { id } of GAME_MODES) {
+      if (id in value) {
+        best[id] = toCount(value[id]);
+      }
+    }
+  }
+  for (const round of rounds) {
+    best[round.mode] = Math.max(best[round.mode] ?? 0, round.points);
+  }
+  return best;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -74,6 +132,7 @@ function isRoundRecord(value: unknown): value is RoundRecord {
     typeof value['id'] === 'string' &&
     typeof value['playedAt'] === 'string' &&
     typeof value['points'] === 'number' &&
+    isGameModeId(value['mode']) &&
     PLANET_IDS.has(value['planetId'] as string) &&
     Array.isArray(value['answers'])
   );

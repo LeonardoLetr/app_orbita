@@ -5,6 +5,14 @@
   />
 
   <div class="flex flex-col items-center gap-1 text-center">
+    @if (modeName(); as name) {
+      <p
+        class="reveal mb-1 rounded-full border-[3px] border-ink bg-aurora-400 px-3 py-0.5 font-display tracking-wide text-ink"
+        style="--delay: 1.4s"
+      >
+        Modo {{ name }}
+      </p>
+    }
     <p
       class="reveal font-display text-lg tracking-wider text-space-200 uppercase"
       style="--delay: 1.5s"
@@ -53,7 +61,7 @@
           </span>
         } @else if (!outcome.isNewBest) {
           <span class="rounded-full border-[3px] border-space-600 px-4 py-1 text-space-200">
-            Seu recorde: {{ progress.bestPoints() }} pts
+            Seu recorde: {{ best() }} pts
           </span>
         }
         @if (outcome.isNewPlanet) {
@@ -71,7 +79,8 @@
     <app-score-history
       class="reveal"
       style="--delay: 2.1s"
-      [rounds]="progress.rounds()"
+      [rounds]="modeRounds()"
+      [max]="mode().rules.maxPoints"
       [currentId]="currentId()"
       [delay]="2300"
     />

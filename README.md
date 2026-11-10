@@ -70,8 +70,8 @@ npm run build      # build de produção em dist/orbita/browser
 ```
 src/app/
   core/
-    models/   tipos do domínio (Category, Answer, Rarity)
-    data/     acesso aos dados (CategoryRepository, ProgressRepository e versões locais)
+    models/   tipos do domínio (Category, Answer, Rarity, GameMode, RoundRules)
+    data/     acesso aos dados (CategoryRepository, ProgressRepository e versões locais) e a lista de modos de jogo
     utils/    funções puras, como a normalização de respostas
   features/   telas do jogo (home, game, result, history)
   shared/     componentes e ilustrações reutilizáveis
@@ -79,6 +79,12 @@ public/data/categories.json   base de categorias
 ```
 
 O jogo só conhece as classes `CategoryRepository` (categorias) e `ProgressRepository` (histórico e recorde). Para trocar o JSON e o `localStorage` por uma API, basta criar outras implementações e registrá-las em `src/app/app.config.ts`.
+
+### Modos de jogo
+
+As regras da partida não ficam no motor do jogo: cada modo é um item da lista em `core/data/game-modes.ts`, com nome, endereço e regras (`RoundRules`: quais categorias entram, quanto tempo cada uma tem e a pontuação máxima). Hoje existe o modo Clássico (`core/data/classic-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
+
+Cada partida salva guarda o modo em que foi jogada. O progresso gravado por versões anteriores do jogo continua sendo lido, como partidas do modo Clássico.
 
 ### Formato da base
 

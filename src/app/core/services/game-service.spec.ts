@@ -1,9 +1,12 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
+import { CLASSIC_CATEGORIES } from '../data/classic-rules';
+import { CLASSIC_MODE } from '../data/game-modes';
 import { Category } from '../models/category';
+import { GameMode } from '../models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
 import { RANDOM } from '../utils/random';
-import { CATEGORIES_PER_ROUND, GameService } from './game-service';
+import { GameService } from './game-service';
 import { ProgressService } from './progress-service';
 
 function makeCategory(id: string): Category {
@@ -42,10 +45,35 @@ describe('GameService', () => {
     await game.start();
 
     const ids = game.entries().map((entry) => entry.category.id);
-    expect(ids).toHaveLength(CATEGORIES_PER_ROUND);
-    expect(new Set(ids).size).toBe(CATEGORIES_PER_ROUND);
+    expect(ids).toHaveLength(CLASSIC_CATEGORIES);
+    expect(new Set(ids).size).toBe(CLASSIC_CATEGORIES);
     expect(game.status()).toBe('playing');
     expect(game.index()).toBe(0);
+  });
+
+  it('plays the classic mode unless told otherwise', async () => {
+    await game.start();
+
+    expect(game.mode()).toBe(CLASSIC_MODE);
+  });
+
+  it('asks the rules of the mode which categories to play', async () => {
+    const short: GameMode = {
+      ...CLASSIC_MODE,
+      name: 'Curto',
+      rules: { ...CLASSIC_MODE.rules, pickCategories: (all) => all.slice(3, 5) },
+    };
+
+    await game.start(short);
+
+    expect(game.mode()).toBe(short);
+    expect(game.entries().map((entry) => entry.category.id)).toEqual(['c3', 'c4']);
+
+    game.answer('');
+    game.next();
+    game.answer('');
+    game.next();
+    expect(game.status()).toBe('finished');
   });
 
   it('avoids the categories of the previous round', async () => {
@@ -98,19 +126,19 @@ describe('GameService', () => {
   it('finishes after every category is answered', async () => {
     await game.start();
 
-    for (let i = 0; i < CATEGORIES_PER_ROUND; i++) {
+    for (let i = 0; i < CLASSIC_CATEGORIES; i++) {
       const current = game.current()!.category;
       game.answer(`${current.id} comum`);
       game.next();
     }
 
     expect(game.status()).toBe('finished');
-    expect(game.totalPoints()).toBe(10 * CATEGORIES_PER_ROUND);
+    expect(game.totalPoints()).toBe(10 * CLASSIC_CATEGORIES);
   });
 
   it('saves the round in the history when it finishes', async () => {
     await game.start();
-    for (let i = 0; i < CATEGORIES_PER_ROUND; i++) {
+    for (let i = 0; i < CLASSIC_CATEGORIES; i++) {
       game.answer(i === 0 ? `${game.current()!.category.id} rara` : '');
       game.next();
     }
@@ -118,9 +146,10 @@ describe('GameService', () => {
     await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
 
     const [round] = progress.rounds();
+    expect(round.mode).toBe('classic');
     expect(round.points).toBe(100);
     expect(round.planetId).toBe('mars');
-    expect(round.answers).toHaveLength(CATEGORIES_PER_ROUND);
+    expect(round.answers).toHaveLength(CLASSIC_CATEGORIES);
     expect(round.answers[1].result.outcome).toBe('blank');
   });
 

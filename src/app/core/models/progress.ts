@@ -1,4 +1,5 @@
 import type { AnswerResult } from '../services/scoring-service';
+import { GameModeId } from './game-mode';
 import { PlanetId } from './planet';
 
 export interface RoundAnswer {
@@ -12,9 +13,9 @@ export interface RoundRecord {
   id: string;
   /** ISO date and time. */
   playedAt: string;
+  mode: GameModeId;
   points: number;
   planetId: PlanetId;
-  timerEnabled: boolean;
   answers: RoundAnswer[];
 }
 
@@ -23,13 +24,14 @@ export interface PlayerProgress {
   rounds: RoundRecord[];
   /** Every round ever played, including the ones no longer in `rounds`. */
   totalRounds: number;
-  bestPoints: number;
+  /** Best score in each mode already played (a mode never played has no entry). */
+  bestByMode: Partial<Record<GameModeId, number>>;
   reachedPlanets: PlanetId[];
 }
 
 export const EMPTY_PROGRESS: PlayerProgress = {
   rounds: [],
   totalRounds: 0,
-  bestPoints: 0,
+  bestByMode: {},
   reachedPlanets: [],
 };

@@ -11,6 +11,8 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { CLASSIC_MODE, isMainMode } from '../../core/data/game-modes';
+import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { ScoringService } from '../../core/services/scoring-service';
@@ -34,6 +36,8 @@ export class Result {
 
   readonly entries = input.required<RoundEntry[]>();
   readonly points = input.required<number>();
+  /** Mode of the round: records and the chart only compare rounds of the same mode. */
+  readonly mode = input<GameMode>(CLASSIC_MODE);
   readonly playAgain = output<void>();
 
   private readonly heading = viewChild.required<ElementRef<HTMLElement>>('heading');
@@ -47,7 +51,14 @@ export class Result {
   protected readonly currentId = computed(() =>
     this.progress.lastOutcome() ? this.progress.rounds()[0]?.id : undefined,
   );
-  protected readonly hasHistory = computed(() => this.progress.rounds().length > 1);
+  /** Name of the mode, said only for rounds outside the main one. */
+  protected readonly modeName = computed(() => (isMainMode(this.mode()) ? '' : this.mode().name));
+  /** Saved rounds of this mode, newest first. */
+  protected readonly modeRounds = computed(() =>
+    this.progress.rounds().filter((round) => round.mode === this.mode().id),
+  );
+  protected readonly hasHistory = computed(() => this.modeRounds().length > 1);
+  protected readonly best = computed(() => this.progress.bestFor(this.mode().id));
 
   /** Each answer plus a few rare ones the player could have given instead. */
   protected readonly rows = computed(() =>
@@ -82,6 +93,7 @@ export class Result {
       this.points(),
       this.entries().map((entry) => entry.result),
       this.document.baseURI,
+      this.modeName(),
     );
     try {
       if (navigator.share) {

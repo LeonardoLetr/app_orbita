@@ -1,6 +1,5 @@
 import { Component, computed, input } from '@angular/core';
 import { RoundRecord } from '../../core/models/progress';
-import { MAX_ROUND_POINTS } from '../../core/services/game-service';
 
 const SHOWN_ROUNDS = 12;
 const DATE = new Intl.DateTimeFormat('pt-BR', {
@@ -25,7 +24,7 @@ const DATE = new Intl.DateTimeFormat('pt-BR', {
       </figcaption>
 
       <div class="relative mt-6 h-32 sm:h-40" aria-hidden="true">
-        <span class="absolute -top-5 left-0 text-[0.7rem] text-space-200">máx. {{ max }}</span>
+        <span class="absolute -top-5 left-0 text-[0.7rem] text-space-200">máx. {{ max() }}</span>
         <div
           class="absolute inset-y-0 right-10 left-0 flex items-end gap-[2px] border-b border-space-700"
         >
@@ -132,14 +131,14 @@ const DATE = new Intl.DateTimeFormat('pt-BR', {
   `,
 })
 export class ScoreHistory {
-  /** Saved rounds, newest first, as kept by the progress service. */
+  /** Saved rounds of one mode, newest first, as kept by the progress service. */
   readonly rounds = input.required<RoundRecord[]>();
+  /** Top of the scale: the highest score a round of this mode can reach. */
+  readonly max = input.required<number>();
   /** The round just played, highlighted. */
   readonly currentId = input<string>();
   /** When the bars start growing, in milliseconds. */
   readonly delay = input(0);
-
-  protected readonly max = MAX_ROUND_POINTS;
 
   protected readonly bars = computed(() =>
     this.rounds()
@@ -148,7 +147,7 @@ export class ScoreHistory {
       .map((round) => ({
         id: round.id,
         points: round.points,
-        height: Math.min(100, (round.points / MAX_ROUND_POINTS) * 100),
+        height: Math.min(100, (round.points / this.max()) * 100),
         current: round.id === this.currentId(),
         date: DATE.format(new Date(round.playedAt)),
       })),
@@ -162,6 +161,6 @@ export class ScoreHistory {
   });
 
   protected readonly averageHeight = computed(() =>
-    Math.min(100, (this.average() / MAX_ROUND_POINTS) * 100),
+    Math.min(100, (this.average() / this.max()) * 100),
   );
 }

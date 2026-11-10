@@ -51,6 +51,10 @@
       Começar partida
     </a>
 
+    @if (otherModes.length) {
+      <app-mode-picker class="w-full" [modes]="otherModes" />
+    }
+
     <div class="flex flex-wrap justify-center gap-x-8 gap-y-4">
       <label class="flex cursor-pointer items-center gap-3 text-left font-bold text-space-200">
         <input

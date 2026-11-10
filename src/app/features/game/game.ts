@@ -11,8 +11,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { NgTemplateOutlet } from '@angular/common';
-import { RouterLink } from '@angular/router';
-import { GameService, SECONDS_PER_CATEGORY } from '../../core/services/game-service';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { GameMode } from '../../core/models/game-mode';
+import { GameService } from '../../core/services/game-service';
 import { MusicService } from '../../core/services/music-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
@@ -125,6 +127,8 @@ export class Game {
   private revealTimer?: ReturnType<typeof setTimeout>;
   private retries = 0;
   private readonly showLaunch = inject(SHOW_LAUNCH);
+  /** Each mode has its own address, which says how this screen plays. */
+  private readonly mode: GameMode = inject(ActivatedRoute).snapshot.data['mode'] ?? CLASSIC_MODE;
   private launchTimers: ReturnType<typeof setTimeout>[] = [];
   private endLaunch?: () => void;
 
@@ -171,7 +175,7 @@ export class Game {
 
   protected async newRound(): Promise<void> {
     this.stopTimers();
-    await this.game.start();
+    await this.game.start(this.mode);
     if (this.game.status() === 'playing') {
       if (this.showLaunch) {
         await this.launch();
@@ -223,7 +227,8 @@ export class Game {
     this.clearField();
     this.retryMessage.set('');
     if (this.game.status() === 'playing' && this.game.timerEnabled()) {
-      this.countdown.start(SECONDS_PER_CATEGORY, () => this.finishCategory(true));
+      const seconds = this.game.mode().rules.secondsPerCategory;
+      this.countdown.start(seconds, () => this.finishCategory(true));
     }
   }
 

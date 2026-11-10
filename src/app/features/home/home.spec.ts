@@ -44,8 +44,8 @@ describe('Home', () => {
 
   it('shows the record and the planets reached', async () => {
     const progress = TestBed.inject(ProgressService);
-    await progress.record({ points: 30, planetId: 'moon', timerEnabled: true, answers: [] });
-    await progress.record({ points: 75, planetId: 'jupiter', timerEnabled: false, answers: [] });
+    await progress.record({ points: 30, planetId: 'moon', mode: 'classic', answers: [] });
+    await progress.record({ points: 75, planetId: 'jupiter', mode: 'classic', answers: [] });
 
     const element = render();
 

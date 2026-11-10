@@ -1,5 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { provideRouter } from '@angular/router';
+import { provideRouter, Routes } from '@angular/router';
+import { RouterTestingHarness } from '@angular/router/testing';
+import { CLASSIC_MODE } from '../../core/data/game-modes';
+import { GameMode } from '../../core/models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
@@ -14,15 +17,15 @@ describe('Game', () => {
     answers: [{ text: `Resposta ${i}`, rarity: 'comet' }],
   }));
 
-  let fixture: ComponentFixture<Game>;
+  let fixture: ComponentFixture<unknown>;
 
   afterEach(() => fixture.destroy());
 
-  async function render(showLaunch = false) {
+  function configure(showLaunch = false, routes: Routes = []) {
     TestBed.configureTestingModule({
       imports: [Game],
       providers: [
-        provideRouter([]),
+        provideRouter(routes),
         { provide: CategoryRepository, useValue: { getAll: () => Promise.resolve(categories) } },
         { provide: RANDOM, useValue: () => 0 },
         { provide: SHOW_LAUNCH, useValue: showLaunch },
@@ -30,7 +33,10 @@ describe('Game', () => {
       ],
     });
     TestBed.inject(GameService).timerEnabled.set(false);
+  }
 
+  async function render(showLaunch = false) {
+    configure(showLaunch);
     fixture = TestBed.createComponent(Game);
     await fixture.whenStable();
     return fixture.nativeElement as HTMLElement;
@@ -167,6 +173,29 @@ describe('Game', () => {
     expect(element.querySelector('app-launch-layers')).toBeNull();
     expect(element.querySelector('app-question-card')?.classList).not.toContain('is-waiting');
     expect(element.querySelector('#answer')?.hasAttribute('data-ready')).toBe(true);
+  });
+
+  it('plays the classic mode at an address without one', async () => {
+    await render();
+
+    expect(TestBed.inject(GameService).mode()).toBe(CLASSIC_MODE);
+  });
+
+  it('plays the mode of its address', async () => {
+    const short: GameMode = {
+      ...CLASSIC_MODE,
+      name: 'Curto',
+      slug: 'curto',
+      rules: { ...CLASSIC_MODE.rules, pickCategories: (all) => all.slice(0, 2) },
+    };
+    configure(false, [{ path: 'jogar/curto', component: Game, data: { mode: short } }]);
+
+    const harness = await RouterTestingHarness.create('/jogar/curto');
+    fixture = harness.fixture;
+    await fixture.whenStable();
+
+    expect(TestBed.inject(GameService).mode()).toBe(short);
+    expect(harness.routeNativeElement?.textContent).toContain('Categoria 1 de 2');
   });
 
   it('keeps short results on screen for a minimum time', () => {

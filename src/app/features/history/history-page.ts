@@ -1,5 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { modeLabel } from '../../core/data/game-modes';
 import { PLANETS } from '../../core/data/planets';
 import { MAX_SAVED_ROUNDS } from '../../core/data/local-progress-repository';
 import { PlanetId } from '../../core/models/planet';
@@ -25,6 +26,7 @@ const FULL_DATE = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeSty
 export class HistoryPage {
   protected readonly progress = inject(ProgressService);
   protected readonly maxSavedRounds = MAX_SAVED_ROUNDS;
+  protected readonly modeLabel = modeLabel;
 
   protected planetName(id: PlanetId): string {
     return PLANET_NAMES.get(id) ?? '';
