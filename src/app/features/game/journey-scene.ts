@@ -3,6 +3,7 @@ import {
   DestroyRef,
   ElementRef,
   WritableSignal,
+  afterNextRender,
   computed,
   effect,
   inject,
@@ -21,6 +22,7 @@ import { RocketArt } from '../../shared/components/rocket-art';
 import { ExhaustPlume } from './exhaust-plume';
 import { LIFTOFF_EASING } from './flight-motion';
 import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
+import { RouteDrift } from './route-drift';
 import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
@@ -132,6 +134,10 @@ export class JourneyScene {
   private readonly starField = viewChild(StarField);
   protected readonly exhaust = viewChild(ExhaustPlume);
   private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
+  private readonly driftLayer = viewChild<ElementRef<HTMLElement>>('drift');
+  private readonly drift = new RouteDrift();
+  private frame = 0;
+  private lastFrame = 0;
   private seenAnswers = 0;
   private seenPoints = 0;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -148,6 +154,8 @@ export class JourneyScene {
         clearTimeout(this.timers.get('liftoff'));
         this.liftoff.set(false);
         if (launching) {
+          this.drift.reset();
+          this.showLead();
           this.exhaust()?.ignite(LIFTOFF_MS);
           this.later('liftoff', LIFTOFF_MS, () => {
             this.liftoff.set(true);
@@ -159,7 +167,13 @@ export class JourneyScene {
         }
       });
     });
-    inject(DestroyRef).onDestroy(() => this.timers.forEach((timer) => clearTimeout(timer)));
+    afterNextRender(() => this.startDrifting());
+    inject(DestroyRef).onDestroy(() => {
+      this.timers.forEach((timer) => clearTimeout(timer));
+      if (this.frame) {
+        cancelAnimationFrame(this.frame);
+      }
+    });
   }
 
   private react(answers: number, points: number): void {
@@ -170,6 +184,11 @@ export class JourneyScene {
 
     const route = this.route();
     if (!isNewAnswer) {
+      if (answers === 0) {
+        // A new round: back to where the route starts.
+        this.drift.reset();
+        this.showLead();
+      }
       this.litIndex.set(reachedIndex(points, route));
       return;
     }
@@ -181,6 +200,7 @@ export class JourneyScene {
 
     const duration = flightDuration(from, points, this.pace(), route);
     this.flightMs.set(duration);
+    this.drift.boost(routePosition(points, route) - routePosition(from, route), duration / 1000);
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
     const distance =
@@ -200,6 +220,29 @@ export class JourneyScene {
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
     }
+  }
+
+  /** Keeps the route creeping down between answers, unless the player asked for less motion. */
+  private startDrifting(): void {
+    const still = !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (still || typeof requestAnimationFrame !== 'function') {
+      return;
+    }
+    const tick = (now: number) => {
+      // A long gap means the page was in the background: the rocket waited too.
+      const seconds = Math.min(0.1, (now - (this.lastFrame || now)) / 1000);
+      this.lastFrame = now;
+      if (!this.launching()) {
+        this.drift.advance(seconds);
+        this.showLead();
+      }
+      this.frame = requestAnimationFrame(tick);
+    };
+    this.frame = requestAnimationFrame(tick);
+  }
+
+  private showLead(): void {
+    this.driftLayer()?.nativeElement.style.setProperty('--lead', this.drift.lead.toFixed(4));
   }
 
   /** One scene unit in pixels, measured on the rocket (it is ROCKET_UNITS wide). */
