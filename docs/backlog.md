@@ -4,24 +4,19 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 
 ## Visão geral
 
-| Código | Item                                   | Branch                 | Tamanho | Depende de         | Situação |
-| ------ | -------------------------------------- | ---------------------- | ------- | ------------------ | -------- |
-| M0     | Base para modos de jogo                | `feat/game-modes`      | M       | —                  | Feito    |
-| M1     | Modo Relâmpago                         | `feat/blitz-mode`      | M       | M0                 | Feito    |
-| M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 | Feito    |
-| M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | Feito    |
-| M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 | A fazer  |
-| G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  | A fazer  |
-| G2     | Patentes                               | `feat/ranks`           | P       | —                  | Feito    |
-| G3     | Álbum de figurinhas                    | `feat/sticker-album`   | G       | — (cresce com M/G) | A fazer  |
-| G4     | Foguete personalizável                 | `feat/rocket-hangar`   | M       | G2 e G3 (em parte) | A fazer  |
-| N1     | Projeto Firebase                       | `chore/firebase-setup` | P       | ação do Leonardo   | A fazer  |
-| N2     | Login com Google                       | `feat/google-sign-in`  | M       | N1                 | A fazer  |
-| N3     | Progresso na nuvem                     | `feat/cloud-progress`  | G       | N2                 | A fazer  |
-| D1     | Duelo online: salas                    | `feat/duel-rooms`      | M       | N1                 | A fazer  |
-| D2     | Duelo online: partida sincronizada     | `feat/duel-match`      | G       | D1                 | A fazer  |
-| D3     | Duelo online: dois foguetes e revanche | `feat/duel-scene`      | M       | D2                 | A fazer  |
-| D4     | Duelo online: quedas de conexão        | `feat/duel-reconnect`  | M       | D2                 | A fazer  |
+| Código | Item                    | Branch               | Tamanho | Depende de           | Situação |
+| ------ | ----------------------- | -------------------- | ------- | -------------------- | -------- |
+| M0     | Base para modos de jogo | `feat/game-modes`    | M       | —                    | Feito    |
+| M1     | Modo Relâmpago          | `feat/blitz-mode`    | M       | M0                   | Feito    |
+| M2     | Modo Sobrevivência      | `feat/survival-mode` | G       | M0                   | Feito    |
+| M3     | Modo Por tema           | `feat/theme-mode`    | M       | M0                   | Feito    |
+| M4     | Modo Letra sorteada     | `feat/letter-mode`   | M       | M0                   | A fazer  |
+| G1     | Diário de bordo         | `feat/logbook`       | M       | —                    | A fazer  |
+| G2     | Patentes                | `feat/ranks`         | P       | —                    | Feito    |
+| G3     | Álbum de figurinhas     | `feat/sticker-album` | G       | — (cresce com M/G)   | A fazer  |
+| G4     | Foguete personalizável  | `feat/rocket-hangar` | M       | G2 e G3 (em parte)   | A fazer  |
+| A1     | App instalável (PWA)    | `feat/pwa`           | P       | —                    | A fazer  |
+| A2     | Publicação nas lojas    | `feat/store-apps`    | M       | A1, ação do Leonardo | A fazer  |
 
 Tamanho é relativo, não é prazo: **P** mexe em uma regra ou uma tela; **M** em algumas telas e serviços; **G** envolve várias telas, arte nova ou sincronização.
 
@@ -36,11 +31,9 @@ Tamanho é relativo, não é prazo: **P** mexe em uma regra ou uma tela; **M** e
 
 ## Decisões que valem para tudo
 
-- **Jogar sem conta continua funcionando.** Login é opcional e só acrescenta coisas (guardar o progresso na nuvem, duelo com o próprio nome).
-- **A gamificação salva no aparelho primeiro.** Diário, patentes, figurinhas e foguete usam o mesmo caminho do progresso atual (`ProgressRepository` e `localStorage`) e funcionam sem conta. A nuvem (N3) sincroniza depois. Assim os épicos M e G não dependem de servidor.
-- **Servidor recomendado: Firebase** (Authentication + Firestore, plano gratuito). Funciona direto de um site estático no GitHub Pages, o login com Google é nativo, tem atualização em tempo real para o duelo, e o projeto gratuito não é pausado por falta de uso (no Supabase, a alternativa mais próxima, projetos gratuitos pausam depois de uma semana parados).
-- **Crianças e dados pessoais.** O jogo é usado por crianças, e a LGPD pede consentimento de um responsável para tratar dados pessoais de crianças. Por isso: login nunca é obrigatório, guardamos o mínimo (um apelido, não o e-mail nem o nome completo), existe botão de apagar a conta e uma página de privacidade em linguagem simples. Contas Google de menores de 13 anos são supervisionadas e podem não conseguir entrar em sites de terceiros. Se o jogo for adotado oficialmente por uma escola, vale confirmar esse ponto com quem cuida disso lá.
-- **Fora deste backlog por decisão:** Missão do dia e sequência de dias (já existem no jogo de referência). Ranking geral, turmas e painel do professor ficam para depois.
+- **Sem conta e sem servidor.** O jogo não tem login e tudo fica salvo no aparelho do jogador (`ProgressRepository` e `localStorage`). Isso também simplifica a publicação nas lojas, porque nenhum dado pessoal é coletado.
+- **Crianças.** O jogo é usado por crianças. Como não coleta dados, não precisa de consentimento; as lojas ainda pedem classificação etária e política de privacidade.
+- **Fora deste backlog por decisão:** Missão do dia e sequência de dias (já existem no jogo de referência). Login com Google, progresso na nuvem e duelo online foram retirados em novembro de 2026. Ranking geral, turmas e painel do professor ficam para depois.
 
 ---
 
@@ -270,7 +263,7 @@ Recomendação: começar exigindo 5 (10 letras) e reforçar a base nas letras fr
 
 ## Épico G — Gamificação
 
-Tudo aqui salva no aparelho e funciona sem conta. O item N3 leva esses dados para a nuvem depois.
+Tudo aqui salva no aparelho e funciona sem conta.
 
 ### G1 · Diário de bordo
 
@@ -387,167 +380,57 @@ O jogador monta o próprio foguete num hangar. Patentes e figurinhas liberam cor
 
 ---
 
-## Épico N — Conta e nuvem
+## Épico A — Aplicativo
 
-### N1 · Projeto Firebase
+### A1 · App instalável (PWA)
 
-**Branch:** `chore/firebase-setup` · **Tamanho:** P · **Depende de:** ação do Leonardo
+**Branch:** `feat/pwa` · **Tamanho:** P · **Depende de:** nada
 
-Pode começar a qualquer momento, em paralelo com os épicos M e G.
-
-**O que só o Leonardo pode fazer** (no console do Firebase, com a conta Google dele)
-
-1. Criar o projeto em `console.firebase.google.com`, no plano gratuito (Spark).
-2. Em Authentication, ativar os provedores **Google** e **Anônimo**. O anônimo permite duelar com apelido, sem conta.
-3. Em Firestore, criar o banco na região `southamerica-east1` (São Paulo), em modo de produção.
-4. Em Authentication → Settings → Authorized domains, acrescentar `leonardoletr.github.io`.
-5. Registrar um app Web e passar o bloco de configuração que o console mostra.
-
-**Passo a passo no repositório**
-
-1. Dependência `firebase` (SDK modular), carregada sob demanda: o código só é baixado quando o jogador entra na conta ou no duelo. Quem joga sem conta não fica com o jogo mais pesado. Conferir os limites de tamanho do `angular.json`.
-2. `core/cloud/firebase.ts`: inicialização preguiçosa com a configuração do projeto. Essa configuração não é segredo (fica visível em qualquer site que usa Firebase); a proteção são as regras de segurança do banco.
-3. `firestore.rules` versionado no repositório, com testes das regras rodando no emulador do Firebase dentro do CI.
-4. Publicação das regras: no começo, manual pela linha de comando do Firebase; depois, se quiser, automática por GitHub Action com credencial guardada nos segredos do repositório.
-5. Os testes de ponta a ponta continuam usando os repositórios locais, sem rede.
-6. Página `/privacidade` explicando, em linguagem simples, o que é guardado e como apagar.
-
-**Pronto quando:** o site publicado consegue ler e gravar um documento de teste protegido pelas regras, e o jogo sem conta continua do mesmo tamanho.
-
-### N2 · Login com Google
-
-**Branch:** `feat/google-sign-in` · **Tamanho:** M · **Depende de:** N1
-
-Entrar com a conta Google para guardar o progresso e levar para outro aparelho. Sempre opcional.
+O próprio site passa a poder ser instalado pelo navegador, com ícone, tela cheia e funcionando sem internet. Não passa por loja.
 
 **Passo a passo**
 
-1. `core/data/auth-repository.ts`: abstração `AuthRepository`, no mesmo molde dos repositórios que já existem, com o jogador atual, `signInWithGoogle()`, `signOut()` e `deleteAccount()`. Duas implementações: a do Firebase e uma de mentira para os testes.
-2. Usar a janela de login (popup). O login por redirecionamento falha em navegadores que bloqueiam armazenamento de terceiros quando o site não está no domínio do próprio Firebase, que é o nosso caso no GitHub Pages.
-3. Tela inicial: botão "Entrar com Google" com uma linha dizendo para que serve. Depois de entrar, um selo com o apelido abre o perfil.
-4. Apelido: começa com o primeiro nome da conta e pode ser trocado. É o que os outros jogadores veem. O e-mail não é guardado no nosso banco, e a foto da conta não é usada: o avatar do jogador é o foguete dele.
-5. Perfil: trocar apelido, sair e **apagar minha conta e meus dados**.
-6. Tratar os erros comuns: janela bloqueada ou fechada, e navegador embutido de aplicativos (WhatsApp, Instagram), que não permite login Google. Nesse caso, pedir para abrir no navegador do celular.
+1. `ng add @angular/pwa`: manifesto, service worker e registro no `app.config.ts`.
+2. Manifesto: nome "Astropalavra", cores do tema, `display: standalone`, orientação retrato e `start_url`/`scope` relativos, para funcionar em `/app_orbita/` no GitHub Pages.
+3. Ícones originais em todos os tamanhos, incluindo o "maskable" do Android e o `apple-touch-icon`.
+4. Cache: o aplicativo e `categories.json` ficam guardados para abrir offline; a base é atualizada em segundo plano.
+5. Aviso discreto de "nova versão disponível", com botão para recarregar.
+6. Convite para instalar na tela inicial: botão no Android (`beforeinstallprompt`) e instrução curta no iPhone ("Compartilhar → Adicionar à Tela de Início").
+7. Conferir que o progresso salvo no navegador aparece no app instalado no Android. No iPhone o app instalado tem armazenamento próprio, e isso deve ser avisado.
 
-**Testes:** fluxo completo com o repositório de mentira; mensagens de erro; apagar a conta remove os dados (teste das regras no emulador).
+**Testes:** manifesto válido; o jogo abre e joga uma partida sem rede (ponta a ponta com a rede desligada); auditoria de PWA do Lighthouse.
 
-**Pronto quando:** dá para entrar, sair e apagar a conta no celular e no computador, e quem não entra não percebe diferença.
+**Pronto quando:** dá para instalar no Android e no iPhone, abrir em tela cheia e jogar sem internet.
 
-### N3 · Progresso na nuvem
+### A2 · Publicação nas lojas
 
-**Branch:** `feat/cloud-progress` · **Tamanho:** G · **Depende de:** N2 (e sincroniza o que existir de G1 a G4)
+**Branch:** `feat/store-apps` · **Tamanho:** M · **Depende de:** A1 e de ações do Leonardo
 
-O progresso do jogador que entrou na conta fica guardado no Firestore e aparece em qualquer aparelho.
+O mesmo código empacotado com Capacitor em um app Android e um app iOS, publicados na Play Store e na App Store.
 
-**Dados no Firestore**
+**O que só o Leonardo pode fazer**
 
-- `users/{uid}`: apelido, XP, recordes por modo, paradas alcançadas, figurinhas, visual do foguete.
-- `users/{uid}/rounds/{id}`: as 50 últimas partidas.
-- `users/{uid}/logbook/{categoryId}`: as descobertas de cada categoria.
-
-**Passo a passo**
-
-1. `CloudProgressRepository`, implementação de `ProgressRepository` que grava primeiro no aparelho (como hoje) e depois na nuvem. Trocar a implementação em `app.config.ts` conforme o jogador está ou não na conta.
-2. Função pura de fusão para o primeiro login num aparelho que já tem progresso: une as partidas pelo id, fica com o maior recorde de cada modo, une paradas, figurinhas e descobertas (mantendo a data mais antiga). Marcar no aparelho o que já foi enviado, para não contar duas vezes.
-3. Funcionar sem internet: usar o cache local do Firestore e enviar quando a conexão voltar.
-4. Regras de segurança: cada jogador só lê e grava o que está em `users/{seu uid}`; validar tipos e limites (por exemplo, pontos de uma partida dentro do possível).
-5. Ao sair da conta, o aparelho volta ao progresso de visitante. Isso protege quem divide o aparelho com irmãos ou colegas.
-
-**Testes:** a função de fusão em vários cenários (aparelho novo, aparelho com progresso, os dois lados com dados); regras no emulador; ponta a ponta com o repositório de mentira.
-
-**Pronto quando:** jogar no celular e depois abrir no computador com a mesma conta mostra o mesmo progresso, e nenhum jogador consegue ler dados de outro.
-
-**A decidir:** o comportamento ao sair da conta (voltar a visitante, como proposto, ou manter o progresso no aparelho).
-
----
-
-## Épico D — Duelo online
-
-Dois jogadores, cada um no seu aparelho, respondem as mesmas categorias ao mesmo tempo. Precisa de N1. Não exige login com Google: quem não tem conta entra com um apelido (login anônimo).
-
-**Regras propostas**
-
-- As mesmas 7 categorias, na mesma ordem, com 30 segundos cada.
-- Os dois respondem ao mesmo tempo. Quando ambos responderam, ou o tempo acabou, os cartões viram e mostram as duas respostas.
-- Resposta igual à do adversário: cada um leva metade dos pontos. Reforça a ideia do jogo, porque vence quem pensa na resposta mais rara.
-- Vence quem for mais longe. No empate de pontos, quem tiver mais Supernovas; se persistir, empate.
-
-**A decidir:** resposta igual vale metade (proposta) ou zero, como no stop.
-
-**Limites do plano gratuito:** um duelo gasta cerca de 100 gravações no banco. O limite gratuito é de 20 mil gravações por dia, o que dá para uns 200 duelos por dia. Se passar disso, dá para reduzir as gravações ou mudar de plano.
-
-**Sem servidor próprio:** o plano gratuito não tem funções de servidor, então a pontuação é calculada nos aparelhos. Para ninguém inventar pontos, cada aparelho recalcula os pontos do adversário a partir do texto que ele digitou, usando a própria base de categorias.
-
-### D1 · Salas
-
-**Branch:** `feat/duel-rooms` · **Tamanho:** M · **Depende de:** N1
+1. Criar a conta de desenvolvedor do Google Play (US$ 25, uma vez) e a da Apple (US$ 99 por ano).
+2. Ter acesso a um Mac com Xcode: sem ele não dá para gerar nem enviar o app de iOS.
+3. Assinar e enviar os apps, e responder às revisões das lojas.
 
 **Passo a passo**
 
-1. Modelo do documento `duels/{code}`: situação (`waiting`, `playing`, `finished`), as 7 categorias sorteadas, a rodada atual, o horário de início da rodada (relógio do servidor), os dois jogadores (apelido, visual do foguete, pronto ou não) e a validade da sala.
-2. `core/data/duel-repository.ts`: abstração com criar sala, entrar, marcar pronto e observar a sala. Implementação no Firestore e uma em memória para os testes.
-3. Código da sala com 4 letras, sem caracteres que se confundem (O e 0, I e 1).
-4. Regras de segurança: só entra quem encontra vaga; cada jogador só altera a própria parte; as categorias não mudam depois que a partida começa.
-5. Tela `/duelo`: "Criar sala" ou "Entrar com código"; pede um apelido se o jogador ainda não tem.
-6. Sala de espera em `/duelo/:code`: código grande, botão de compartilhar o link, os dois foguetes lado a lado e o botão "Pronto!".
-7. Mensagens para código inexistente, sala cheia e sala vencida.
+1. Adicionar o Capacitor (`@capacitor/core`, `android`, `ios`), com `webDir` apontando para o build e identificador do app (por exemplo `br.com.astropalavra`).
+2. Build com `base-href` `/` para os apps, separado do build do GitHub Pages.
+3. Ícone e tela de abertura nativos, a partir da arte do A1.
+4. Retestar dentro do app o que foi ajustado para navegador: barra de resposta sobre o teclado, área segura do iPhone, áudio e botão de voltar do Android.
+5. Compartilhar o resultado pela folha nativa (`@capacitor/share`).
+6. Material das lojas: nome, descrição, capturas de tela, classificação etária e política de privacidade (o jogo não coleta dados).
+7. Regras para público infantil: Famílias, no Google Play, e categoria Kids, na Apple, se o jogo for declarado para crianças.
+8. Publicar primeiro em teste fechado (trilha interna do Play e TestFlight) e depois abrir.
+9. Documentar no README como gerar e enviar cada versão.
 
-**Testes:** regras no emulador (terceiro jogador barrado, um jogador não altera o outro); criar e entrar com o repositório em memória; ponta a ponta com dois navegadores.
+**Testes:** os de ponta a ponta atuais no build dos apps; roteiro manual em um Android e um iPhone reais.
 
-**Pronto quando:** duas pessoas em aparelhos diferentes entram na mesma sala pelo código ou pelo link e veem uma à outra.
+**Pronto quando:** o Astropalavra pode ser baixado nas duas lojas e uma atualização consegue ser enviada seguindo o README.
 
-### D2 · Partida sincronizada
-
-**Branch:** `feat/duel-match` · **Tamanho:** G · **Depende de:** D1
-
-**Passo a passo**
-
-1. Máquina de estados do duelo como função pura (`core/utils/duel-state.ts`): a partir do documento da sala, diz em que fase cada aparelho está. É a parte mais importante de testar.
-2. Relógio comum: a rodada começa no horário gravado pelo servidor, e cada aparelho calcula quanto falta a partir dele. A contagem "3, 2, 1" da decolagem serve de folga para os dois começarem juntos.
-3. Respostas em `duels/{code}/answers/{uid}_{rodada}`, com o texto digitado. As regras só deixam ler a resposta do adversário depois que o próprio jogador respondeu ou a rodada acabou.
-4. Na sala fica só o aviso de que o adversário já respondeu, sem o conteúdo, para mostrar "Ana já respondeu!".
-5. Avanço de rodada: quando as duas respostas existem ou o tempo acabou (com 2 segundos de tolerância para a rede), qualquer um dos aparelhos avança, numa transação que só vale se a rodada ainda for a mesma. Assim nunca avança duas vezes.
-6. Pontuação: cada aparelho pontua a própria resposta e recalcula a do adversário; aplica a regra da resposta igual.
-7. `GameService` e a tela da partida passam a aceitar o duelo como fonte das categorias e do relógio, reaproveitando o cartão, o cronômetro e a cena.
-8. O verso do cartão mostra as duas respostas: a do jogador e a do adversário, com nível e pontos.
-
-**Testes:** a máquina de estados em todos os caminhos (os dois respondem, um responde, ninguém responde, respostas iguais); regra de leitura das respostas no emulador; ponta a ponta com dois navegadores jogando as 7 rodadas.
-
-**Pronto quando:** dois aparelhos jogam as 7 categorias em sincronia, ninguém vê a resposta do outro antes da hora e os dois chegam ao mesmo placar.
-
-### D3 · Dois foguetes, resultado e revanche
-
-**Branch:** `feat/duel-scene` · **Tamanho:** M · **Depende de:** D2
-
-**Passo a passo**
-
-1. Cena: o foguete do adversário aparece na rota, acima ou abaixo do jogador conforme a diferença de pontos. Quando sai da tela, uma seta na borda mostra onde ele está ("↑ Ana · Júpiter").
-2. Cabeçalho com os dois placares.
-3. Resultado do duelo: quem venceu, os dois destinos e a comparação categoria por categoria (minha resposta e a dele).
-4. "Revanche": novas 7 categorias na mesma sala, sem precisar de outro código.
-5. Figurinha "Vencer um duelo" (G3) e XP normal da partida (G2).
-6. O histórico registra o duelo com o apelido do adversário.
-
-**Testes:** posição do foguete adversário para várias diferenças de pontos; resultado com vitória, derrota e empate; revanche.
-
-**Pronto quando:** dá para ver o adversário avançando durante a partida, o resultado deixa claro quem venceu e por quê, e a revanche começa com um toque.
-
-### D4 · Quedas de conexão e limpeza
-
-**Branch:** `feat/duel-reconnect` · **Tamanho:** M · **Depende de:** D2
-
-**Passo a passo**
-
-1. Sinal de presença: cada aparelho avisa a cada 10 segundos que continua na sala.
-2. Adversário em silêncio por 20 segundos: aviso "Ana saiu da sala" e escolha entre esperar ou encerrar com vitória.
-3. Recarregar a página ou perder a conexão por instantes: ao voltar ao link, o jogador retoma a partida de onde ela está.
-4. Mesmo jogador em duas abas: só a mais recente joga.
-5. Salas vencidas são apagadas (validade de 24 horas). Conferir se a exclusão automática do Firestore está disponível no plano gratuito; se não estiver, apagar as salas antigas do próprio jogador quando ele cria uma nova.
-6. Conferir o consumo real de gravações por duelo e ajustar o intervalo do sinal de presença.
-
-**Testes:** máquina de estados com adversário ausente e com retorno; ponta a ponta fechando um dos navegadores no meio da partida.
-
-**Pronto quando:** uma queda de conexão de qualquer lado nunca deixa o outro jogador preso numa tela sem saída.
+**A decidir:** começar só pelo Android, que é mais barato e não exige Mac; nome e identificador definitivos do app; se o app será declarado como feito para crianças.
 
 ---
 
@@ -555,7 +438,6 @@ Dois jogadores, cada um no seu aparelho, respondem as mesmas categorias ao mesmo
 
 1. **M0**, depois **M1**, **M2**, **M3** e **M4**: cada modo fica pronto para jogar sozinho.
 2. **G1**, **G2**, **G3** e **G4**: objetivos de longo prazo, ainda sem servidor.
-3. **N1** em paralelo, assim que o projeto Firebase for criado; depois **N2** e **N3**.
-4. **D1** a **D4**: o duelo online, que depende de N1.
+3. **A1**, que é pequeno e pode entrar a qualquer momento; depois **A2**, quando as contas das lojas existirem.
 
 A ordem pode mudar. As únicas amarras são as da coluna "Depende de" na tabela do início.
