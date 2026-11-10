@@ -1,7 +1,8 @@
 import { RoundRules } from './round-rules';
+import { Theme } from './theme';
 
 /** Saved with every round, so an id must never change once it is in use. */
-export type GameModeId = 'classic' | 'blitz' | 'survival';
+export type GameModeId = 'classic' | 'blitz' | 'survival' | 'theme';
 
 /** A way of playing: its name for the player, its address and its rules. */
 export interface GameMode {
@@ -12,5 +13,7 @@ export interface GameMode {
   readonly tagline: string;
   /** Last part of the address, as in `/jogar/relampago`. The main mode has none. */
   readonly slug?: string;
+  /** The theme its rounds are about, in the mode played by theme. */
+  readonly theme?: Theme;
   readonly rules: RoundRules;
 }

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
 import { CLASSIC_CATEGORIES } from '../data/classic-rules';
-import { CLASSIC_MODE, SURVIVAL_MODE } from '../data/game-modes';
+import { CLASSIC_MODE, SURVIVAL_MODE, THEMED_MODES } from '../data/game-modes';
 import { Category } from '../models/category';
 import { GameMode } from '../models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
@@ -294,5 +294,21 @@ describe('GameService', () => {
       expect(progress.rounds()[0].planetId).toBe('eris');
       expect(progress.reachedPlanets().has('eris')).toBe(true);
     });
+  });
+
+  it('saves the theme with a round played by theme', async () => {
+    const themed = THEMED_MODES[0];
+    getAll = () =>
+      Promise.resolve(categories.map((category) => ({ ...category, themes: [themed.theme!.id] })));
+    await game.start(themed);
+    for (let i = 0; i < CLASSIC_CATEGORIES; i++) {
+      game.answer('');
+      game.next();
+    }
+
+    const progress = TestBed.inject(ProgressService);
+    await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
+    expect(progress.rounds()[0].mode).toBe('theme');
+    expect(progress.rounds()[0].theme).toBe(themed.theme!.id);
   });
 });

@@ -2,6 +2,8 @@ import { GameMode, GameModeId } from '../models/game-mode';
 import { BLITZ_RULES, BLITZ_SECONDS } from './blitz-rules';
 import { CLASSIC_RULES } from './classic-rules';
 import { SURVIVAL_LIVES, SURVIVAL_RULES } from './survival-rules';
+import { themeRules } from './theme-rules';
+import { THEMES } from './themes';
 
 export const CLASSIC_MODE: GameMode = {
   id: 'classic',
@@ -26,8 +28,33 @@ export const SURVIVAL_MODE: GameMode = {
   rules: SURVIVAL_RULES,
 };
 
+/**
+ * Classic rounds about a single theme. Its own address is where the theme is chosen;
+ * the rounds are played in the modes of `THEMED_MODES`, one for each theme.
+ */
+export const THEME_MODE: GameMode = {
+  id: 'theme',
+  name: 'Por tema',
+  tagline: 'Escolha o assunto e jogue só com categorias dele.',
+  slug: 'tema',
+  rules: CLASSIC_RULES,
+};
+
+/** The theme mode once for each theme, with rules that only draw its categories. */
+export const THEMED_MODES: readonly GameMode[] = THEMES.map((theme) => ({
+  ...THEME_MODE,
+  slug: `${THEME_MODE.slug}/${theme.slug}`,
+  theme,
+  rules: themeRules(theme.id),
+}));
+
 /** Every way of playing, the main one first. */
-export const GAME_MODES: readonly GameMode[] = [CLASSIC_MODE, BLITZ_MODE, SURVIVAL_MODE];
+export const GAME_MODES: readonly GameMode[] = [
+  CLASSIC_MODE,
+  BLITZ_MODE,
+  SURVIVAL_MODE,
+  THEME_MODE,
+];
 
 /** The main mode opens with the big button on the home screen; the others are extras. */
 export function isMainMode(mode: GameMode): boolean {

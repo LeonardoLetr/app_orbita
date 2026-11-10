@@ -4,6 +4,7 @@ import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress'
 import { STORAGE, readJson, writeJson } from '../utils/storage';
 import { GAME_MODES, isGameModeId } from './game-modes';
 import { EXTENDED_ROUTE } from './planets';
+import { isThemeId } from './themes';
 import { ProgressRepository } from './progress-repository';
 
 export const PROGRESS_KEY = 'orbita:progress';
@@ -133,6 +134,7 @@ function isRoundRecord(value: unknown): value is RoundRecord {
     typeof value['playedAt'] === 'string' &&
     typeof value['points'] === 'number' &&
     isGameModeId(value['mode']) &&
+    (value['theme'] === undefined || isThemeId(value['theme'])) &&
     PLANET_IDS.has(value['planetId'] as string) &&
     Array.isArray(value['answers'])
   );

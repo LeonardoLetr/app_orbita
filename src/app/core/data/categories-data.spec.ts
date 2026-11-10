@@ -1,5 +1,6 @@
 import categories from '../../../../public/data/categories.json';
 import { Category } from '../models/category';
+import { MIN_THEME_CATEGORIES, THEMES, categoriesOf, isThemeId } from './themes';
 import { RARITIES } from '../models/rarity';
 import { normalizeAnswer } from '../utils/normalize-answer';
 
@@ -48,6 +49,23 @@ describe('categories.json', () => {
         .filter((term, index, all) => all.indexOf(term) !== index);
 
       expect(duplicates, category.id).toEqual([]);
+    }
+  });
+
+  it('puts every category in at least one theme that exists', () => {
+    for (const category of data) {
+      expect(category.themes?.length, category.id).toBeGreaterThan(0);
+      for (const theme of category.themes ?? []) {
+        expect(isThemeId(theme), `${category.id}: ${theme}`).toBe(true);
+      }
+    }
+  });
+
+  it('has enough categories in every theme for its rounds to vary', () => {
+    for (const theme of THEMES) {
+      expect(categoriesOf(data, theme.id).length, theme.id).toBeGreaterThanOrEqual(
+        MIN_THEME_CATEGORIES,
+      );
     }
   });
 });

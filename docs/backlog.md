@@ -9,7 +9,7 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 | M0     | Base para modos de jogo                | `feat/game-modes`      | M       | —                  | Feito    |
 | M1     | Modo Relâmpago                         | `feat/blitz-mode`      | M       | M0                 | Feito    |
 | M2     | Modo Sobrevivência                     | `feat/survival-mode`   | G       | M0                 | Feito    |
-| M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | A fazer  |
+| M3     | Modo Por tema                          | `feat/theme-mode`      | M       | M0                 | Feito    |
 | M4     | Modo Letra sorteada                    | `feat/letter-mode`     | M       | M0                 | A fazer  |
 | G1     | Diário de bordo                        | `feat/logbook`         | M       | —                  | A fazer  |
 | G2     | Patentes                               | `feat/ranks`           | P       | —                  | A fazer  |
@@ -216,6 +216,15 @@ Uma categoria pode estar em mais de um tema. Um tema só é oferecido quando tem
 **Testes:** o sorteio só traz categorias do tema; os testes de dados acima; ponta a ponta escolhendo um tema.
 
 **Pronto quando:** os 5 temas aparecem, cada partida de tema só traz categorias dele e nenhum tema fica repetitivo.
+
+**Situação:** feito.
+
+**Como ficou, onde difere do plano**
+
+- A base já tinha crescido para 80 categorias, então não foi preciso criar categorias para Mundo e Brasil. São 6 temas, com o novo **Arte e esporte**: Natureza (18 categorias), Dia a dia (19), Ciência e espaço (13), Mundo (13), Brasil (11) e Arte e esporte (12).
+- Cada tema tem o seu endereço (`/jogar/tema/natureza`), e `/jogar/tema` é a tela de escolha.
+- O tema é salvo em cada partida (`theme`). O recorde e o gráfico são do modo inteiro, não de cada tema.
+- Os temas têm nome, frase e cor; não têm ícone.
 
 ### M4 · Modo Letra sorteada
 

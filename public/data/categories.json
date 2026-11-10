@@ -2,6 +2,7 @@
   {
     "id": "sea-animal",
     "title": "Animal que vive no mar",
+    "themes": ["nature"],
     "answers": [
       { "text": "Tubarão", "rarity": "satellite" },
       { "text": "Baleia", "rarity": "satellite", "synonyms": ["baleia-azul"] },
@@ -55,6 +56,7 @@
   {
     "id": "south-american-country",
     "title": "País da América do Sul",
+    "themes": ["world"],
     "answers": [
       { "text": "Brasil", "rarity": "satellite" },
       { "text": "Argentina", "rarity": "satellite" },
@@ -73,6 +75,7 @@
   {
     "id": "fruit",
     "title": "Fruta",
+    "themes": ["nature"],
     "answers": [
       { "text": "Banana", "rarity": "satellite" },
       { "text": "Maçã", "rarity": "satellite" },
@@ -137,6 +140,7 @@
   {
     "id": "brazilian-state",
     "title": "Estado brasileiro",
+    "themes": ["brazil"],
     "answers": [
       { "text": "São Paulo", "rarity": "satellite", "synonyms": ["sp"] },
       { "text": "Rio de Janeiro", "rarity": "satellite", "synonyms": ["rj"] },
@@ -169,6 +173,7 @@
   {
     "id": "brazilian-capital",
     "title": "Capital brasileira",
+    "themes": ["brazil"],
     "answers": [
       { "text": "Brasília", "rarity": "satellite" },
       { "text": "São Paulo", "rarity": "satellite" },
@@ -202,6 +207,7 @@
   {
     "id": "musical-instrument",
     "title": "Instrumento musical",
+    "themes": ["culture"],
     "answers": [
       { "text": "Violão", "rarity": "satellite" },
       { "text": "Guitarra", "rarity": "satellite" },
@@ -271,6 +277,7 @@
   {
     "id": "ball-sport",
     "title": "Esporte com bola",
+    "themes": ["culture"],
     "answers": [
       { "text": "Futebol", "rarity": "satellite" },
       { "text": "Vôlei", "rarity": "satellite", "synonyms": ["voleibol"] },
@@ -314,6 +321,7 @@
   {
     "id": "profession",
     "title": "Profissão",
+    "themes": ["daily"],
     "answers": [
       { "text": "Médico", "rarity": "satellite", "synonyms": ["médica"] },
       { "text": "Professor", "rarity": "satellite", "synonyms": ["professora"] },
@@ -420,6 +428,7 @@
   {
     "id": "color",
     "title": "Cor",
+    "themes": ["daily"],
     "answers": [
       { "text": "Azul", "rarity": "satellite" },
       { "text": "Vermelho", "rarity": "satellite" },
@@ -490,6 +499,7 @@
   {
     "id": "kitchen-object",
     "title": "Objeto de cozinha",
+    "themes": ["daily"],
     "answers": [
       { "text": "Panela", "rarity": "satellite" },
       { "text": "Garfo", "rarity": "satellite" },
@@ -571,6 +581,7 @@
   {
     "id": "solar-system-body",
     "title": "Astro do Sistema Solar",
+    "themes": ["science"],
     "answers": [
       { "text": "Sol", "rarity": "satellite" },
       { "text": "Terra", "rarity": "satellite" },
@@ -623,6 +634,7 @@
   {
     "id": "bird",
     "title": "Ave",
+    "themes": ["nature"],
     "answers": [
       { "text": "Galinha", "rarity": "satellite" },
       { "text": "Pombo", "rarity": "satellite" },
@@ -709,6 +721,7 @@
   {
     "id": "vegetable",
     "title": "Legume ou verdura",
+    "themes": ["nature"],
     "answers": [
       { "text": "Alface", "rarity": "satellite" },
       { "text": "Tomate", "rarity": "satellite" },
@@ -782,6 +795,7 @@
   {
     "id": "body-part",
     "title": "Parte do corpo humano",
+    "themes": ["science"],
     "answers": [
       { "text": "Cabeça", "rarity": "satellite" },
       { "text": "Braço", "rarity": "satellite" },
@@ -887,6 +901,7 @@
   {
     "id": "transport",
     "title": "Meio de transporte",
+    "themes": ["daily"],
     "answers": [
       { "text": "Carro", "rarity": "satellite", "synonyms": ["automóvel"] },
       { "text": "Ônibus", "rarity": "satellite" },
@@ -963,6 +978,7 @@
   {
     "id": "chemical-element",
     "title": "Elemento químico",
+    "themes": ["science"],
     "answers": [
       { "text": "Oxigênio", "rarity": "satellite" },
       { "text": "Hidrogênio", "rarity": "satellite" },
@@ -1087,6 +1103,7 @@
   {
     "id": "insect",
     "title": "Inseto",
+    "themes": ["nature"],
     "answers": [
       { "text": "Formiga", "rarity": "satellite" },
       { "text": "Abelha", "rarity": "satellite" },
@@ -1143,6 +1160,7 @@
   {
     "id": "brazilian-sweet",
     "title": "Doce brasileiro",
+    "themes": ["brazil"],
     "answers": [
       { "text": "Brigadeiro", "rarity": "satellite", "synonyms": ["negrinho"] },
       { "text": "Beijinho", "rarity": "satellite" },
@@ -1218,6 +1236,7 @@
   {
     "id": "tree",
     "title": "Árvore",
+    "themes": ["nature"],
     "answers": [
       { "text": "Mangueira", "rarity": "satellite" },
       { "text": "Coqueiro", "rarity": "satellite" },
@@ -1308,6 +1327,7 @@
   {
     "id": "clothing",
     "title": "Peça de roupa",
+    "themes": ["daily"],
     "answers": [
       { "text": "Camiseta", "rarity": "satellite" },
       { "text": "Camisa", "rarity": "satellite" },
@@ -1394,6 +1414,7 @@
   {
     "id": "land-mammal",
     "title": "Mamífero terrestre",
+    "themes": ["nature"],
     "answers": [
       { "text": "Cachorro", "rarity": "satellite", "synonyms": ["cão"] },
       { "text": "Gato", "rarity": "satellite" },
@@ -1500,6 +1521,7 @@
   {
     "id": "european-country",
     "title": "País da Europa",
+    "themes": ["world"],
     "answers": [
       { "text": "Portugal", "rarity": "satellite" },
       { "text": "Espanha", "rarity": "satellite" },
@@ -1556,6 +1578,7 @@
   {
     "id": "school-supply",
     "title": "Material escolar",
+    "themes": ["daily"],
     "answers": [
       { "text": "Lápis", "rarity": "satellite" },
       { "text": "Caneta", "rarity": "satellite" },
@@ -1627,6 +1650,7 @@
   {
     "id": "folklore-character",
     "title": "Personagem do folclore brasileiro",
+    "themes": ["brazil"],
     "answers": [
       { "text": "Saci", "rarity": "satellite", "synonyms": ["saci-pererê"] },
       { "text": "Curupira", "rarity": "satellite" },
@@ -1673,6 +1697,7 @@
   {
     "id": "flower",
     "title": "Flor",
+    "themes": ["nature"],
     "answers": [
       { "text": "Rosa", "rarity": "satellite" },
       { "text": "Margarida", "rarity": "satellite" },
@@ -1757,6 +1782,7 @@
   {
     "id": "african-country",
     "title": "País da África",
+    "themes": ["world"],
     "answers": [
       { "text": "Egito", "rarity": "satellite" },
       { "text": "África do Sul", "rarity": "satellite" },
@@ -1817,6 +1843,7 @@
   {
     "id": "asian-country",
     "title": "País da Ásia",
+    "themes": ["world"],
     "answers": [
       { "text": "China", "rarity": "satellite" },
       { "text": "Japão", "rarity": "satellite" },
@@ -1872,6 +1899,7 @@
   {
     "id": "constellation",
     "title": "Constelação",
+    "themes": ["science"],
     "answers": [
       { "text": "Cruzeiro do Sul", "rarity": "satellite", "synonyms": ["cruzeiro"] },
       { "text": "Órion", "rarity": "satellite", "synonyms": ["três marias"] },
@@ -1966,6 +1994,7 @@
   {
     "id": "dinosaur",
     "title": "Dinossauro",
+    "themes": ["nature", "science"],
     "answers": [
       { "text": "Tiranossauro", "rarity": "satellite", "synonyms": ["tiranossauro rex", "t-rex", "rex"] },
       { "text": "Velociraptor", "rarity": "satellite", "synonyms": ["raptor", "velocirraptor"] },
@@ -2027,6 +2056,7 @@
   {
     "id": "geometric-shape",
     "title": "Forma geométrica",
+    "themes": ["science"],
     "answers": [
       { "text": "Quadrado", "rarity": "satellite" },
       { "text": "Círculo", "rarity": "satellite", "synonyms": ["circunferência"] },
@@ -2089,6 +2119,7 @@
   {
     "id": "natural-phenomenon",
     "title": "Fenômeno da natureza",
+    "themes": ["science"],
     "answers": [
       { "text": "Chuva", "rarity": "satellite" },
       { "text": "Arco-íris", "rarity": "satellite" },
@@ -2162,6 +2193,7 @@
   {
     "id": "gemstone",
     "title": "Pedra preciosa",
+    "themes": ["science"],
     "answers": [
       { "text": "Diamante", "rarity": "satellite" },
       { "text": "Esmeralda", "rarity": "satellite" },
@@ -2231,6 +2263,7 @@
   {
     "id": "language",
     "title": "Língua ou idioma",
+    "themes": ["world"],
     "answers": [
       { "text": "Português", "rarity": "satellite" },
       { "text": "Inglês", "rarity": "satellite" },
@@ -2322,6 +2355,7 @@
   {
     "id": "childhood-game",
     "title": "Brincadeira de criança",
+    "themes": ["brazil", "culture"],
     "answers": [
       { "text": "Pega-pega", "rarity": "satellite", "synonyms": ["pique", "pique-pega"] },
       { "text": "Esconde-esconde", "rarity": "satellite", "synonyms": ["pique-esconde"] },
@@ -2389,6 +2423,7 @@
   {
     "id": "brazilian-dish",
     "title": "Prato salgado brasileiro",
+    "themes": ["brazil"],
     "answers": [
       { "text": "Feijoada", "rarity": "satellite" },
       { "text": "Arroz e feijão", "rarity": "satellite", "synonyms": ["arroz com feijão"] },
@@ -2459,6 +2494,7 @@
   {
     "id": "sport-no-ball",
     "title": "Esporte sem bola",
+    "themes": ["culture"],
     "answers": [
       { "text": "Natação", "rarity": "satellite" },
       { "text": "Corrida", "rarity": "satellite" },
@@ -2538,6 +2574,7 @@
   {
     "id": "fish",
     "title": "Peixe",
+    "themes": ["nature"],
     "answers": [
       { "text": "Tilápia", "rarity": "satellite" },
       { "text": "Sardinha", "rarity": "satellite" },
@@ -2628,6 +2665,7 @@
   {
     "id": "reptile-amphibian",
     "title": "Réptil ou anfíbio",
+    "themes": ["nature"],
     "answers": [
       { "text": "Cobra", "rarity": "satellite", "synonyms": ["serpente"] },
       { "text": "Jacaré", "rarity": "satellite" },
@@ -2698,6 +2736,7 @@
   {
     "id": "tool",
     "title": "Ferramenta",
+    "themes": ["daily"],
     "answers": [
       { "text": "Martelo", "rarity": "satellite" },
       { "text": "Chave de fenda", "rarity": "satellite" },
@@ -2780,6 +2819,7 @@
   {
     "id": "furniture",
     "title": "Móvel da casa",
+    "themes": ["daily"],
     "answers": [
       { "text": "Cadeira", "rarity": "satellite" },
       { "text": "Mesa", "rarity": "satellite" },
@@ -2844,6 +2884,7 @@
   {
     "id": "emotion",
     "title": "Sentimento ou emoção",
+    "themes": ["daily"],
     "answers": [
       { "text": "Alegria", "rarity": "satellite" },
       { "text": "Tristeza", "rarity": "satellite" },
@@ -2928,6 +2969,7 @@
   {
     "id": "amazon-animal",
     "title": "Animal da Amazônia",
+    "themes": ["nature", "brazil"],
     "answers": [
       { "text": "Onça-pintada", "rarity": "satellite", "synonyms": ["onça", "jaguar"] },
       { "text": "Macaco", "rarity": "satellite" },
@@ -3013,6 +3055,7 @@
   {
     "id": "north-american-country",
     "title": "País da América do Norte ou Central",
+    "themes": ["world"],
     "answers": [
       { "text": "Estados Unidos", "rarity": "satellite", "synonyms": ["EUA"] },
       { "text": "México", "rarity": "satellite" },
@@ -3042,6 +3085,7 @@
   {
     "id": "brazilian-city",
     "title": "Cidade brasileira",
+    "themes": ["brazil"],
     "answers": [
       { "text": "São Paulo", "rarity": "satellite" },
       { "text": "Rio de Janeiro", "rarity": "satellite" },
@@ -3105,6 +3149,7 @@
   {
     "id": "world-capital",
     "title": "Capital de país",
+    "themes": ["world"],
     "answers": [
       { "text": "Paris", "rarity": "satellite" },
       { "text": "Londres", "rarity": "satellite" },
@@ -3168,6 +3213,7 @@
   {
     "id": "river",
     "title": "Rio",
+    "themes": ["world"],
     "answers": [
       { "text": "Amazonas", "rarity": "satellite" },
       { "text": "Nilo", "rarity": "satellite" },
@@ -3217,6 +3263,7 @@
   {
     "id": "mountain-volcano",
     "title": "Montanha ou vulcão",
+    "themes": ["world"],
     "answers": [
       { "text": "Everest", "rarity": "satellite" },
       { "text": "Pão de Açúcar", "rarity": "satellite" },
@@ -3262,6 +3309,7 @@
   {
     "id": "dog-breed",
     "title": "Raça de cachorro",
+    "themes": ["nature"],
     "answers": [
       { "text": "Vira-lata", "rarity": "satellite", "synonyms": ["SRD"] },
       { "text": "Poodle", "rarity": "satellite" },
@@ -3308,6 +3356,7 @@
   {
     "id": "farm-animal",
     "title": "Animal da fazenda",
+    "themes": ["nature"],
     "answers": [
       { "text": "Vaca", "rarity": "satellite" },
       { "text": "Galinha", "rarity": "satellite" },
@@ -3352,6 +3401,7 @@
   {
     "id": "drink",
     "title": "Bebida (sem álcool)",
+    "themes": ["daily"],
     "answers": [
       { "text": "Água", "rarity": "satellite" },
       { "text": "Suco", "rarity": "satellite" },
@@ -3394,6 +3444,7 @@
   {
     "id": "spice",
     "title": "Tempero ou especiaria",
+    "themes": ["daily"],
     "answers": [
       { "text": "Sal", "rarity": "satellite" },
       { "text": "Alho", "rarity": "satellite" },
@@ -3441,6 +3492,7 @@
   {
     "id": "world-dish",
     "title": "Prato típico de outro país",
+    "themes": ["world"],
     "answers": [
       { "text": "Pizza", "rarity": "satellite" },
       { "text": "Hambúrguer", "rarity": "satellite" },
@@ -3489,6 +3541,7 @@
   {
     "id": "electronic",
     "title": "Aparelho eletrônico",
+    "themes": ["daily"],
     "answers": [
       { "text": "Celular", "rarity": "satellite" },
       { "text": "Televisão", "rarity": "satellite", "synonyms": ["TV"] },
@@ -3532,6 +3585,7 @@
   {
     "id": "bathroom-object",
     "title": "Objeto do banheiro",
+    "themes": ["daily"],
     "answers": [
       { "text": "Escova de dentes", "rarity": "satellite" },
       { "text": "Sabonete", "rarity": "satellite" },
@@ -3576,6 +3630,7 @@
   {
     "id": "toy",
     "title": "Brinquedo",
+    "themes": ["daily", "culture"],
     "answers": [
       { "text": "Bola", "rarity": "satellite" },
       { "text": "Boneca", "rarity": "satellite" },
@@ -3621,6 +3676,7 @@
   {
     "id": "city-place",
     "title": "Lugar da cidade",
+    "themes": ["daily"],
     "answers": [
       { "text": "Escola", "rarity": "satellite" },
       { "text": "Hospital", "rarity": "satellite" },
@@ -3670,6 +3726,7 @@
   {
     "id": "greek-god",
     "title": "Deus ou herói da mitologia grega",
+    "themes": ["culture"],
     "answers": [
       { "text": "Zeus", "rarity": "satellite" },
       { "text": "Hércules", "rarity": "satellite" },
@@ -3715,6 +3772,7 @@
   {
     "id": "scientist",
     "title": "Cientista famoso",
+    "themes": ["science"],
     "answers": [
       { "text": "Albert Einstein", "rarity": "satellite", "synonyms": ["Einstein"] },
       { "text": "Isaac Newton", "rarity": "satellite", "synonyms": ["Newton"] },
@@ -3752,6 +3810,7 @@
   {
     "id": "brazilian-writer",
     "title": "Escritor ou escritora brasileira",
+    "themes": ["brazil", "culture"],
     "answers": [
       { "text": "Monteiro Lobato", "rarity": "satellite" },
       { "text": "Machado de Assis", "rarity": "satellite" },
@@ -3791,6 +3850,7 @@
   {
     "id": "painter",
     "title": "Pintor ou pintora famosa",
+    "themes": ["culture"],
     "answers": [
       { "text": "Leonardo da Vinci", "rarity": "satellite", "synonyms": ["Da Vinci"] },
       { "text": "Picasso", "rarity": "satellite", "synonyms": ["Pablo Picasso"] },
@@ -3830,6 +3890,7 @@
   {
     "id": "music-genre",
     "title": "Gênero ou estilo musical",
+    "themes": ["culture"],
     "answers": [
       { "text": "Samba", "rarity": "satellite" },
       { "text": "Funk", "rarity": "satellite" },
@@ -3879,6 +3940,7 @@
   {
     "id": "dance",
     "title": "Dança",
+    "themes": ["culture"],
     "answers": [
       { "text": "Samba", "rarity": "satellite" },
       { "text": "Funk", "rarity": "satellite" },
@@ -3924,6 +3986,7 @@
   {
     "id": "grain-seed",
     "title": "Grão, cereal ou semente",
+    "themes": ["nature"],
     "answers": [
       { "text": "Arroz", "rarity": "satellite" },
       { "text": "Feijão", "rarity": "satellite" },
@@ -3967,6 +4030,7 @@
   {
     "id": "herb",
     "title": "Planta ou erva (que não seja árvore nem flor)",
+    "themes": ["nature"],
     "answers": [
       { "text": "Grama", "rarity": "satellite" },
       { "text": "Capim", "rarity": "satellite" },
@@ -4012,6 +4076,7 @@
   {
     "id": "rock-mineral",
     "title": "Rocha ou mineral",
+    "themes": ["science"],
     "answers": [
       { "text": "Pedra", "rarity": "satellite" },
       { "text": "Areia", "rarity": "satellite" },
@@ -4057,6 +4122,7 @@
   {
     "id": "unit-of-measure",
     "title": "Unidade de medida",
+    "themes": ["science"],
     "answers": [
       { "text": "Metro", "rarity": "satellite" },
       { "text": "Quilo", "rarity": "satellite", "synonyms": ["Quilograma"] },
@@ -4102,6 +4168,7 @@
   {
     "id": "sports-gear",
     "title": "Objeto usado em esporte",
+    "themes": ["culture"],
     "answers": [
       { "text": "Bola", "rarity": "satellite" },
       { "text": "Raquete", "rarity": "satellite" },
@@ -4146,6 +4213,7 @@
   {
     "id": "vehicle-part",
     "title": "Peça de carro ou bicicleta",
+    "themes": ["daily"],
     "answers": [
       { "text": "Roda", "rarity": "satellite" },
       { "text": "Pneu", "rarity": "satellite" },
@@ -4191,6 +4259,7 @@
   {
     "id": "beach-object",
     "title": "Coisa que se leva para a praia",
+    "themes": ["daily"],
     "answers": [
       { "text": "Toalha", "rarity": "satellite" },
       { "text": "Protetor solar", "rarity": "satellite" },
@@ -4236,6 +4305,7 @@
   {
     "id": "savanna-animal",
     "title": "Animal da savana africana",
+    "themes": ["nature"],
     "answers": [
       { "text": "Leão", "rarity": "satellite" },
       { "text": "Elefante", "rarity": "satellite" },
@@ -4277,6 +4347,7 @@
   {
     "id": "cerrado-pantanal-animal",
     "title": "Animal do Cerrado ou do Pantanal",
+    "themes": ["nature", "brazil"],
     "answers": [
       { "text": "Onça-pintada", "rarity": "satellite" },
       { "text": "Jacaré", "rarity": "satellite" },
@@ -4321,6 +4392,7 @@
   {
     "id": "fairy-tale-character",
     "title": "Personagem de conto de fadas",
+    "themes": ["culture"],
     "answers": [
       { "text": "Cinderela", "rarity": "satellite" },
       { "text": "Branca de Neve", "rarity": "satellite" },
@@ -4364,6 +4436,7 @@
   {
     "id": "material",
     "title": "Material ou tecido",
+    "themes": ["daily"],
     "answers": [
       { "text": "Madeira", "rarity": "satellite" },
       { "text": "Plástico", "rarity": "satellite" },
@@ -4409,6 +4482,7 @@
   {
     "id": "island",
     "title": "Ilha",
+    "themes": ["world"],
     "answers": [
       { "text": "Fernando de Noronha", "rarity": "satellite" },
       { "text": "Havaí", "rarity": "satellite" },
@@ -4457,6 +4531,7 @@
   {
     "id": "sea-lake",
     "title": "Mar, lago ou oceano",
+    "themes": ["world"],
     "answers": [
       { "text": "Oceano Atlântico", "rarity": "satellite", "synonyms": ["Atlântico"] },
       { "text": "Oceano Pacífico", "rarity": "satellite", "synonyms": ["Pacífico"] },
@@ -4496,6 +4571,7 @@
   {
     "id": "currency",
     "title": "Moeda de um país",
+    "themes": ["world"],
     "answers": [
       { "text": "Real", "rarity": "satellite" },
       { "text": "Dólar", "rarity": "satellite" },
@@ -4533,6 +4609,7 @@
   {
     "id": "brazilian-history-figure",
     "title": "Personagem da história do Brasil",
+    "themes": ["brazil"],
     "answers": [
       { "text": "Pedro Álvares Cabral", "rarity": "satellite", "synonyms": ["Cabral"] },
       { "text": "Dom Pedro I", "rarity": "satellite" },
@@ -4574,6 +4651,7 @@
   {
     "id": "invention",
     "title": "Invenção",
+    "themes": ["science"],
     "answers": [
       { "text": "Roda", "rarity": "satellite" },
       { "text": "Lâmpada", "rarity": "satellite" },
@@ -4619,6 +4697,7 @@
   {
     "id": "deep-space",
     "title": "Coisa do espaço fora do Sistema Solar",
+    "themes": ["science"],
     "answers": [
       { "text": "Estrela", "rarity": "satellite" },
       { "text": "Galáxia", "rarity": "satellite" },
@@ -4659,6 +4738,7 @@
   {
     "id": "house-part",
     "title": "Parte ou cômodo da casa",
+    "themes": ["daily"],
     "answers": [
       { "text": "Cozinha", "rarity": "satellite" },
       { "text": "Quarto", "rarity": "satellite" },

@@ -151,4 +151,24 @@ describe('LocalProgressRepository', () => {
     expect(await repository.clear()).toEqual(EMPTY_PROGRESS);
     expect(await repository.load()).toEqual(EMPTY_PROGRESS);
   });
+
+  it('keeps the theme of rounds played by theme and drops rounds of unknown themes', async () => {
+    store.setItem(
+      PROGRESS_KEY,
+      JSON.stringify({
+        version: 2,
+        rounds: [
+          { ...round('a', 40, 'mars'), mode: 'theme', theme: 'nature' },
+          { ...round('b', 50, 'mars'), mode: 'theme', theme: 'unicorns' },
+        ],
+        totalRounds: 2,
+        bestByMode: { theme: 50 },
+        reachedPlanets: ['mars'],
+      }),
+    );
+
+    const progress = await repository.load();
+
+    expect(progress.rounds.map((saved) => [saved.id, saved.theme])).toEqual([['a', 'nature']]);
+  });
 });

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { BLITZ_SECONDS } from '../../core/data/blitz-rules';
-import { BLITZ_MODE, SURVIVAL_MODE } from '../../core/data/game-modes';
+import { BLITZ_MODE, SURVIVAL_MODE, THEMED_MODES } from '../../core/data/game-modes';
 import { Category } from '../../core/models/category';
 import { GameMode } from '../../core/models/game-mode';
 import { RoundEntry } from '../../core/services/game-service';
@@ -291,6 +291,47 @@ describe('Result', () => {
       const element = render([answered('Narval')], 900, BLITZ_MODE).nativeElement as HTMLElement;
 
       expect(element.querySelector('h1')?.textContent).toContain('Plutão');
+    });
+  });
+
+  describe('after a round played by theme', () => {
+    const nature = THEMED_MODES.find((mode) => mode.theme?.id === 'nature')!;
+
+    it('names the theme, not the mode', () => {
+      const element = render([answered('Narval')], 100, nature).nativeElement as HTMLElement;
+
+      expect(element.textContent).toContain('Tema Natureza');
+      expect(element.textContent).not.toContain('Modo ');
+    });
+
+    it('offers to pick another theme', () => {
+      const element = render([answered('Narval')], 100, nature).nativeElement as HTMLElement;
+
+      expect(element.querySelector('a[href="/jogar/tema"]')?.textContent).toContain(
+        'Escolher outro tema',
+      );
+    });
+
+    it('does not offer themes after rounds of the other modes', () => {
+      const element = render([answered('Narval')], 100, BLITZ_MODE).nativeElement as HTMLElement;
+
+      expect(element.querySelector('a[href="/jogar/tema"]')).toBeNull();
+    });
+
+    it('shares the round with the theme in it', async () => {
+      const share = vi.fn().mockResolvedValue(undefined);
+      vi.stubGlobal('navigator', { ...navigator, share });
+      try {
+        const fixture = render([answered('Narval')], 100, nature);
+        shareButton(fixture.nativeElement).click();
+        await fixture.whenStable();
+
+        expect(share).toHaveBeenCalledWith({
+          text: expect.stringContaining('Astropalavra (Tema Natureza)'),
+        });
+      } finally {
+        vi.unstubAllGlobals();
+      }
     });
   });
 

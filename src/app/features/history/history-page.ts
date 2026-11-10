@@ -3,7 +3,9 @@ import { RouterLink } from '@angular/router';
 import { isMainMode, modeLabel } from '../../core/data/game-modes';
 import { EXTENDED_ROUTE } from '../../core/data/planets';
 import { MAX_SAVED_ROUNDS } from '../../core/data/local-progress-repository';
+import { themeName } from '../../core/data/themes';
 import { PlanetId } from '../../core/models/planet';
+import { RoundRecord } from '../../core/models/progress';
 import { ProgressService } from '../../core/services/progress-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RarityBadge } from '../../shared/components/rarity-badge';
@@ -26,7 +28,10 @@ const FULL_DATE = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short', timeSty
 export class HistoryPage {
   protected readonly progress = inject(ProgressService);
   protected readonly maxSavedRounds = MAX_SAVED_ROUNDS;
-  protected readonly modeLabel = modeLabel;
+  /** Mode of a round outside the main one, with its theme: "Relâmpago", "Tema Natureza". */
+  protected modeLabel(round: RoundRecord): string {
+    return round.theme ? `Tema ${themeName(round.theme)}` : modeLabel(round.mode);
+  }
 
   /** Only the main mode was played, so its record needs no name next to it. */
   protected readonly onlyMainMode = computed(() =>

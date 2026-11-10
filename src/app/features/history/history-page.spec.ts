@@ -122,4 +122,18 @@ describe('HistoryPage', () => {
 
     expect(TestBed.inject(ProgressService).totalRounds()).toBe(1);
   });
+
+  it('names the theme of the rounds played by theme', async () => {
+    await TestBed.inject(ProgressService).record({
+      points: 120,
+      planetId: 'mars',
+      mode: 'theme',
+      theme: 'nature',
+      answers: [],
+    });
+
+    const element = (await render()).nativeElement as HTMLElement;
+
+    expect(element.querySelector('summary')?.textContent).toContain('· Tema Natureza');
+  });
 });
