@@ -37,13 +37,25 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 | 270–369 | Saturno         |
 | 370–479 | Urano           |
 | 480–599 | Netuno          |
-| 600–700 | Plutão          |
+| 600+    | Plutão          |
 
 - A tela de resultado mostra o foguete chegando em órbita do planeta alcançado, os pontos e quanto faltou para o próximo destino, um gráfico das últimas partidas com a média, cada resposta com o seu nível e as respostas mais raras possíveis de cada categoria.
 - O resultado pode ser **compartilhado** pelo menu do celular, ou copiado quando o navegador não tem esse menu.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música espacial de fundo.
 - Histórico (últimas 50 partidas), recorde, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
+
+## Modos de jogo
+
+- **Clássico:** 7 categorias, 30 segundos para cada uma. É a partida do botão "Começar partida".
+- **Relâmpago:** 60 segundos para a partida inteira e quantas categorias couberem nesse tempo, sem repetir nenhuma. Fica em "Outros modos", na tela inicial.
+  - O relógio só anda enquanto o jogador pensa e digita. Ele para enquanto o cartão mostra o resultado, para que uma resposta rara (que tem o voo mais longo) não custe mais tempo.
+  - Os voos são curtos e o teclado do celular fica aberto do começo ao fim.
+  - Nos últimos 10 segundos o relógio fica vermelho e, com os sons ligados, os últimos 5 têm um tique por segundo.
+  - Quando o tempo acaba, vale o que estiver digitado.
+  - Pontos e destinos são os mesmos do Clássico. O topo da tela conta as respostas que pontuaram, e o resultado diz quantas couberam nos 60 segundos.
+
+Cada modo tem o seu próprio recorde e o seu próprio gráfico de partidas. O histórico mostra em que modo cada partida foi jogada.
 
 ## Stack
 
@@ -80,9 +92,16 @@ public/data/categories.json   base de categorias
 
 O jogo só conhece as classes `CategoryRepository` (categorias) e `ProgressRepository` (histórico e recorde). Para trocar o JSON e o `localStorage` por uma API, basta criar outras implementações e registrá-las em `src/app/app.config.ts`.
 
-### Modos de jogo
+### Como um modo é feito
 
-As regras da partida não ficam no motor do jogo: cada modo é um item da lista em `core/data/game-modes.ts`, com nome, endereço e regras (`RoundRules`: quais categorias entram, quanto tempo cada uma tem e a pontuação máxima). Hoje existe o modo Clássico (`core/data/classic-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
+As regras da partida não ficam no motor do jogo: cada modo é um item da lista em `core/data/game-modes.ts`, com nome, endereço e regras (`RoundRules`):
+
+- `pickCategories`: quais categorias entram e em que ordem;
+- `clock`: um relógio para cada categoria (`category`) ou um só para a partida inteira (`round`), que a encerra quando zera, e quantos segundos ele tem;
+- `pace`: `calm` mostra o voo inteiro depois de cada resposta e recolhe o teclado; `quick` encurta voos e resultados e deixa o teclado aberto;
+- `maxPoints`: a pontuação máxima, quando o modo tem um número fixo de categorias. Sem ela, o gráfico de partidas ajusta a escala à melhor partida.
+
+Hoje existem o Clássico (`core/data/classic-rules.ts`) e o Relâmpago (`core/data/blitz-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
 
 Cada partida salva guarda o modo em que foi jogada. O progresso gravado por versões anteriores do jogo continua sendo lido, como partidas do modo Clássico.
 
