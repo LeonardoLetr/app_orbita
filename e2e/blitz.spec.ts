@@ -67,7 +67,9 @@ test('keeps the blitz record apart from the classic one', async ({ page, request
   await page.getByText('Voltar ao início').click();
   await expect(page.getByRole('link', { name: /Relâmpago/ })).toContainText('Recorde: 75 pts');
   // The big record on the home screen belongs to the classic mode, not played yet.
-  await expect(page.locator('#progress-title + dl')).not.toContainText('75');
+  await expect(page.locator('section[aria-labelledby="progress-title"] dl')).not.toContainText(
+    '75',
+  );
 
   await page.getByRole('link', { name: 'Ver histórico' }).click();
   await expect(page.locator('details')).toHaveCount(1);

@@ -78,6 +78,50 @@
     }
   </div>
 
+  @if (career(); as career) {
+    <section
+      class="reveal sticker flex items-center gap-3 px-4 py-3"
+      style="--delay: 2.05s"
+      aria-labelledby="career-title"
+    >
+      <span class="relative w-14 shrink-0">
+        @if (career.rankUp) {
+          <app-star-burst
+            [count]="12"
+            [reach]="4"
+            [delay]="2300"
+            [colors]="['bg-star-300', 'bg-candy-400']"
+          />
+        }
+        <app-rank-badge class="w-full" [level]="career.standing.level" />
+      </span>
+      <div class="min-w-0 flex-1">
+        <h2 id="career-title" class="font-display text-xl leading-tight">
+          @if (career.rankUp; as rank) {
+            Nova patente: {{ rank.name }}!
+          } @else {
+            {{ career.standing.rank.name }}
+          }
+        </h2>
+        <div class="mt-1 h-3 overflow-hidden rounded-full border-2 border-ink bg-white">
+          <div
+            class="xp-bar h-full bg-candy-500"
+            [style.--from.%]="career.from"
+            [style.width.%]="career.to"
+          ></div>
+        </div>
+        <p class="mt-1 text-xs font-bold text-ink-soft">
+          <strong class="text-candy-600">+{{ career.gained }} XP</strong>
+          @if (career.standing.next; as next) {
+            · faltam {{ career.standing.missing }} para {{ next.name }}
+          } @else {
+            · patente máxima!
+          }
+        </p>
+      </div>
+    </section>
+  }
+
   @if (hasHistory()) {
     <app-score-history
       class="reveal"
