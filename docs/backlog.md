@@ -339,7 +339,7 @@ Conquistas viram figurinhas num álbum, no mesmo visual dos cartões do jogo.
 
 - **Destinos (8):** uma por parada do Clássico, da Órbita da Terra a Plutão.
 - **Raridades (5):** primeira Supernova; primeiro Pulsar; 3 Supernovas numa partida; partida completa sem pular nenhuma categoria; partida sem nenhuma resposta Satélite ou Meteorito.
-- **Modos (8):** jogar cada um dos 4 modos novos; 10 respostas num Relâmpago; 15 categorias numa Sobrevivência; passar de Plutão; vencer um duelo.
+- **Modos (7):** jogar cada um dos 4 modos novos; 10 respostas num Relâmpago; 15 categorias numa Sobrevivência; passar de Plutão.
 - **Coleção (5):** 10, 50, 200 e 500 descobertas no diário; todas as Supernovas de uma categoria.
 - **Patentes (6):** uma por patente acima de Cadete.
 
@@ -437,7 +437,7 @@ O mesmo código empacotado com Capacitor em um app Android e um app iOS, publica
 ## Ordem sugerida
 
 1. **M0**, depois **M1**, **M2**, **M3** e **M4**: cada modo fica pronto para jogar sozinho.
-2. **G1**, **G2**, **G3** e **G4**: objetivos de longo prazo, ainda sem servidor.
+2. **G1**, **G2**, **G3** e **G4**: objetivos de longo prazo, sem servidor.
 3. **A1**, que é pequeno e pode entrar a qualquer momento; depois **A2**, quando as contas das lojas existirem.
 
 A ordem pode mudar. As únicas amarras são as da coluna "Depende de" na tabela do início.
