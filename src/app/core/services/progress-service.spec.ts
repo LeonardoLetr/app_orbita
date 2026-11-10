@@ -114,6 +114,32 @@ describe('ProgressService with more than one mode', () => {
     expect(outcome.isFirstRound).toBe(false);
   });
 
+  it('knows which modes were played and lists their records', async () => {
+    const progress = withSaved({
+      ...EMPTY_PROGRESS,
+      totalRounds: 5,
+      bestByMode: { blitz: 480, classic: 300 },
+    });
+    await progress.load();
+
+    expect(progress.played('classic')).toBe(true);
+    expect(progress.played('blitz')).toBe(true);
+    // In the order the modes are offered, not the order they were saved in.
+    expect(progress.records().map(({ mode, points }) => [mode.id, points])).toEqual([
+      ['classic', 300],
+      ['blitz', 480],
+    ]);
+  });
+
+  it('has no record for a mode never played', async () => {
+    const progress = withSaved({ ...EMPTY_PROGRESS, totalRounds: 2, bestByMode: { blitz: 0 } });
+    await progress.load();
+
+    expect(progress.played('classic')).toBe(false);
+    expect(progress.played('blitz')).toBe(true);
+    expect(progress.records().map(({ mode, points }) => [mode.id, points])).toEqual([['blitz', 0]]);
+  });
+
   it('treats the first round in a mode as a first round', async () => {
     const progress = withSaved({ ...EMPTY_PROGRESS, totalRounds: 5, bestByMode: { classic: 300 } });
 

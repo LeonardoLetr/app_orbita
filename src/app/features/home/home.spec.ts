@@ -77,6 +77,16 @@ describe('Home', () => {
     );
   });
 
+  it('shows no record of the main mode to someone who only played another one', async () => {
+    const progress = TestBed.inject(ProgressService);
+    await progress.record({ points: 480, planetId: 'neptune', mode: 'blitz', answers: [] });
+
+    const record = render().querySelector('#progress-title + dl dd');
+
+    expect(record?.textContent).not.toContain('pts');
+    expect(record?.textContent).toContain('nenhuma partida no modo Clássico ainda');
+  });
+
   it('turns music on from the home screen', () => {
     const element = render();
     const switches = element.querySelectorAll<HTMLInputElement>('input[role="switch"]');
