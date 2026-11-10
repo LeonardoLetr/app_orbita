@@ -7,6 +7,7 @@ import { provideTestProgress } from '../../testing/test-providers';
 import { CategoryRepository } from '../../core/data/category-repository';
 import { Category } from '../../core/models/category';
 import { GameService } from '../../core/services/game-service';
+import { MusicService } from '../../core/services/music-service';
 import { SoundService } from '../../core/services/sound-service';
 import { RANDOM } from '../../core/utils/random';
 import { Game, MIN_REVEAL_MS, QUICK_REVEAL_MS, SHOW_LAUNCH, revealDelay } from './game';
@@ -425,15 +426,75 @@ describe('Game', () => {
       }
     });
 
-    it('stays silent when each category has its own clock', async () => {
+    it('counts the last five seconds of a category clock out loud too', async () => {
       await renderClocked({ ...blitz, rules: CLASSIC_MODE.rules });
       const ticks = countTicks();
 
-      for (let second = 0; second < 29; second++) {
-        await pass(1_000);
-      }
-
+      await pass(24_000);
       expect(ticks()).toBe(0);
+      for (let second = 1; second <= 5; second++) {
+        await pass(1_000);
+        expect(ticks()).toBe(second);
+      }
+    });
+
+    it('pulses the screen and hurries the music in the last ten seconds', async () => {
+      const element = await renderClocked();
+      const music = TestBed.inject(MusicService);
+
+      await pass(49_000);
+      expect(element.querySelector('.time-low')).toBeNull();
+      expect(music.urgent()).toBe(false);
+
+      await pass(1_000);
+      expect(element.querySelector('.time-low')).not.toBeNull();
+      expect(element.querySelector('app-timer-ring')?.classList).toContain('is-urgent');
+      expect(music.urgent()).toBe(true);
+    });
+
+    it('keeps the hurry on while a result is shown, since the round clock is still low', async () => {
+      const element = await renderClocked();
+      await pass(52_000);
+
+      await answer(element, 'resposta 0');
+
+      expect(element.querySelector('.time-low')).not.toBeNull();
+      expect(TestBed.inject(MusicService).urgent()).toBe(true);
+    });
+
+    it('hurries in the last seven seconds of a category clock, and calms down after it', async () => {
+      const element = await renderClocked({ ...blitz, rules: CLASSIC_MODE.rules });
+      const music = TestBed.inject(MusicService);
+
+      await pass(22_000);
+      expect(music.urgent()).toBe(false);
+      await pass(1_000);
+      expect(music.urgent()).toBe(true);
+      expect(element.querySelector('.time-low')).not.toBeNull();
+
+      await answer(element, 'resposta 0');
+      expect(music.urgent()).toBe(false);
+      expect(element.querySelector('.time-low')).toBeNull();
+    });
+
+    it('lets no category be skipped where the rules say so', async () => {
+      const element = await renderClocked({
+        ...blitz,
+        rules: { ...blitz.rules, canSkip: false },
+      });
+      const button = element.querySelector<HTMLButtonElement>('form button[type=submit]')!;
+      expect(button.textContent?.trim()).toBe('Enviar');
+      expect(button.disabled).toBe(true);
+
+      await answer(element, '');
+      expect(element.querySelector('h1')?.textContent).toContain('Categoria 0');
+      expect(TestBed.inject(GameService).status()).toBe('playing');
+
+      const input = element.querySelector<HTMLInputElement>('#answer')!;
+      input.value = 'resposta 0';
+      input.dispatchEvent(new Event('input'));
+      await fixture.whenStable();
+      expect(button.disabled).toBe(false);
     });
   });
 

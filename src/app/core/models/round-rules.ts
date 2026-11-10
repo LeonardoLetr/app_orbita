@@ -40,6 +40,11 @@ export interface RoundRules {
    * none is left. Without it the round ends when its categories or its clock run out.
    */
   readonly lives?: number;
+  /**
+   * False where a category cannot be skipped: it only ends with a valid answer or when
+   * the time runs out. Skipping is allowed when not given.
+   */
+  readonly canSkip?: boolean;
   /** Stops the rocket can reach. The classic route, up to Pluto, when not given. */
   readonly route?: Route;
   /**

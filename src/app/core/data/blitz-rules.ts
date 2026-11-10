@@ -11,6 +11,7 @@ export const BLITZ_SECONDS = 60;
 export const BLITZ_RULES: RoundRules = {
   clock: { scope: 'round', seconds: BLITZ_SECONDS },
   pace: 'quick',
+  canSkip: false,
 
   pickCategories: shuffledCategories,
 };

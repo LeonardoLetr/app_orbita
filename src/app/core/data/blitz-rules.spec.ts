@@ -58,4 +58,8 @@ describe('BLITZ_RULES', () => {
 
     expect(ids(categories)).toEqual(before);
   });
+
+  it('does not let a category be skipped', () => {
+    expect(BLITZ_RULES.canSkip).toBe(false);
+  });
 });

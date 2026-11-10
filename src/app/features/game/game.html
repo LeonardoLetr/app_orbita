@@ -184,6 +184,11 @@
       [route]="route()"
     />
 
+    @if (timeLow()) {
+      <!-- Time is running out: the edges of the screen pulse in red. -->
+      <div class="time-low pointer-events-none absolute inset-0 z-20" aria-hidden="true"></div>
+    }
+
     @if (lifeLost()) {
       <!-- A red blink over the scene when a life goes. -->
       <div class="life-flash pointer-events-none absolute inset-0 z-[5]" aria-hidden="true"></div>
@@ -256,10 +261,10 @@
         <button
           type="submit"
           class="btn btn-primary shrink-0 px-4 text-xl disabled:opacity-50 sm:px-6 sm:text-2xl"
-          [disabled]="status === 'revealing'"
+          [disabled]="status === 'revealing' || (!canSkip() && !draft().trim())"
           (mousedown)="$event.preventDefault()"
         >
-          @if (draft().trim()) {
+          @if (draft().trim() || !canSkip()) {
             Enviar
           } @else if (lifeMarks()) {
             <!-- Skipping is never free where there are lives. -->

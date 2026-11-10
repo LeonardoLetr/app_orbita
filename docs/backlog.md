@@ -132,8 +132,7 @@ Hoje as regras da partida estão fixas no `GameService` (7 categorias, 30 segund
 
 **A observar jogando**
 
-- Pular não gasta relógio, porque ele para em todo cartão de resultado. Dá para pular até achar uma categoria fácil. Se isso deixar o modo fácil demais, a saída é o relógio continuar correndo durante o cartão de quem pulou.
-- No iPhone o teclado só abre com um toque, então o começo dos 60 segundos vai nesse toque. Se incomodar, o relógio pode esperar o primeiro toque no campo.
+- Decidido depois de jogar: o Relâmpago não tem pular (a categoria só passa com resposta válida ou quando o tempo acaba), e o relógio começa assim que o primeiro cartão entra, sem esperar o toque no campo.
 
 ### M2 · Modo Sobrevivência
 
@@ -184,7 +183,9 @@ As distâncias desta tabela são aproximadas e precisam ser conferidas em fonte 
 - Lista de respostas com mais de 12 itens começa recolhida, mostrando 10, em qualquer modo.
 - Na tela inicial, "Destinos alcançados" conta só as 8 paradas clássicas.
 
-**A decidir:** os tempos e os pontos das paradas (ajustar jogando); se a rota estendida também vale no Relâmpago.
+- Depois de jogar, o tempo passou a encurtar a cada 5 categorias, e não a cada 7: 30, 25, 20, 15 e por fim 12 segundos.
+
+**A decidir:** os pontos das paradas (ajustar jogando); se a rota estendida também vale no Relâmpago.
 
 ### M3 · Modo Por tema
 

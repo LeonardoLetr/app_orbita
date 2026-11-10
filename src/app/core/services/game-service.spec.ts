@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { CategoryRepository } from '../data/category-repository';
 import { CLASSIC_CATEGORIES } from '../data/classic-rules';
-import { CLASSIC_MODE, SURVIVAL_MODE, THEMED_MODES } from '../data/game-modes';
+import { BLITZ_MODE, CLASSIC_MODE, SURVIVAL_MODE, THEMED_MODES } from '../data/game-modes';
 import { Category } from '../models/category';
 import { GameMode } from '../models/game-mode';
 import { provideTestProgress } from '../../testing/test-providers';
@@ -310,5 +310,23 @@ describe('GameService', () => {
     await vi.waitFor(() => expect(progress.totalRounds()).toBe(1));
     expect(progress.rounds()[0].mode).toBe('theme');
     expect(progress.rounds()[0].theme).toBe(themed.theme!.id);
+  });
+
+  describe('where skipping is not allowed', () => {
+    it('ignores a blank answer and keeps waiting', async () => {
+      await game.start(BLITZ_MODE);
+
+      expect(game.answer('')).toBeUndefined();
+      expect(game.answer('   ')).toBeUndefined();
+      expect(game.status()).toBe('playing');
+      expect(game.current()?.result).toBeUndefined();
+    });
+
+    it('still ends the category when its time runs out with nothing typed', async () => {
+      await game.start(BLITZ_MODE);
+
+      expect(game.answer('', true)?.outcome).toBe('timeout');
+      expect(game.status()).toBe('revealing');
+    });
   });
 });

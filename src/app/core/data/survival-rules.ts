@@ -5,9 +5,9 @@ import { shuffledCategories } from './shuffled-categories';
 export const SURVIVAL_LIVES = 3;
 
 /** Seconds for each category, getting shorter every few categories. */
-const PRESSURE = [30, 25, 20, 15];
+const PRESSURE = [30, 25, 20, 15, 12];
 /** Categories played before the time gets shorter. */
-const PRESSURE_STEP = 7;
+const PRESSURE_STEP = 5;
 
 /**
  * As far as the lives last: a category that ends without a valid answer costs one of the

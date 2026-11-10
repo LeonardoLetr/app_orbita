@@ -15,12 +15,12 @@ describe('SURVIVAL_RULES', () => {
     expect(SURVIVAL_RULES.maxPoints).toBeUndefined();
   });
 
-  it('gives each category its own clock, shorter every seven categories', () => {
+  it('gives each category its own clock, shorter every five categories', () => {
     const { clock } = SURVIVAL_RULES;
 
     expect(clock.scope).toBe('category');
-    expect([0, 6, 7, 13, 14, 20, 21, 80].map((index) => clock.secondsAt!(index))).toEqual([
-      30, 30, 25, 25, 20, 20, 15, 15,
+    expect([0, 4, 5, 9, 10, 14, 15, 19, 20, 80].map((index) => clock.secondsAt!(index))).toEqual([
+      30, 30, 25, 25, 20, 20, 15, 15, 12, 12,
     ]);
     expect(clock.seconds).toBe(30);
   });

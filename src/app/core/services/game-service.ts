@@ -102,7 +102,7 @@ export class GameService {
   /**
    * Scores the answer for the current category. Ignored unless a category is being played.
    * An answer that is not in the base is returned but not kept while there is time left,
-   * so the player can try another one.
+   * so the player can try another one. A blank answer is ignored where skipping is not allowed.
    */
   answer(input: string, timedOut = false): AnswerResult | undefined {
     if (this.status() !== 'playing') {
@@ -110,6 +110,9 @@ export class GameService {
     }
     const index = this.index();
     const result = this.scoring.score(this.entries()[index].category, input, timedOut);
+    if (result.outcome === 'blank' && this.mode().rules.canSkip === false) {
+      return undefined;
+    }
     if (result.outcome === 'unknown' && !timedOut) {
       return result;
     }
