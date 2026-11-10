@@ -84,6 +84,26 @@ test('shows the result above the keyboard on an iPhone', async ({ page, request 
   expect(box.y + box.height).toBeLessThan(bar.y);
 });
 
+test('stays in place when the answer field is focused while it slides in', async ({ page }) => {
+  await page.goto('/jogar');
+  await page.getByRole('button', { name: 'Pular decolagem' }).click();
+  await expect(page.locator('#answer[data-ready]')).toBeVisible();
+
+  // The keyboard opens and the field is focused again while the bar is still coming up from
+  // below the screen. A browser scrolls to show a focused field, even inside the round.
+  await page.evaluate(() => {
+    const viewport = window.visualViewport!;
+    Object.defineProperty(viewport, 'height', { configurable: true, get: () => 380 });
+    viewport.dispatchEvent(new Event('resize'));
+    const field = document.querySelector<HTMLInputElement>('#answer')!;
+    field.blur();
+    field.focus();
+  });
+
+  await expect.poll(() => barBottom(page)).toBe(380);
+  expect((await page.locator('header').boundingBox())!.y).toBe(0);
+});
+
 test('takes off from the ground before the first category', async ({ page }) => {
   await page.goto('/jogar');
 

@@ -50,8 +50,15 @@
 @if (inRound) {
   @let entry = game.current()!;
 
-  <!-- The round fills exactly the visible screen, so the answer bar rests on the keyboard. -->
-  <div appFitVisualViewport class="fixed inset-x-0 top-0 flex h-dvh flex-col overflow-hidden">
+  <!--
+    The round fills exactly the visible screen, so the answer bar rests on the keyboard. What
+    overflows is clipped, not hidden, where the browser can: a clipped box cannot be scrolled,
+    so focusing the answer field while it slides in does not push the round out of place.
+  -->
+  <div
+    appFitVisualViewport
+    class="fixed inset-x-0 top-0 flex h-dvh flex-col overflow-hidden supports-[overflow:clip]:overflow-clip"
+  >
     <!-- The shade grows with the top text, so planets passing under it never hurt reading. -->
     <div
       class="relative z-10 bg-[linear-gradient(to_bottom,rgb(15_6_40/0.95)_60%,transparent)] pb-4"

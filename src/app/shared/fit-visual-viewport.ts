@@ -15,6 +15,20 @@ export const VISUAL_VIEWPORT = new InjectionToken<VisualViewport | null>('VISUAL
 export class FitVisualViewport {
   constructor() {
     const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
+    const destroyRef = inject(DestroyRef);
+
+    // Nothing in the element scrolls. Still, a browser bringing a focused field into view
+    // (one tapped while it slides in from below, say) shifts the content of a box that
+    // only hides what overflows, and nothing would bring it back.
+    const settle = () => {
+      if (element.scrollTop !== 0 || element.scrollLeft !== 0) {
+        element.scrollTop = 0;
+        element.scrollLeft = 0;
+      }
+    };
+    element.addEventListener('scroll', settle);
+    destroyRef.onDestroy(() => element.removeEventListener('scroll', settle));
+
     const viewport = inject(VISUAL_VIEWPORT);
     if (!viewport) {
       return;
@@ -27,7 +41,7 @@ export class FitVisualViewport {
     fit();
     viewport.addEventListener('resize', fit);
     viewport.addEventListener('scroll', fit);
-    inject(DestroyRef).onDestroy(() => {
+    destroyRef.onDestroy(() => {
       viewport.removeEventListener('resize', fit);
       viewport.removeEventListener('scroll', fit);
     });
