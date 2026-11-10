@@ -44,7 +44,8 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - **Jogar de novo** sorteia novas categorias, sem limite.
 - **Sons e música opcionais** (desligados por padrão), gerados no navegador, sem arquivos de áudio: efeitos para cada nível, ronco do motor durante o voo e uma música animada, com melodia, baixo e bateria.
 - **Tempo acabando:** nos últimos segundos (7 de cada categoria, ou 10 do Relâmpago) as bordas da tela pulsam em vermelho, o relógio balança, a música acelera e toca um alarme, e os últimos 5 segundos têm um tique cada.
-- Histórico (últimas 50 partidas), recorde, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
+- **Patentes:** os pontos de todas as partidas, em qualquer modo, somam experiência (XP). O jogador começa como Cadete e sobe para Piloto (500 XP), Navegador (1.500), Capitão (3.500), Comandante (7.000), Almirante (12.000) e Lenda da Galáxia (20.000). A patente, com a sua insígnia e uma barra até a próxima, aparece na tela inicial e no resultado, que comemora cada subida.
+- Histórico (últimas 50 partidas), recorde, experiência, destinos alcançados e as preferências de som ficam salvos no `localStorage`, só no aparelho do jogador.
 
 ## Modos de jogo
 
