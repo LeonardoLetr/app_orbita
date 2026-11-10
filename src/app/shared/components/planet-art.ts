@@ -1,4 +1,4 @@
-import { Component, input } from '@angular/core';
+import { Component, computed, input } from '@angular/core';
 import { PlanetId } from '../../core/models/planet';
 
 const CENTER = 60;
@@ -26,6 +26,35 @@ function shadow(r: number, shift = 9): string {
   return `M${x1} ${y1}A${r} ${r} 0 1 1 ${x2} ${y2}A${r} ${r} 0 0 0 ${x1} ${y1}Z`;
 }
 
+/** Bits of ice of the Oort Cloud: a loose shell of dots around the middle, always the same. */
+function oortIce(): { x: number; y: number; r: number; opacity: number }[] {
+  let seed = 7;
+  const next = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  return Array.from({ length: 46 }, () => {
+    const angle = next() * Math.PI * 2;
+    const distance = 22 + next() * 32;
+    return {
+      x: Math.round((CENTER + Math.cos(angle) * distance) * 10) / 10,
+      y: Math.round((CENTER + Math.sin(angle) * distance * 0.8) * 10) / 10,
+      r: Math.round((0.8 + next() * 2.2) * 10) / 10,
+      opacity: Math.round((0.45 + next() * 0.55) * 100) / 100,
+    };
+  });
+}
+
+/** Stops drawn as a lit ball, which get the shine on the top left. */
+const BALLS = new Set<PlanetId>([
+  'earth-orbit',
+  'moon',
+  'mars',
+  'jupiter',
+  'saturn',
+  'uranus',
+  'neptune',
+  'pluto',
+  'eris',
+]);
+
 const R = 34;
 const RINGED_R = 30;
 
@@ -44,6 +73,7 @@ const SHAPES = {
     { d: band(66, 70, RINGED_R), fill: '#d8bb79' },
   ],
   neptuneBands: [band(40, 43, R), band(71, 73, R)],
+  oortIce: oortIce(),
 };
 
 /** Original flat illustrations of each journey stop. Decorative only. */
@@ -165,16 +195,111 @@ const SHAPES = {
           />
           <path [attr.d]="shapes.shadow" fill="#060818" opacity="0.3" />
         }
+        @case ('eris') {
+          <circle cx="60" cy="60" [attr.r]="r" fill="#e3ebf5" />
+          <path d="M40 50c7-6 17-4 19 3s-6 10-13 9-9-6-6-12z" fill="#c2d0e2" />
+          <path d="M64 70c5-3 13-1 13 4s-7 7-12 5-5-6-1-9z" fill="#c2d0e2" />
+          <circle cx="70" cy="44" r="4" fill="#f7fbff" />
+          <path [attr.d]="shapes.shadow" fill="#060818" opacity="0.3" />
+          <circle cx="104" cy="30" r="5" fill="#aab6c8" />
+        }
+        @case ('heliopause') {
+          <!-- The edge of the Sun's bubble, with the Sun small and far behind it. -->
+          <circle cx="24" cy="98" r="7" fill="#ffd23f" />
+          <circle cx="24" cy="98" r="12" fill="#ffd23f" opacity="0.25" />
+          <path
+            d="M22 34A66 66 0 0 1 88 100"
+            fill="none"
+            stroke="#8b6bff"
+            stroke-width="9"
+            stroke-linecap="round"
+            opacity="0.45"
+          />
+          <path
+            d="M30 22A78 78 0 0 1 100 92"
+            fill="none"
+            stroke="#4fe0f5"
+            stroke-width="5"
+            stroke-linecap="round"
+          />
+          <path
+            d="M44 14A88 88 0 0 1 108 78"
+            fill="none"
+            stroke="#eef0ff"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-dasharray="1 7"
+          />
+          <circle cx="96" cy="30" r="2" fill="#eef0ff" />
+          <circle cx="108" cy="50" r="1.5" fill="#eef0ff" opacity="0.7" />
+          <circle cx="80" cy="16" r="1.5" fill="#eef0ff" opacity="0.7" />
+        }
+        @case ('voyager') {
+          <g transform="rotate(-24 60 60)">
+            <path d="M60 74 18 96" stroke="#9aa3c7" stroke-width="2.5" stroke-linecap="round" />
+            <path d="M60 74 112 84" stroke="#9aa3c7" stroke-width="2" stroke-linecap="round" />
+            <rect x="8" y="91" width="16" height="9" rx="3" fill="#6f78b3" />
+            <rect x="106" y="80" width="9" height="8" rx="2" fill="#c9cfe6" />
+            <rect x="49" y="68" width="22" height="13" rx="3" fill="#e0b13a" />
+            <path d="M52 68 60 50 68 68z" fill="#9aa3c7" />
+            <ellipse cx="60" cy="44" rx="30" ry="24" fill="#eef0ff" />
+            <ellipse cx="60" cy="44" rx="21" ry="16" fill="#cfd5ea" />
+            <circle cx="60" cy="44" r="4" fill="#6f78b3" />
+          </g>
+        }
+        @case ('oort-cloud') {
+          <ellipse
+            cx="60"
+            cy="60"
+            rx="54"
+            ry="44"
+            fill="none"
+            stroke="#9fd8ff"
+            stroke-width="1"
+            stroke-dasharray="2 5"
+            opacity="0.5"
+          />
+          @for (ice of shapes.oortIce; track $index) {
+            <circle
+              [attr.cx]="ice.x"
+              [attr.cy]="ice.y"
+              [attr.r]="ice.r"
+              [attr.opacity]="ice.opacity"
+              fill="#cfeaff"
+            />
+          }
+          <circle cx="60" cy="60" r="3" fill="#ffd23f" />
+          <path d="M92 28 110 14" stroke="#cfeaff" stroke-width="2" stroke-linecap="round" />
+          <circle cx="91" cy="29" r="4" fill="#f7fbff" />
+        }
+        @case ('proxima') {
+          <circle cx="60" cy="60" r="50" fill="#ff5a3c" opacity="0.14" />
+          <circle cx="60" cy="60" r="41" fill="#ff5a3c" opacity="0.28" />
+          <circle cx="60" cy="60" [attr.r]="r" fill="#ff6a3d" />
+          <path d="M40 52c6-7 18-6 21 1s-5 11-13 10-11-5-8-11z" fill="#ff9a55" />
+          <path d="M62 72c5-4 14-2 15 3s-6 8-12 6-6-6-3-9z" fill="#ff9a55" />
+          <circle cx="72" cy="48" r="5" fill="#c9391f" />
+          <circle cx="50" cy="74" r="3.5" fill="#c9391f" />
+          <path
+            d="M86 30c8-2 14 4 12 12"
+            fill="none"
+            stroke="#ffb36b"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+        }
       }
-      <ellipse
-        cx="47"
-        cy="43"
-        rx="8"
-        ry="5"
-        transform="rotate(-35 47 43)"
-        fill="#fff"
-        opacity="0.18"
-      />
+      @if (ball()) {
+        <ellipse
+          cx="47"
+          cy="43"
+          rx="8"
+          ry="5"
+          transform="rotate(-35 47 43)"
+          fill="#fff"
+          opacity="0.18"
+        />
+      }
     </svg>
   `,
 })
@@ -182,6 +307,7 @@ export class PlanetArt {
   readonly planet = input.required<PlanetId>();
 
   protected readonly shapes = SHAPES;
+  protected readonly ball = computed(() => BALLS.has(this.planet()));
   protected readonly r = R;
   protected readonly ringedR = RINGED_R;
 }

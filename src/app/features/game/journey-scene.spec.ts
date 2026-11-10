@@ -1,4 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { EXTENDED_ROUTE } from '../../core/data/planets';
 import { STORAGE, createMemoryStore } from '../../core/utils/storage';
 import { JourneyScene, flightDuration } from './journey-scene';
 import { LIFTOFF_MS } from './launch-layers';
@@ -123,5 +124,25 @@ describe('JourneyScene', () => {
     fixture.detectChanges();
     expect(element().querySelector('app-launch-layers')).toBeNull();
     expect(scene().classList).not.toContain('is-liftoff');
+  });
+
+  it('shows the stops of the route it is given', () => {
+    expect(element().querySelectorAll('.stop')).toHaveLength(7);
+
+    fixture.componentRef.setInput('route', EXTENDED_ROUTE);
+    fixture.detectChanges();
+
+    expect(element().querySelectorAll('.stop')).toHaveLength(12);
+    expect(stop('Proxima Centauri').textContent).toContain('40 trilhões de km');
+  });
+
+  it('flies along the longer route past Pluto', () => {
+    fixture.componentRef.setInput('route', EXTENDED_ROUTE);
+    progress(800, 1);
+
+    expect(Number(scene().style.getPropertyValue('--pos'))).toBe(8);
+    vi.advanceTimersByTime(flightDuration(0, 800, 'calm', EXTENDED_ROUTE));
+    fixture.detectChanges();
+    expect(stop('Éris').classList).toContain('is-lit');
   });
 });

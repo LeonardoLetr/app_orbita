@@ -12,7 +12,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { PLANETS } from '../../core/data/planets';
-import { PlanetId } from '../../core/models/planet';
+import { PlanetId, Route } from '../../core/models/planet';
 import { RoundPace } from '../../core/models/round-rules';
 import { SoundService } from '../../core/services/sound-service';
 import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
@@ -50,8 +50,9 @@ export function flightDuration(
   fromPoints: number,
   toPoints: number,
   pace: RoundPace = 'calm',
+  route: Route = PLANETS,
 ): number {
-  const stops = routePosition(toPoints) - routePosition(fromPoints);
+  const stops = routePosition(toPoints, route) - routePosition(fromPoints, route);
   if (stops <= 0) {
     return 0;
   }
@@ -70,17 +71,26 @@ const STOP_LOOKS: Record<RouteStop, { size: number; side: 'left' | 'right' }> = 
   uranus: { size: 32, side: 'left' },
   neptune: { size: 32, side: 'right' },
   pluto: { size: 18, side: 'left' },
+  eris: { size: 18, side: 'right' },
+  heliopause: { size: 44, side: 'left' },
+  voyager: { size: 14, side: 'right' },
+  'oort-cloud': { size: 44, side: 'left' },
+  proxima: { size: 34, side: 'right' },
 };
 
-const STOPS = PLANETS.map((planet, index) => ({ planet, index }))
-  .filter(({ planet }) => planet.id !== 'earth-orbit')
-  .map(({ planet, index }) => ({
-    id: planet.id,
-    index,
-    name: planet.name,
-    distance: formatDistance(planet.distanceKm),
-    ...STOP_LOOKS[planet.id as RouteStop],
-  }));
+/** The stops after the first one (where the rocket starts), with how each is drawn. */
+function stopsOf(route: Route) {
+  return route
+    .map((planet, index) => ({ planet, index }))
+    .filter(({ planet }) => planet.id !== 'earth-orbit')
+    .map(({ planet, index }) => ({
+      id: planet.id,
+      index,
+      name: planet.name,
+      distance: formatDistance(planet.distanceKm),
+      ...STOP_LOOKS[planet.id as RouteStop],
+    }));
+}
 
 /**
  * The journey seen from behind the rocket, used as the game background. After each
@@ -103,12 +113,14 @@ export class JourneyScene {
   readonly launching = input(false);
   /** Quick rounds have shorter flights. */
   readonly pace = input<RoundPace>('calm');
+  /** Stops along the way. */
+  readonly route = input<Route>(PLANETS);
 
   /** The rocket has left the launch pad. */
   protected readonly liftoff = signal(false);
 
-  protected readonly stops = STOPS;
-  protected readonly position = computed(() => routePosition(this.points()));
+  protected readonly stops = computed(() => stopsOf(this.route()));
+  protected readonly position = computed(() => routePosition(this.points(), this.route()));
   protected readonly flying = signal(false);
   protected readonly flightMs = signal(FLIGHTS.calm.min);
   protected readonly sputtering = signal(false);
@@ -156,8 +168,9 @@ export class JourneyScene {
     this.seenAnswers = answers;
     this.seenPoints = points;
 
+    const route = this.route();
     if (!isNewAnswer) {
-      this.litIndex.set(reachedIndex(points));
+      this.litIndex.set(reachedIndex(points, route));
       return;
     }
     if (points <= from) {
@@ -166,18 +179,19 @@ export class JourneyScene {
       return;
     }
 
-    const duration = flightDuration(from, points, this.pace());
+    const duration = flightDuration(from, points, this.pace(), route);
     this.flightMs.set(duration);
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
-    const distance = (routePosition(points) - routePosition(from)) * GAP_UNITS * this.unitPx();
+    const distance =
+      (routePosition(points, route) - routePosition(from, route)) * GAP_UNITS * this.unitPx();
     this.starField()?.fly(duration, distance);
     this.exhaust()?.fly(duration, distance);
 
     // Light each planet roughly when the rocket goes past it.
-    const start = routePosition(from);
-    const end = routePosition(points);
-    for (let index = this.litIndex() + 1; index <= reachedIndex(points); index++) {
+    const start = routePosition(from, route);
+    const end = routePosition(points, route);
+    for (let index = this.litIndex() + 1; index <= reachedIndex(points, route); index++) {
       const share = (index - start) / (end - start);
       this.later(`arrive-${index}`, duration * Math.min(1, 0.25 + share * 0.7), () => {
         this.litIndex.set(Math.max(this.litIndex(), index));

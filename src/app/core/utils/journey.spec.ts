@@ -1,4 +1,4 @@
-import { PLANETS } from '../data/planets';
+import { EXTENDED_ROUTE, PLANETS } from '../data/planets';
 import { distanceAt, formatDistance, reachedIndex, routePosition } from './journey';
 
 describe('routePosition', () => {
@@ -46,5 +46,33 @@ describe('formatDistance', () => {
     expect(formatDistance(225_000_000)).toBe('225 milhões de km');
     expect(formatDistance(1_430_000_000)).toBe('1,4 bilhão de km');
     expect(formatDistance(5_900_000_000)).toBe('5,9 bilhões de km');
+  });
+});
+
+describe('on the route that goes past Pluto', () => {
+  it('keeps going where the classic route ends', () => {
+    expect(routePosition(600, EXTENDED_ROUTE)).toBe(7);
+    expect(routePosition(700, EXTENDED_ROUTE)).toBe(7.5);
+    expect(routePosition(800, EXTENDED_ROUTE)).toBe(8);
+    expect(routePosition(2200, EXTENDED_ROUTE)).toBe(12);
+    expect(routePosition(9999, EXTENDED_ROUTE)).toBe(12.5);
+  });
+
+  it('reaches the stops beyond Pluto', () => {
+    expect(reachedIndex(700)).toBe(7);
+    expect(reachedIndex(1000, EXTENDED_ROUTE)).toBe(9);
+    expect(reachedIndex(5000, EXTENDED_ROUTE)).toBe(12);
+  });
+
+  it('measures the distance to them', () => {
+    expect(distanceAt(800, EXTENDED_ROUTE)).toBeCloseTo(10_100_000_000, -1);
+    expect(distanceAt(900, EXTENDED_ROUTE)).toBeGreaterThan(distanceAt(800, EXTENDED_ROUTE));
+    expect(distanceAt(2000, EXTENDED_ROUTE)).toBeLessThan(40_000_000_000_000);
+  });
+
+  it('writes distances in trillions of km', () => {
+    expect(formatDistance(40_000_000_000_000)).toBe('40 trilhões de km');
+    expect(formatDistance(1_300_000_000_000)).toBe('1,3 trilhão de km');
+    expect(formatDistance(300_000_000_000)).toBe('300 bilhões de km');
   });
 });

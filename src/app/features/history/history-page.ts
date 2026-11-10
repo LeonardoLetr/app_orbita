@@ -1,14 +1,14 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { isMainMode, modeLabel } from '../../core/data/game-modes';
-import { PLANETS } from '../../core/data/planets';
+import { EXTENDED_ROUTE } from '../../core/data/planets';
 import { MAX_SAVED_ROUNDS } from '../../core/data/local-progress-repository';
 import { PlanetId } from '../../core/models/planet';
 import { ProgressService } from '../../core/services/progress-service';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RarityBadge } from '../../shared/components/rarity-badge';
 
-const PLANET_NAMES = new Map(PLANETS.map((planet) => [planet.id, planet.name]));
+const PLANET_NAMES = new Map(EXTENDED_ROUTE.map((planet) => [planet.id, planet.name]));
 const SHORT_DATE = new Intl.DateTimeFormat('pt-BR', {
   day: '2-digit',
   month: '2-digit',

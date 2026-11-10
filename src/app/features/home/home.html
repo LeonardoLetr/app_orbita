@@ -111,7 +111,7 @@
 
       <div class="flex flex-col gap-2">
         <p class="text-sm font-extrabold">
-          Destinos alcançados: {{ progress.reachedPlanets().size }} de {{ planets.length }}
+          Destinos alcançados: {{ reachedCount() }} de {{ planets.length }}
         </p>
         <ul class="grid grid-cols-8 gap-1">
           @for (planet of planets; track planet.id) {
