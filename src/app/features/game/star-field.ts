@@ -20,7 +20,7 @@ interface Star {
 
 const COLORS = ['#ffffff', '#ffffff', '#ffffff', '#ffe27a', '#8ff3ff', '#c9b8ff'];
 /** Slow drift of the sky, in pixels per second at full depth. */
-const DRIFT = 60;
+const DRIFT = 110;
 /** Length of the streaks, as seconds of movement. */
 const STREAK = 0.05;
 
