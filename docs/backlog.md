@@ -15,7 +15,7 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 | G2     | Patentes                | `feat/ranks`         | P       | —                    | Feito    |
 | G3     | Álbum de figurinhas     | `feat/sticker-album` | G       | — (cresce com M/G)   | A fazer  |
 | G4     | Foguete personalizável  | `feat/rocket-hangar` | M       | G2 e G3 (em parte)   | A fazer  |
-| A1     | App instalável (PWA)    | `feat/pwa`           | P       | —                    | A fazer  |
+| A1     | App instalável (PWA)    | `feat/pwa`           | P       | —                    | Feito    |
 | A2     | Publicação nas lojas    | `feat/store-apps`    | M       | A1, ação do Leonardo | A fazer  |
 
 Tamanho é relativo, não é prazo: **P** mexe em uma regra ou uma tela; **M** em algumas telas e serviços; **G** envolve várias telas, arte nova ou sincronização.
@@ -401,6 +401,14 @@ O próprio site passa a poder ser instalado pelo navegador, com ícone, tela che
 **Testes:** manifesto válido; o jogo abre e joga uma partida sem rede (ponta a ponta com a rede desligada); auditoria de PWA do Lighthouse.
 
 **Pronto quando:** dá para instalar no Android e no iPhone, abrir em tela cheia e jogar sem internet.
+
+**Situação:** feito.
+
+**Como ficou, onde difere do plano**
+
+- O aviso de versão nova e o convite para instalar ficam na tela inicial, para não aparecerem no meio de uma partida.
+- A partida sem rede foi conferida num build de produção, fora dos testes de ponta a ponta, que rodam com o servidor de desenvolvimento (sem service worker). A auditoria do Lighthouse não foi rodada.
+- Falta conferir em aparelhos de verdade: instalar no Android e no iPhone, e as fontes sem internet.
 
 ### A2 · Publicação nas lojas
 

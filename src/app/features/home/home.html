@@ -1,6 +1,18 @@
 <main
   class="mx-auto flex min-h-dvh max-w-xl flex-col items-center justify-center gap-8 px-5 py-12 text-center short:gap-5 short:py-6"
 >
+  @if (appUpdate.ready()) {
+    <p
+      class="sticker flex w-full max-w-sm items-center justify-between gap-3 px-4 py-2 text-left font-bold"
+      role="status"
+    >
+      Saiu uma versão nova do jogo.
+      <button type="button" class="btn btn-primary shrink-0 px-3 py-1" (click)="appUpdate.apply()">
+        Atualizar
+      </button>
+    </p>
+  }
+
   <svg
     viewBox="0 0 120 120"
     class="float size-32 overflow-visible sm:size-44 short:size-24"
@@ -83,6 +95,21 @@
       </label>
     </div>
   </div>
+
+  @if (appInstall.canPrompt()) {
+    <button
+      type="button"
+      class="btn btn-secondary px-5 py-2 text-lg"
+      (click)="appInstall.install()"
+    >
+      Instalar o app
+    </button>
+  } @else if (appInstall.needsManualSteps()) {
+    <p class="max-w-sm text-sm font-bold text-space-200">
+      Para instalar no iPhone: toque em <strong class="text-space-50">Compartilhar</strong> e depois
+      em <strong class="text-space-50">Adicionar à Tela de Início</strong>.
+    </p>
+  }
 
   @if (progress.totalRounds() > 0) {
     <section
