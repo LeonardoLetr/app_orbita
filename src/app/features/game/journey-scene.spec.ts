@@ -13,9 +13,9 @@ describe('flightDuration', () => {
     const short = flightDuration(0, 10);
     const long = flightDuration(0, 30);
 
-    expect(short).toBeGreaterThanOrEqual(1300);
+    expect(short).toBeGreaterThanOrEqual(1000);
     expect(long).toBeGreaterThan(short);
-    expect(flightDuration(0, 150)).toBeLessThanOrEqual(6000);
+    expect(flightDuration(0, 150)).toBeLessThanOrEqual(3800);
   });
 
   it('is short in quick rounds, whatever the distance', () => {

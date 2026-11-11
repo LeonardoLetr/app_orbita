@@ -12,7 +12,7 @@
   left: 50%;
   width: 0;
   height: 0;
-  animation: drop-away 2.6s cubic-bezier(0.45, 0, 0.25, 1) 1.8s both;
+  animation: drop-away 2.6s cubic-bezier(0.45, 0, 0.5, 0.85) 1.8s both;
 }
 
 .pad {

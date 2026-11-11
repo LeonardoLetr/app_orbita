@@ -3,7 +3,7 @@ import { Component } from '@angular/core';
 /** When the rocket leaves the launch pad, after the 3-2-1 countdown. */
 export const LIFTOFF_MS = 1800;
 /** Whole launch, from the pad until the rocket is out in space. */
-export const LAUNCH_MS = 4600;
+export const LAUNCH_MS = 4400;
 
 /** Smoke clouds around the launch pad: offset from the rocket and size in scene units. */
 const PUFFS = [

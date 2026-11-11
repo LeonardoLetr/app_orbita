@@ -20,9 +20,9 @@ import { formatDistance, reachedIndex, routePosition } from '../../core/utils/jo
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
 import { ExhaustPlume } from './exhaust-plume';
-import { LIFTOFF_EASING } from './flight-motion';
+import { LIFTOFF_EASING, MOMENTUM_EASING } from './flight-motion';
 import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
-import { RouteDrift } from './route-drift';
+import { MOMENTUM_SECONDS, RouteDrift } from './route-drift';
 import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
@@ -32,11 +32,13 @@ const ARRIVE_MS = 1400;
  * Quick rounds keep every flight short.
  */
 const FLIGHTS: Record<RoundPace, { min: number; max: number; perStop: number }> = {
-  calm: { min: 1300, max: 6000, perStop: 1800 },
+  calm: { min: 1000, max: 3800, perStop: 1100 },
   quick: { min: 500, max: 1200, perStop: 500 },
 };
 /** The climb off the Earth, after the countdown. */
 const LAUNCH_CLIMB_MS = 2600;
+/** Momentum left by the launch, in stops: about the speed the climb off the Earth ends with. */
+const LAUNCH_KICK = 0.08;
 /** Distance between two stops, in scene units (the --gap of the CSS). */
 const GAP_UNITS = 140;
 /** How far the Earth drops away at launch, in scene units (as in the CSS). */
@@ -136,6 +138,7 @@ export class JourneyScene {
   private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
   private readonly driftLayer = viewChild<ElementRef<HTMLElement>>('drift');
   private readonly drift = new RouteDrift();
+  private launched = false;
   private frame = 0;
   private lastFrame = 0;
   private seenAnswers = 0;
@@ -164,7 +167,12 @@ export class JourneyScene {
             this.starField()?.fly(duration, climb, LIFTOFF_EASING);
             this.exhaust()?.fly(duration, climb, LIFTOFF_EASING, true);
           });
+        } else if (this.launched) {
+          // The climb off the Earth does not end in a stop either: it leaves some momentum.
+          this.drift.kick(LAUNCH_KICK);
+          this.streamMomentum(LAUNCH_KICK);
         }
+        this.launched = launching;
       });
     });
     afterNextRender(() => this.startDrifting());
@@ -200,7 +208,11 @@ export class JourneyScene {
 
     const duration = flightDuration(from, points, this.pace(), route);
     this.flightMs.set(duration);
-    this.drift.boost(routePosition(points, route) - routePosition(from, route), duration / 1000);
+    const tail = this.drift.boost(
+      routePosition(points, route) - routePosition(from, route),
+      duration / 1000,
+    );
+    this.later('momentum', duration, () => this.streamMomentum(tail));
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
     const distance =
@@ -220,6 +232,15 @@ export class JourneyScene {
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
     }
+  }
+
+  /** The stars go on streaming with the momentum left after a flight, fading with it. */
+  private streamMomentum(stops: number): void {
+    this.starField()?.fly(
+      MOMENTUM_SECONDS * 3000,
+      stops * GAP_UNITS * this.unitPx(),
+      MOMENTUM_EASING,
+    );
   }
 
   /** Keeps the route creeping down between answers, unless the player asked for less motion. */

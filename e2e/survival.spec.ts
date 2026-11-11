@@ -13,7 +13,8 @@ test('plays a survival round until the three lives are gone', async ({ page, req
   const lives = header.locator('.life[data-lit]');
   await expect(header).toContainText('Categoria 1');
   await expect(lives).toHaveCount(3);
-  await expect(page.getByRole('button', { name: /Pular/ })).toContainText('−1 vida');
+  // The send button, not the one that skips the launch, which may still be leaving the screen.
+  await expect(page.locator('form button[type=submit]')).toContainText('−1 vida');
 
   // A valid answer keeps the lives.
   await answer(page, categories, 'comet');

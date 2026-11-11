@@ -28,6 +28,11 @@ const MAX_PARTICLES = 420;
 const BLUR = 0.035;
 /** Engine power when the rocket just floats along. */
 const IDLE_THRUST = 0.3;
+/**
+ * The most the speed of the route stretches the flame, in pixels per second. The flame gets
+ * stronger in a flight, but it is the stars that show the speed: it must stay near the rocket.
+ */
+const MAX_WIND = 90;
 
 /**
  * Fire and smoke coming out of the rocket engine, drawn on a canvas just behind the
@@ -160,9 +165,9 @@ export class ExhaustPlume {
       x: x + (Math.random() - 0.5) * unit * (smoke ? 2 : 1.2),
       y,
       vx: (Math.random() - 0.5) * unit * (smoke ? 14 : 4),
-      vy: unit * (smoke ? 8 + Math.random() * 10 : 28 + Math.random() * 18) * (0.6 + power),
+      vy: unit * (smoke ? 8 + Math.random() * 10 : 28 + Math.random() * 18) * (0.6 + power * 0.6),
       life: age,
-      maxLife: smoke ? 1 + Math.random() * 0.6 : 0.22 + Math.random() * 0.12 + power * 0.18,
+      maxLife: smoke ? 1 + Math.random() * 0.6 : 0.22 + Math.random() * 0.12 + power * 0.1,
       size: unit * (smoke ? 2.2 : 0.55 + power * 0.55),
       smoke,
     };
@@ -196,7 +201,7 @@ export class ExhaustPlume {
     const power = this.thrust(now);
 
     // The route moving down pushes everything behind the rocket down too.
-    const wind = this.motion.speed(now);
+    const wind = Math.min(MAX_WIND, this.motion.speed(now) * 0.25);
 
     // When the rocket itself moves on the screen (the keyboard opens or closes and the
     // scene glides to its new place), the flame moves along instead of hanging behind.
