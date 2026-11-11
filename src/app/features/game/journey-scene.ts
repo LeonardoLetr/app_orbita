@@ -32,7 +32,7 @@ const ARRIVE_MS = 1400;
  * Quick rounds keep every flight short.
  */
 const FLIGHTS: Record<RoundPace, { min: number; max: number; perStop: number }> = {
-  calm: { min: 1300, max: 6000, perStop: 1800 },
+  calm: { min: 1000, max: 3800, perStop: 1100 },
   quick: { min: 500, max: 1200, perStop: 500 },
 };
 /** The climb off the Earth, after the countdown. */

@@ -21,8 +21,14 @@ interface Star {
 const COLORS = ['#ffffff', '#ffffff', '#ffffff', '#ffe27a', '#8ff3ff', '#c9b8ff'];
 /** Slow drift of the sky, in pixels per second at full depth. */
 const DRIFT = 110;
-/** Length of the streaks, as seconds of movement. */
-const STREAK = 0.05;
+/** Length of the streaks, as seconds of movement, and the longest one, in pixels. */
+const STREAK = 0.06;
+const MAX_STREAK = 170;
+/**
+ * How much faster than the route the stars stream during a flight. They are the main
+ * sign of speed: a boost has to feel several times faster than the cruise.
+ */
+const FLIGHT_RUSH = 4;
 
 /** Number of stars for a sky of this size, in CSS pixels. */
 export function starCount(width: number, height: number): number {
@@ -149,7 +155,7 @@ export class StarField {
 
   private draw(seconds: number, now: number): void {
     const context = this.context!;
-    const speed = DRIFT + this.motion.speed(now);
+    const speed = DRIFT + this.motion.speed(now) * FLIGHT_RUSH;
     context.clearRect(0, 0, this.width, this.height);
     context.lineCap = 'round';
     for (const star of this.stars) {
@@ -159,7 +165,7 @@ export class StarField {
         star.y -= this.height + 20;
         star.x = Math.random() * this.width;
       }
-      const streak = starSpeed * STREAK;
+      const streak = Math.min(MAX_STREAK, starSpeed * STREAK);
       const twinkle = 0.6 + 0.4 * Math.sin(now / 700 + star.phase);
       context.globalAlpha = Math.min(1, twinkle + streak / 40);
       if (streak > 3) {
