@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { provideRouter } from '@angular/router';
 import { CategoryRepository } from '../../core/data/category-repository';
+import { AppUpdate } from '../../core/services/app-update';
 import { PreferencesService } from '../../core/services/preferences-service';
 import { ProgressService } from '../../core/services/progress-service';
 import { provideTestProgress } from '../../testing/test-providers';
@@ -143,5 +144,33 @@ describe('Home', () => {
     expect(card.textContent).toMatch(/700 XP · faltam 800 para Navegador/);
     expect(card.querySelector('app-rank-badge')).not.toBeNull();
     expect(card.querySelector('[role=progressbar]')?.getAttribute('aria-valuenow')).toBe('20');
+  });
+
+  it('offers to install the app when the browser allows it', () => {
+    const prompt = vi.fn().mockResolvedValue(undefined);
+    expect(render().textContent).not.toContain('Instalar o app');
+
+    window.dispatchEvent(Object.assign(new Event('beforeinstallprompt'), { prompt }));
+    const fixture = TestBed.createComponent(Home);
+    fixture.detectChanges();
+    const button = [...(fixture.nativeElement as HTMLElement).querySelectorAll('button')].find(
+      (candidate) => candidate.textContent?.includes('Instalar o app'),
+    )!;
+    button.click();
+
+    expect(prompt).toHaveBeenCalledOnce();
+  });
+
+  it('tells when a new version is ready and switches to it', () => {
+    const update = TestBed.inject(AppUpdate);
+    const apply = vi.spyOn(update, 'apply').mockResolvedValue();
+    expect(render().textContent).not.toContain('versão nova');
+
+    update.ready.set(true);
+    const element = render();
+    expect(element.textContent).toContain('Saiu uma versão nova do jogo.');
+    element.querySelector<HTMLButtonElement>('[role=status] button')!.click();
+
+    expect(apply).toHaveBeenCalledOnce();
   });
 });

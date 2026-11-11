@@ -70,6 +70,17 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 
 Cada modo tem o seu próprio recorde e o seu próprio gráfico de partidas. O histórico mostra em que modo cada partida foi jogada.
 
+## App instalável
+
+O jogo é um PWA: pode ser instalado pelo navegador e jogado sem internet.
+
+- **Android e computador:** o botão "Instalar o app" aparece na tela inicial quando o navegador permite.
+- **iPhone e iPad:** no Safari, tocar em Compartilhar e depois em "Adicionar à Tela de Início". A tela inicial mostra essa instrução.
+- O aplicativo, a base de categorias e as fontes ficam guardados no aparelho depois da primeira visita. Quando sai uma versão nova, a tela inicial avisa e oferece "Atualizar".
+- No iPhone, o app instalado tem armazenamento separado do Safari: o progresso feito no navegador não aparece nele.
+
+O service worker só é ligado no build de produção (`npm run build`); em `npm start` ele fica desligado. As regras de cache estão em `ngsw-config.json` e o manifesto em `public/manifest.webmanifest`.
+
 ## Stack
 
 - [Angular](https://angular.dev) (versão estável mais recente) com standalone components e signals

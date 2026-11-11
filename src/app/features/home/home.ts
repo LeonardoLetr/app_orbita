@@ -2,6 +2,8 @@ import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { GAME_MODES, isMainMode } from '../../core/data/game-modes';
 import { PLANETS } from '../../core/data/planets';
+import { AppInstall } from '../../core/services/app-install';
+import { AppUpdate } from '../../core/services/app-update';
 import { ProgressService } from '../../core/services/progress-service';
 import { MusicService } from '../../core/services/music-service';
 import { SoundService } from '../../core/services/sound-service';
@@ -17,6 +19,8 @@ import { ModePicker } from './mode-picker';
 })
 export class Home {
   protected readonly progress = inject(ProgressService);
+  protected readonly appInstall = inject(AppInstall);
+  protected readonly appUpdate = inject(AppUpdate);
   protected readonly sound = inject(SoundService);
   protected readonly music = inject(MusicService);
   protected readonly planets = PLANETS;

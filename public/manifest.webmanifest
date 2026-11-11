@@ -1,0 +1,28 @@
+{
+  "name": "Astropalavra",
+  "short_name": "Astropalavra",
+  "description": "Jogo de categorias com tema espacial: quanto mais rara a resposta, mais longe você vai.",
+  "lang": "pt-BR",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f0628",
+  "theme_color": "#0f0628",
+  "scope": "./",
+  "start_url": "./",
+  "icons": [
+    { "src": "icons/icon-192x192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512x512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    {
+      "src": "icons/icon-maskable-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "icons/icon-maskable-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
