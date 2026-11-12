@@ -10,6 +10,7 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
+import { discoveryKey } from '../../core/utils/discoveries';
 import { RouterLink } from '@angular/router';
 import { CLASSIC_MODE, THEME_MODE, isMainMode, modeLink } from '../../core/data/game-modes';
 import { GameMode } from '../../core/models/game-mode';
@@ -103,9 +104,22 @@ export class Result {
   });
 
   /** Each answer plus a few rare ones the player could have given instead. */
-  protected readonly rows = computed(() =>
-    this.entries().map((entry, index) => {
+  protected readonly rows = computed(() => {
+    const found = new Set(
+      (this.progress.lastOutcome()?.discoveries ?? []).map(
+        ({ categoryId, key }) => `${categoryId}/${key}`,
+      ),
+    );
+    /** An answer given twice in a round is only new the first time. */
+    const shown = new Set<string>();
+    return this.entries().map((entry, index) => {
       const result = entry.result;
+      const id = result?.match && `${entry.category.id}/${discoveryKey(result.match.text)}`;
+      /** Scored for the first time ever: it has just gone into the logbook. */
+      const isNew = !!id && found.has(id) && !shown.has(id);
+      if (id) {
+        shown.add(id);
+      }
       const counted =
         result?.match && result.match.text.toLowerCase() !== result.input.toLowerCase()
           ? result.match.text
@@ -113,14 +127,17 @@ export class Result {
       return {
         entry,
         counted,
+        isNew,
         /** When the row comes in, in seconds. */
         delay: 2.5 + Math.min(index, STAGGERED_ROWS) * 0.08,
         ideas: this.scoring
           .rarestAnswers(entry.category, 3, result?.match, this.letter())
           .map((answer) => answer.text),
       };
-    }),
-  );
+    });
+  });
+
+  protected readonly newCount = computed(() => this.rows().filter((row) => row.isNew).length);
 
   /** A long list starts folded, so the buttons below it stay within reach. */
   protected readonly unfolded = signal(false);

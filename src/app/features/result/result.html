@@ -159,6 +159,15 @@
           @if (row.entry.result; as result) {
             <app-rarity-badge class="text-sm max-[359px]:text-xs" [result]="result" />
           }
+          @if (row.isNew) {
+            <p class="col-span-2 col-start-2 mt-1">
+              <span
+                class="rounded-full bg-star-400 px-2 py-0.5 text-xs font-extrabold tracking-wide text-ink uppercase"
+              >
+                Nova descoberta!
+              </span>
+            </p>
+          }
           @if (row.ideas.length) {
             <p class="ideas col-span-2 col-start-2 mt-1 text-xs text-space-200">
               <span class="font-bold text-supernova">Para ir mais longe:</span>
@@ -168,6 +177,14 @@
         </li>
       }
     </ol>
+    @if (newCount(); as count) {
+      <a
+        routerLink="/diario"
+        class="self-center rounded-full px-3 py-1 font-extrabold underline decoration-candy-500 decoration-[3px] underline-offset-4"
+      >
+        {{ count === 1 ? '1 resposta nova' : count + ' respostas novas' }} no diário de bordo
+      </a>
+    }
     @if (shownRows().length < rows().length) {
       <button
         type="button"

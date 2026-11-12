@@ -53,7 +53,11 @@ export class HistoryPage {
   }
 
   protected async clear(): Promise<void> {
-    if (confirm('Apagar todo o histórico, o recorde, a patente e os destinos alcançados?')) {
+    if (
+      confirm(
+        'Apagar todo o histórico, o recorde, a patente, os destinos alcançados e o diário de bordo?',
+      )
+    ) {
       await this.progress.clear();
     }
   }
