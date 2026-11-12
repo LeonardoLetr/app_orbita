@@ -297,10 +297,16 @@
 /*
  * Full-screen space background with twinkling stars. A fixed layer works on every
  * mobile browser and is cheaper to scroll than a fixed body background.
+ *
+ * As tall as the screen gets: on a phone the address bar slides away while a page
+ * scrolls, and a layer the height of the smaller screen would leave a bare strip at the
+ * bottom until the browser caught up.
  */
 .space-backdrop {
   position: fixed;
-  inset: 0;
+  inset: 0 0 auto;
+  height: 100vh;
+  height: 100lvh;
   z-index: -1;
   overflow: hidden;
   pointer-events: none;
