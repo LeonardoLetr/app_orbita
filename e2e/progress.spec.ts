@@ -22,6 +22,10 @@ test('saves the round in the history and on the home screen', async ({ page, req
 test('remembers the sound switch after a reload', async ({ page }) => {
   await page.goto('/');
   await page.getByRole('switch', { name: 'Sons' }).click({ force: true });
+  // The choice is saved a moment after the click: reloading before that would lose it.
+  await expect
+    .poll(() => page.evaluate(() => localStorage.getItem('orbita:preferences')))
+    .toContain('"soundEnabled":true');
 
   await page.reload();
 
