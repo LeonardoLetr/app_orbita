@@ -51,16 +51,19 @@
   @let entry = game.current()!;
 
   <!--
-    The round fills exactly the visible screen, so the answer bar rests on the keyboard. What
-    overflows is clipped, not hidden, where the browser can: a clipped box cannot be scrolled,
-    so focusing the answer field while it slides in does not push the round out of place.
+    The round is a stage the size of the whole screen. It does not shrink when the keyboard
+    opens: the journey stays where it is, behind everything, and only the answer bar, the
+    card and the rocket glide out of the way. What overflows is clipped, not hidden, where
+    the browser can: a clipped box cannot be scrolled, so focusing the answer field while
+    it slides in does not push the round out of place.
   -->
   <div
-    appFitVisualViewport
-    class="fixed inset-x-0 top-0 flex h-dvh flex-col overflow-hidden supports-[overflow:clip]:overflow-clip"
+    appScreenStage
+    class="stage fixed inset-x-0 top-0 h-dvh overflow-hidden supports-[overflow:clip]:overflow-clip"
   >
     <!-- The shade grows with the top text, so planets passing under it never hurt reading. -->
     <div
+      appHeightVar="--scene-top"
       class="relative z-10 bg-[linear-gradient(to_bottom,rgb(15_6_40/0.95)_60%,transparent)] pb-4"
     >
       <header
@@ -175,8 +178,8 @@
       </section>
     </div>
 
+    <!-- Told what covers it at the top and at the bottom, to keep the rocket in the clear. -->
     <app-journey-scene
-      class="min-h-0 flex-1"
       [points]="game.totalPoints()"
       [answers]="answered()"
       [launching]="launching()"
@@ -186,7 +189,10 @@
 
     @if (timeLow()) {
       <!-- Time is running out: the edges of the screen pulse in red. -->
-      <div class="time-low pointer-events-none absolute inset-0 z-20" aria-hidden="true"></div>
+      <div
+        class="time-low pointer-events-none absolute inset-x-0 top-0 z-20"
+        aria-hidden="true"
+      ></div>
     }
 
     @if (lifeLost()) {
@@ -198,14 +204,17 @@
     <p class="sr-only" aria-live="polite">{{ timeWarning() }}</p>
 
     <!--
-      The same input stays for the whole round so the phone keyboard never closes. It is never
-      made read-only either: Android hides the keyboard for read-only fields. Text typed while the
-      rocket flies is ignored and cleared before the next category.
+      Docked at the bottom of the stage, and lifted by whatever covers it: the bar rides up
+      and down with the keyboard. The same input stays for the whole round so the phone
+      keyboard never closes. It is never made read-only either: Android hides the keyboard for
+      read-only fields. Text typed while the rocket flies is ignored and cleared before the
+      next category.
     -->
     <form
+      appHeightVar="--dock-height"
       [class.translate-y-full]="launching()"
       [attr.inert]="launching() ? '' : null"
-      class="relative z-10 border-t-[3px] border-space-700 bg-space-900 px-3 transition-[translate] duration-500 ease-out pt-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-4 sm:pb-5"
+      class="dock absolute inset-x-0 bottom-0 z-10 border-t-[3px] border-space-700 bg-space-900 px-3 pt-2.5 pb-[max(0.6rem,env(safe-area-inset-bottom))] sm:px-6 sm:pt-4 sm:pb-5"
       aria-label="Responder categoria"
       (submit)="submit($event)"
     >
@@ -239,7 +248,7 @@
           spellcheck="false"
           enterkeyhint="send"
           maxlength="60"
-          class="min-w-0 flex-1 rounded-2xl border-[3px] bg-white px-4 py-3 text-xl font-extrabold text-ink placeholder:font-bold placeholder:text-ink-soft focus:shadow-[0_0_0_3px_var(--color-aurora-400)] focus:outline-none sm:px-5 sm:py-4 sm:text-2xl short:py-2"
+          class="min-w-0 flex-1 rounded-2xl border-[3px] bg-white px-4 py-3 text-xl font-extrabold text-ink placeholder:font-bold placeholder:text-ink-soft focus:shadow-[0_0_0_3px_var(--color-aurora-400)] focus:outline-none sm:px-5 sm:py-4 sm:text-2xl compact:py-2"
           [class]="retryMessage() ? 'border-flare-500' : 'border-ink'"
           [attr.aria-invalid]="retryMessage() ? true : null"
           aria-describedby="retry-message"
@@ -284,7 +293,7 @@
     @if (launching()) {
       <button
         type="button"
-        class="btn btn-secondary absolute right-4 bottom-[max(1rem,env(safe-area-inset-bottom))] z-20 px-5 py-2 text-lg"
+        class="skip-launch btn btn-secondary absolute right-4 z-20 px-5 py-2 text-lg"
         (click)="skipLaunch()"
       >
         Pular decolagem

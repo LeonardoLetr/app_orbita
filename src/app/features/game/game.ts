@@ -22,7 +22,8 @@ import { GameService } from '../../core/services/game-service';
 import { MusicService } from '../../core/services/music-service';
 import { ScoringService } from '../../core/services/scoring-service';
 import { SoundService } from '../../core/services/sound-service';
-import { FitVisualViewport } from '../../shared/fit-visual-viewport';
+import { HeightVar } from '../../shared/height-var';
+import { ScreenStage } from '../../shared/screen-stage';
 import { distanceAt, formatDistance } from '../../core/utils/journey';
 import { RARITY_LABELS } from '../../shared/components/rarity-badge';
 import { Result } from '../result/result';
@@ -90,7 +91,8 @@ const ZERO_ANNOUNCEMENTS = {
     JourneyScene,
     QuestionCard,
     TimerRing,
-    FitVisualViewport,
+    HeightVar,
+    ScreenStage,
   ],
   templateUrl: './game.html',
   styleUrl: './game.css',

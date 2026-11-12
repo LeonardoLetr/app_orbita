@@ -35,14 +35,19 @@
         [attr.data-showing]="back() ? 'result' : 'question'"
       >
         <div class="face front">
-          <p class="front-label">Categoria {{ number() }}</p>
+          <!-- Folded away when there is little room: the header already says which category this is. -->
+          <p class="front-label fold">
+            <span>Categoria {{ number() }}</span>
+          </p>
           <h1 id="category-title" class="front-title">{{ current.title }}</h1>
-          <p class="front-hint">
-            @if (next(); as next) {
-              Próximo: <b>{{ next.name }}</b> · faltam {{ next.missing }} pts
-            } @else {
-              Você chegou ao fim da rota!
-            }
+          <p class="front-hint fold">
+            <span>
+              @if (next(); as next) {
+                Próximo: <b>{{ next.name }}</b> · faltam {{ next.missing }} pts
+              } @else {
+                Você chegou ao fim da rota!
+              }
+            </span>
           </p>
         </div>
         <div class="face back-face" [class]="back()?.tone" aria-hidden="true">

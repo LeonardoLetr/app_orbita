@@ -1,3 +1,39 @@
+/*
+ * The stage keeps its size when the keyboard opens (see ScreenStage). The journey fills it,
+ * behind everything, and is told how much of it is covered at the bottom.
+ */
+.stage {
+  --scene-bottom: calc(var(--dock-height, 0px) + var(--keyboard-inset, 0px));
+  /*
+   * One pace for everything that moves out of the keyboard's way: the answer bar and the
+   * rocket travel together, so the bar never passes over the rocket.
+   */
+  --reframe: 300ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* The answer bar: slides in after the launch (translate) and rides the keyboard (transform). */
+.dock {
+  transform: translateY(calc(var(--keyboard-inset, 0px) * -1));
+  transition:
+    translate 500ms ease-out,
+    transform var(--reframe);
+}
+
+#answer {
+  transition: padding var(--reframe);
+}
+
+.skip-launch {
+  bottom: calc(max(1rem, env(safe-area-inset-bottom)) + var(--keyboard-inset, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dock,
+  #answer {
+    transition: none;
+  }
+}
+
 /* "3, 2, 1, Decolar!" in the spot where the first card will be dealt. */
 .launch-countdown {
   position: absolute;
@@ -82,7 +118,10 @@
 
 /* Time is running out: a red glow closes in from the edges, beating faster than a heart. */
 .time-low {
+  /* Around what is in view: the glow at the bottom must not hide behind the keyboard. */
+  bottom: var(--keyboard-inset, 0px);
   box-shadow: inset 0 0 5rem 1.25rem color-mix(in srgb, var(--color-flare-500) 80%, transparent);
+  transition: bottom var(--reframe);
 }
 
 @media (prefers-reduced-motion: no-preference) {

@@ -46,7 +46,7 @@ const MAX_WIND = 90;
   styles: `
     :host {
       position: absolute;
-      inset: 0 0 -40% 0;
+      inset: 0;
       pointer-events: none;
     }
 
