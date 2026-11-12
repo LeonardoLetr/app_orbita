@@ -6,13 +6,20 @@ export const VISUAL_VIEWPORT = new InjectionToken<VisualViewport | null>('VISUAL
   factory: () => globalThis.visualViewport ?? null,
 });
 
+/** Up to this visible height (keyboard open, or a phone on its side) there is little room. */
+export const COMPACT_HEIGHT = 620;
+
 /**
- * Keeps a fixed element exactly over the part of the screen that is visible.
- * On phones this is the area above the keyboard, so content at the bottom of the
- * element sits right on top of the keyboard on both iOS and Android.
+ * A fixed element that stays the size of the whole screen while the phone keyboard comes
+ * and goes, so what is drawn on it never jumps. It is told how much of its bottom is
+ * covered, in `--keyboard-inset`, and gets the class `is-compact` when little of it is
+ * left in view: its content moves out of the way with transitions of its own.
+ *
+ * Works the same on iOS, where only the visible area shrinks, and on Android, where the
+ * whole page does.
  */
-@Directive({ selector: '[appFitVisualViewport]' })
-export class FitVisualViewport {
+@Directive({ selector: '[appScreenStage]' })
+export class ScreenStage {
   constructor() {
     const element = inject<ElementRef<HTMLElement>>(ElementRef).nativeElement;
     const destroyRef = inject(DestroyRef);
@@ -34,9 +41,20 @@ export class FitVisualViewport {
       return;
     }
 
+    let width = viewport.width;
+    // The tallest the screen has been at this width: its height with nothing over it.
+    let full = viewport.height;
     const fit = () => {
+      if (viewport.width !== width) {
+        // The phone was turned: another screen, with another height.
+        width = viewport.width;
+        full = viewport.height;
+      }
+      full = Math.max(full, viewport.height);
       element.style.top = `${viewport.offsetTop}px`;
-      element.style.height = `${viewport.height}px`;
+      element.style.height = `${full}px`;
+      element.style.setProperty('--keyboard-inset', `${full - viewport.height}px`);
+      element.classList.toggle('is-compact', viewport.height <= COMPACT_HEIGHT);
     };
     fit();
     viewport.addEventListener('resize', fit);

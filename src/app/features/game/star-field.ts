@@ -47,7 +47,7 @@ export function starCount(width: number, height: number): number {
   styles: `
     :host {
       position: absolute;
-      inset: -60% 0;
+      inset: 0;
       pointer-events: none;
     }
 
@@ -110,8 +110,8 @@ export class StarField {
     if (width !== this.width || !this.stars.length) {
       this.stars = this.createStars(width, height, starCount(width, height));
     } else if (height !== this.height) {
-      // The keyboard opened or closed: spread the same sky over the new height, so no
-      // part of the screen is left without stars, and keep the same density.
+      // The screen got taller or shorter: spread the same sky over the new height, so no
+      // part of it is left without stars, and keep the same density.
       const stretch = height / this.height;
       for (const star of this.stars) star.y *= stretch;
       const count = starCount(width, height);

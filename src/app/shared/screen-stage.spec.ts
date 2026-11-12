@@ -1,19 +1,20 @@
 import { Component } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { FitVisualViewport, VISUAL_VIEWPORT } from './fit-visual-viewport';
+import { ScreenStage, VISUAL_VIEWPORT } from './screen-stage';
 
 @Component({
-  imports: [FitVisualViewport],
-  template: '<div appFitVisualViewport></div>',
+  imports: [ScreenStage],
+  template: '<div appScreenStage></div>',
 })
 class Host {}
 
 class FakeViewport extends EventTarget {
+  width = 400;
   height = 700;
   offsetTop = 0;
 }
 
-describe('FitVisualViewport', () => {
+describe('ScreenStage', () => {
   function render(viewport: FakeViewport | null) {
     TestBed.configureTestingModule({
       providers: [{ provide: VISUAL_VIEWPORT, useValue: viewport }],
@@ -23,23 +24,64 @@ describe('FitVisualViewport', () => {
     return { fixture, element: (fixture.nativeElement as HTMLElement).querySelector('div')! };
   }
 
-  it('matches the visible area', () => {
+  function resize(viewport: FakeViewport, change: Partial<FakeViewport>) {
+    Object.assign(viewport, change);
+    viewport.dispatchEvent(new Event('resize'));
+  }
+
+  const inset = (element: HTMLElement) => element.style.getPropertyValue('--keyboard-inset');
+
+  it('fills the screen', () => {
     const { element } = render(new FakeViewport());
 
     expect(element.style.height).toBe('700px');
     expect(element.style.top).toBe('0px');
+    expect(inset(element)).toBe('0px');
+    expect(element.classList.contains('is-compact')).toBe(false);
   });
 
-  it('follows the keyboard opening', () => {
+  it('keeps its size when the keyboard opens, and tells how much it covers', () => {
     const viewport = new FakeViewport();
     const { element } = render(viewport);
 
-    viewport.height = 380;
-    viewport.offsetTop = 120;
-    viewport.dispatchEvent(new Event('resize'));
+    resize(viewport, { height: 380, offsetTop: 120 });
 
-    expect(element.style.height).toBe('380px');
+    expect(element.style.height).toBe('700px');
     expect(element.style.top).toBe('120px');
+    expect(inset(element)).toBe('320px');
+    expect(element.classList.contains('is-compact')).toBe(true);
+  });
+
+  it('is uncovered again when the keyboard closes', () => {
+    const viewport = new FakeViewport();
+    const { element } = render(viewport);
+
+    resize(viewport, { height: 380 });
+    resize(viewport, { height: 700 });
+
+    expect(inset(element)).toBe('0px');
+    expect(element.classList.contains('is-compact')).toBe(false);
+  });
+
+  it('grows with a screen that gets taller', () => {
+    const viewport = new FakeViewport();
+    const { element } = render(viewport);
+
+    resize(viewport, { height: 760 });
+
+    expect(element.style.height).toBe('760px');
+    expect(inset(element)).toBe('0px');
+  });
+
+  it('starts over when the phone is turned', () => {
+    const viewport = new FakeViewport();
+    const { element } = render(viewport);
+
+    resize(viewport, { width: 700, height: 400 });
+
+    expect(element.style.height).toBe('400px');
+    expect(inset(element)).toBe('0px');
+    expect(element.classList.contains('is-compact')).toBe(true);
   });
 
   it('stops listening when destroyed', () => {
@@ -47,10 +89,9 @@ describe('FitVisualViewport', () => {
     const { fixture, element } = render(viewport);
     fixture.destroy();
 
-    viewport.height = 100;
-    viewport.dispatchEvent(new Event('resize'));
+    resize(viewport, { height: 100 });
 
-    expect(element.style.height).toBe('700px');
+    expect(inset(element)).toBe('0px');
   });
 
   it('leaves the element alone without visual viewport support', () => {

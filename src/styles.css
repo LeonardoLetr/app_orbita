@@ -113,6 +113,9 @@
 /* Screens with little height: phones in landscape or with the keyboard open on Android. */
 @custom-variant short (@media (max-height: 620px));
 
+/* Inside a screen stage with little of it in view (see ScreenStage). */
+@custom-variant compact (&:where(.is-compact, .is-compact *));
+
 @layer base {
   html {
     color-scheme: dark;

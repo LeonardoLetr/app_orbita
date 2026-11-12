@@ -7,7 +7,8 @@ const LENGTH = 2 * Math.PI * RADIUS;
 @Component({
   selector: 'app-timer-ring',
   host: {
-    class: 'relative block size-14 shrink-0 sm:size-16 short:size-11',
+    class:
+      'relative block size-14 shrink-0 transition-[width,height] duration-300 ease-out motion-reduce:transition-none sm:size-16 compact:size-11',
     '[class.is-urgent]': 'urgent()',
     role: 'timer',
     '[attr.aria-label]': '"Tempo restante: " + seconds() + " segundos"',
@@ -58,7 +59,7 @@ const LENGTH = 2 * Math.PI * RADIUS;
       />
     </svg>
     <span
-      class="absolute inset-0 grid place-items-center font-display text-xl text-ink tabular-nums short:text-base"
+      class="absolute inset-0 grid place-items-center font-display text-xl text-ink tabular-nums transition-[font-size] duration-300 ease-out motion-reduce:transition-none compact:text-base"
       [class]="urgent() ? 'motion-safe:animate-pulse' : ''"
       aria-hidden="true"
     >

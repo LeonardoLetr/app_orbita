@@ -65,6 +65,32 @@ test('keeps the answer bar on top of the keyboard', async ({ page, request }) =>
   await expect(card).toContainText('Cometa');
 });
 
+test('keeps the journey still while the keyboard opens and closes', async ({ page }) => {
+  await page.goto('/jogar');
+  await page.getByRole('button', { name: 'Pular decolagem' }).click();
+  await expect(page.locator('#answer[data-ready]')).toBeVisible();
+  const { width, height } = page.viewportSize()!;
+  const sky = () => page.locator('app-star-field canvas').boundingBox();
+  const rocketBottom = () =>
+    page
+      .locator('.rocket')
+      .boundingBox()
+      .then((box) => box!.y + box!.height);
+  const open = await sky();
+
+  await page.setViewportSize({ width, height: 460 });
+
+  // The bar and the rocket glide up, out of the keyboard's way; the sky does not move.
+  await expect.poll(() => barBottom(page)).toBe(460);
+  const bar = (await page.locator('form').boundingBox())!;
+  await expect.poll(rocketBottom).toBeLessThan(bar.y);
+  expect(await sky()).toEqual(open);
+
+  await page.setViewportSize({ width, height });
+  await expect.poll(() => barBottom(page)).toBe(height);
+  expect(await sky()).toEqual(open);
+});
+
 test('shows the result above the keyboard on an iPhone', async ({ page, request }) => {
   const categories = await loadCategories(request);
   await page.goto('/jogar');
