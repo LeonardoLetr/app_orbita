@@ -80,6 +80,7 @@ const ZERO_ANNOUNCEMENTS = {
   unknown: 'Fora da base, nenhum ponto.',
   blank: 'Categoria pulada.',
   timeout: 'Tempo esgotado.',
+  'wrong-letter': 'Letra errada, nenhum ponto.',
 };
 
 @Component({
@@ -350,7 +351,11 @@ export class Game {
       return;
     }
     if (this.game.status() === 'playing') {
-      this.askToRetry();
+      this.askToRetry(
+        result.outcome === 'wrong-letter'
+          ? `Essa existe, mas precisa começar com ${this.game.letter()}!`
+          : undefined,
+      );
       return;
     }
     const { pace, route } = this.game.mode().rules;
@@ -393,9 +398,12 @@ export class Game {
     );
   }
 
-  /** The answer is not in the base: keep the category and the text so it can be fixed. */
-  private askToRetry(): void {
-    this.retryMessage.set(RETRY_MESSAGES[this.retries++ % RETRY_MESSAGES.length]);
+  /**
+   * The answer is not in the base, or does not begin with the letter of the round: keep
+   * the category and the text so it can be fixed.
+   */
+  private askToRetry(message?: string): void {
+    this.retryMessage.set(message ?? RETRY_MESSAGES[this.retries++ % RETRY_MESSAGES.length]);
     this.sound.play('miss');
     const field = this.answerInput()?.nativeElement;
     const reduceMotion = globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

@@ -45,6 +45,8 @@ export class Result {
   readonly points = input.required<number>();
   /** Mode of the round: records and the chart only compare rounds of the same mode. */
   readonly mode = input<GameMode>(CLASSIC_MODE);
+  /** Letter of the round, where one was drawn. */
+  readonly letter = input<string>();
   readonly playAgain = output<void>();
 
   private readonly heading = viewChild.required<ElementRef<HTMLElement>>('heading');
@@ -68,11 +70,16 @@ export class Result {
     if (mode.theme) {
       return `Tema ${mode.theme.name}`;
     }
+    if (this.letter()) {
+      return `Letra ${this.letter()}`;
+    }
     return isMainMode(mode) ? '' : mode.name;
   });
   /** The same on the badge above the destination: "Modo Relâmpago", "Tema Natureza". */
   protected readonly modeBadge = computed(() =>
-    this.mode().theme || !this.modeName() ? this.modeName() : `Modo ${this.modeName()}`,
+    this.mode().theme || this.letter() || !this.modeName()
+      ? this.modeName()
+      : `Modo ${this.modeName()}`,
   );
   /** Where another theme can be picked, after a round played by theme. */
   protected readonly themesLink = computed(() =>
@@ -109,7 +116,7 @@ export class Result {
         /** When the row comes in, in seconds. */
         delay: 2.5 + Math.min(index, STAGGERED_ROWS) * 0.08,
         ideas: this.scoring
-          .rarestAnswers(entry.category, 3, result?.match)
+          .rarestAnswers(entry.category, 3, result?.match, this.letter())
           .map((answer) => answer.text),
       };
     }),

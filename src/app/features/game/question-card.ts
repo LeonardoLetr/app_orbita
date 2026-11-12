@@ -41,6 +41,7 @@ const ZERO_TITLES = {
   unknown: 'Fora da lista',
   blank: 'Pulou',
   timeout: 'Tempo esgotado',
+  'wrong-letter': 'Letra errada',
 } as const;
 
 /** How long the previous card takes to fly away when a new one comes in. */
@@ -87,6 +88,8 @@ export class QuestionCard {
   readonly number = input.required<number>();
   /** Next destination and the points still missing; nothing at the end of the route. */
   readonly next = input<{ name: string; missing: number }>();
+  /** Letter every answer has to begin with, in rounds played with one. */
+  readonly letter = input<string>();
   /** Result of the answer, shown on the back. */
   readonly result = input<AnswerResult>();
   /** Distance the rocket travelled for this answer, already formatted. */
