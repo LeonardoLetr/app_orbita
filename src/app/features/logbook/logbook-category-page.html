@@ -1,0 +1,57 @@
+<main class="mx-auto flex min-h-dvh max-w-2xl flex-col gap-6 px-4 py-4 sm:px-5 sm:py-10">
+  <header>
+    <a
+      routerLink="/diario"
+      class="-ml-3 inline-flex min-h-11 items-center rounded-full px-3 font-semibold text-space-200 underline-offset-4 hover:text-space-50 hover:underline"
+    >
+      ← Diário de bordo
+    </a>
+  </header>
+
+  @if (item(); as item) {
+    <h1 class="title-3d -rotate-1 self-start text-4xl text-balance sm:text-5xl">
+      {{ item.category.title }}
+    </h1>
+    <p class="-mt-3 text-space-200">
+      <b class="font-display text-2xl text-star-400">{{ item.found }}</b>
+      de {{ item.total }} respostas descobertas.
+    </p>
+
+    @for (page of item.byRarity; track page.rarity) {
+      @if (page.total) {
+        <section class="panel flex flex-col gap-3 px-4 py-4" [attr.aria-labelledby]="page.rarity">
+          <h2 [id]="page.rarity" class="flex items-baseline justify-between gap-3">
+            <span
+              class="rounded-full border-[3px] border-ink px-3 py-0.5 font-display tracking-wide text-ink"
+              [class]="'bg-' + page.rarity"
+            >
+              {{ labels[page.rarity] }}
+            </span>
+            <span class="font-display text-star-400">
+              {{ page.found.length }} de {{ page.total }}
+            </span>
+          </h2>
+          @if (page.found.length) {
+            <ul class="flex flex-wrap gap-2">
+              @for (answer of page.found; track answer.text) {
+                <li class="rounded-full bg-space-800 px-3 py-1 font-bold">{{ answer.text }}</li>
+              }
+            </ul>
+          }
+          @if (page.found.length < page.total) {
+            <p class="text-sm text-space-200">
+              {{ page.found.length ? 'Ainda' : 'Nenhuma ainda:' }}
+              {{ missing(page.rarity, page.total - page.found.length) }}.
+            </p>
+          } @else {
+            <p class="text-sm font-bold text-star-400">Completo!</p>
+          }
+        </section>
+      }
+    }
+  } @else if (logbook.status() === 'loading') {
+    <p role="status" class="text-lg text-space-200">Abrindo o diário…</p>
+  } @else {
+    <p class="text-lg text-space-200">Essa categoria não está no diário.</p>
+  }
+</main>

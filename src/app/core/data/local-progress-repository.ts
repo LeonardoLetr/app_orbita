@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { PlanetId } from '../models/planet';
-import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
+import { Discoveries, EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
+import { fromRounds, withRound } from '../utils/discoveries';
 import { STORAGE, readJson, writeJson } from '../utils/storage';
 import { GAME_MODES, isGameModeId } from './game-modes';
 import { EXTENDED_ROUTE } from './planets';
@@ -39,6 +40,7 @@ export class LocalProgressRepository extends ProgressRepository {
         ? current.reachedPlanets
         : [...current.reachedPlanets, round.planetId],
       xp: current.xp + Math.max(0, round.points),
+      discoveries: withRound(current.discoveries, round),
     };
     writeJson(this.store, PROGRESS_KEY, { version: VERSION, ...progress });
     return progress;
@@ -71,6 +73,7 @@ export class LocalProgressRepository extends ProgressRepository {
       bestByMode: toBestByMode(saved['bestByMode'], rounds),
       reachedPlanets,
       xp: toXp(saved['xp'], rounds),
+      discoveries: toDiscoveries(saved['discoveries'], rounds),
     };
   }
 }
@@ -133,6 +136,31 @@ function toXp(value: unknown, rounds: RoundRecord[]): number {
   return typeof value === 'number'
     ? toCount(value)
     : rounds.reduce((total, round) => total + Math.max(0, round.points), 0);
+}
+
+/**
+ * The logbook saved, or, for progress saved before there was one, what the rounds still
+ * in the history show: they keep the official answer of everything that scored.
+ */
+function toDiscoveries(value: unknown, rounds: RoundRecord[]): Discoveries {
+  if (!isRecord(value)) {
+    return fromRounds(rounds);
+  }
+  const discoveries: Discoveries = {};
+  for (const [categoryId, found] of Object.entries(value)) {
+    if (!isRecord(found)) {
+      continue;
+    }
+    for (const [key, entry] of Object.entries(found)) {
+      if (isRecord(entry) && typeof entry['first'] === 'string') {
+        (discoveries[categoryId] ??= {})[key] = {
+          first: entry['first'],
+          times: Math.max(1, toCount(entry['times'])),
+        };
+      }
+    }
+  }
+  return discoveries;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {

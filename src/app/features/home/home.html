@@ -182,12 +182,20 @@
         </ul>
       </div>
 
-      <a
-        routerLink="/historico"
-        class="self-center rounded-full px-3 py-1 font-extrabold underline decoration-candy-500 decoration-[3px] underline-offset-4 hover:text-candy-600"
-      >
-        Ver histórico
-      </a>
+      <p class="flex flex-wrap justify-center gap-x-4 gap-y-1">
+        <a
+          routerLink="/diario"
+          class="rounded-full px-3 py-1 font-extrabold underline decoration-candy-500 decoration-[3px] underline-offset-4 hover:text-candy-600"
+        >
+          Diário de bordo ({{ progress.discoveryCount() }})
+        </a>
+        <a
+          routerLink="/historico"
+          class="rounded-full px-3 py-1 font-extrabold underline decoration-candy-500 decoration-[3px] underline-offset-4 hover:text-candy-600"
+        >
+          Ver histórico
+        </a>
+      </p>
     </section>
   }
 </main>

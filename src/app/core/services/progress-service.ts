@@ -3,6 +3,7 @@ import { GAME_MODES } from '../data/game-modes';
 import { ProgressRepository } from '../data/progress-repository';
 import { GameMode, GameModeId } from '../models/game-mode';
 import { Rank } from '../models/rank';
+import { NewDiscovery, countDiscoveries, newDiscoveries } from '../utils/discoveries';
 import { rankFor } from '../utils/ranks';
 import { EMPTY_PROGRESS, PlayerProgress, RoundRecord } from '../models/progress';
 
@@ -17,6 +18,8 @@ export interface RoundOutcome {
   xpGained: number;
   /** The rank reached with this round, when it moved the player up. */
   rankUp?: Rank;
+  /** Answers that scored for the first time ever, now in the logbook. */
+  discoveries: NewDiscovery[];
 }
 
 /** Best score of the player in one mode. */
@@ -49,6 +52,9 @@ export class ProgressService {
   readonly xp = computed(() => this.state().xp);
   /** Where the player stands in the career. */
   readonly standing = computed(() => rankFor(this.xp()));
+  /** The logbook: every answer the player has found, by category. */
+  readonly discoveries = computed(() => this.state().discoveries);
+  readonly discoveryCount = computed(() => countDiscoveries(this.discoveries()));
   readonly reachedPlanets = computed(() => new Set(this.state().reachedPlanets));
   /** Outcome of the last round recorded in this session. */
   readonly lastOutcome = this.lastOutcomeState.asReadonly();
@@ -86,6 +92,7 @@ export class ProgressService {
       isNewBest: round.points > (before.bestByMode[round.mode] ?? 0),
       isNewPlanet: !before.reachedPlanets.includes(round.planetId),
       xpGained: Math.max(0, round.points),
+      discoveries: newDiscoveries(before.discoveries, round),
     };
     const reached = rankFor(before.xp + outcome.xpGained);
     if (reached.level > rankFor(before.xp).level) {

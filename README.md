@@ -69,6 +69,10 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
 - **Por tema:** uma partida com as regras do Clássico, só com categorias do tema escolhido. São 6 temas: Natureza, Dia a dia, Ciência e espaço, Mundo, Brasil e Arte e esporte. Cada categoria da base diz a que temas pertence (`themes`, em `categories.json`), e pode estar em mais de um. O recorde é um só para o modo, e o histórico mostra o tema de cada partida.
 - **Letra sorteada:** uma partida com as regras do Clássico em que uma letra é sorteada e toda resposta tem que começar com ela (acento não conta: "Árvore" vale para A). A letra aparece como selo no cartão. Resposta que existe mas começa com outra letra não pontua e não gasta a vez. Só entram letras com pelo menos 7 categorias que tenham 5 respostas ou mais com ela; a conta é feita a partir da base (`core/utils/letters.ts`), então novas letras entram sozinhas quando a base cresce. O histórico mostra a letra de cada partida.
 
+### Diário de bordo
+
+Toda resposta que pontua numa partida entra no diário de bordo (`/diario`), em qualquer modo. A tela mostra cada categoria com quantas respostas já foram descobertas e uma barra por nível de raridade; a página da categoria lista as respostas descobertas por nível. O que falta aparece só como quantidade ("faltam 9 Supernovas"), sem revelar as respostas. No resultado da partida, as respostas inéditas ganham o selo "Nova descoberta!". O diário fica salvo no aparelho junto com o progresso (`discoveries`, em `orbita:progress`); quem já jogava começa com as respostas das partidas guardadas no histórico.
+
 Cada modo tem o seu próprio recorde e o seu próprio gráfico de partidas. O histórico mostra em que modo cada partida foi jogada.
 
 ## App instalável

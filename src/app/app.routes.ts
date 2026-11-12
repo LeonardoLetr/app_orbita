@@ -3,6 +3,8 @@ import { GAME_MODES, THEMED_MODES, THEME_MODE, isMainMode, modeLink } from './co
 import { Game } from './features/game/game';
 import { HistoryPage } from './features/history/history-page';
 import { Home } from './features/home/home';
+import { LogbookCategoryPage } from './features/logbook/logbook-category-page';
+import { LogbookPage } from './features/logbook/logbook-page';
 import { ThemePage } from './features/themes/theme-page';
 
 /** The game screen once per mode, each at its own address and with its rules in the data. */
@@ -32,6 +34,12 @@ export const routes: Routes = [
   { path: '', component: Home, title: 'Astropalavra — jogo de categorias' },
   ...gameRoutes,
   ...themeRoutes,
+  { path: 'diario', component: LogbookPage, title: 'Diário de bordo — Astropalavra' },
+  {
+    path: 'diario/:id',
+    component: LogbookCategoryPage,
+    title: 'Diário de bordo — Astropalavra',
+  },
   { path: 'historico', component: HistoryPage, title: 'Histórico — Astropalavra' },
   { path: '**', redirectTo: '' },
 ];
