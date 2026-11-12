@@ -215,4 +215,62 @@ describe('LocalProgressRepository', () => {
       expect((await repository.clear()).xp).toBe(0);
     });
   });
+
+  describe('logbook', () => {
+    const scored = (id: string, text: string): RoundRecord => ({
+      ...round(id, 50, 'moon'),
+      answers: [
+        {
+          categoryId: 'sea',
+          categoryTitle: 'Mar',
+          result: { input: text, outcome: 'scored', points: 50, match: { text, rarity: 'comet' } },
+        },
+      ],
+    });
+
+    it('writes in the answers that scored', async () => {
+      await repository.addRound(scored('a', 'Narval'));
+      const progress = await repository.addRound(scored('b', 'Narval'));
+
+      expect(progress.discoveries).toEqual({
+        sea: { narval: { first: '2026-11-08T20:00:00.000Z', times: 2 } },
+      });
+      expect((await repository.load()).discoveries).toEqual(progress.discoveries);
+    });
+
+    it('keeps the answers of rounds the history has dropped', async () => {
+      await repository.addRound(scored('first', 'Foca'));
+      for (let i = 0; i < MAX_SAVED_ROUNDS; i++) {
+        await repository.addRound(round(`r${i}`, 10, 'moon'));
+      }
+
+      expect((await repository.load()).discoveries['sea']['foca'].times).toBe(1);
+    });
+
+    it('starts from the rounds in the history for progress saved before there was one', async () => {
+      store.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({ version: 2, rounds: [scored('a', 'Narval')], totalRounds: 1 }),
+      );
+
+      expect((await repository.load()).discoveries).toEqual({
+        sea: { narval: { first: '2026-11-08T20:00:00.000Z', times: 1 } },
+      });
+    });
+
+    it('drops broken entries', async () => {
+      store.setItem(
+        PROGRESS_KEY,
+        JSON.stringify({
+          version: 2,
+          rounds: [],
+          discoveries: { sea: { narval: { first: '2026-11-01', times: 3 }, foca: 7 }, x: 'y' },
+        }),
+      );
+
+      expect((await repository.load()).discoveries).toEqual({
+        sea: { narval: { first: '2026-11-01', times: 3 } },
+      });
+    });
+  });
 });

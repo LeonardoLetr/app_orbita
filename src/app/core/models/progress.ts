@@ -24,6 +24,19 @@ export interface RoundRecord {
   answers: RoundAnswer[];
 }
 
+/** An answer the player has already given: when it first scored and how often since. */
+export interface Discovery {
+  /** ISO date and time of the first round it scored in. */
+  first: string;
+  times: number;
+}
+
+/**
+ * The logbook: for each category, the answers the player has found, by the key of the
+ * answer (see `discoveryKey`).
+ */
+export type Discoveries = Record<string, Record<string, Discovery>>;
+
 export interface PlayerProgress {
   /** Most recent rounds, newest first. Older ones may be dropped. */
   rounds: RoundRecord[];
@@ -34,6 +47,8 @@ export interface PlayerProgress {
   reachedPlanets: PlanetId[];
   /** Experience: the points of every round ever played, in any mode. */
   xp: number;
+  /** Every answer that ever scored, including the ones of rounds no longer in `rounds`. */
+  discoveries: Discoveries;
 }
 
 export const EMPTY_PROGRESS: PlayerProgress = {
@@ -42,4 +57,5 @@ export const EMPTY_PROGRESS: PlayerProgress = {
   bestByMode: {},
   reachedPlanets: [],
   xp: 0,
+  discoveries: {},
 };
