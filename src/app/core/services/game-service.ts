@@ -3,6 +3,7 @@ import { CategoryRepository } from '../data/category-repository';
 import { CLASSIC_MODE } from '../data/game-modes';
 import { Category } from '../models/category';
 import { GameMode } from '../models/game-mode';
+import { categoriesFor, viableLetters } from '../utils/letters';
 import { RANDOM } from '../utils/random';
 import { ProgressService } from './progress-service';
 import { AnswerResult, ScoringService } from './scoring-service';
@@ -39,6 +40,7 @@ export class GameService {
   private readonly modeState = signal<GameMode>(CLASSIC_MODE);
   private readonly entriesState = signal<RoundEntry[]>([]);
   private readonly indexState = signal(0);
+  private readonly letterState = signal<string | undefined>(undefined);
   private categories: Category[] = [];
 
   /** Each category has a countdown; it is part of the game. Turned off only in tests. */
@@ -46,6 +48,8 @@ export class GameService {
 
   /** Mode of the current round. */
   readonly mode = this.modeState.asReadonly();
+  /** Letter every answer of the round has to begin with, in upper case, where one is drawn. */
+  readonly letter = this.letterState.asReadonly();
   readonly entries = this.entriesState.asReadonly();
   readonly index = this.indexState.asReadonly();
   readonly current = computed<RoundEntry | undefined>(() => this.entries()[this.index()]);
@@ -81,13 +85,17 @@ export class GameService {
     this.loadState.set('loading');
     try {
       const categories = await this.repository.getAll();
-      this.categories = categories;
+      const letter = this.drawLetter(mode, categories);
+      const min = mode.rules.letterAnswers;
+      this.categories =
+        letter && min !== undefined ? categoriesFor(letter, categories, min) : categories;
       const previous = new Set(this.entries().map((entry) => entry.category.id));
 
       this.modeState.set(mode);
+      this.letterState.set(letter?.toUpperCase());
       this.entriesState.set(
         mode.rules
-          .pickCategories(categories, previous, this.random)
+          .pickCategories(this.categories, previous, this.random)
           .map((category) => ({ category })),
       );
       this.indexState.set(0);
@@ -109,11 +117,16 @@ export class GameService {
       return undefined;
     }
     const index = this.index();
-    const result = this.scoring.score(this.entries()[index].category, input, timedOut);
+    const result = this.scoring.score(
+      this.entries()[index].category,
+      input,
+      timedOut,
+      this.letter(),
+    );
     if (result.outcome === 'blank' && this.mode().rules.canSkip === false) {
       return undefined;
     }
-    if (result.outcome === 'unknown' && !timedOut) {
+    if ((result.outcome === 'unknown' || result.outcome === 'wrong-letter') && !timedOut) {
       return result;
     }
     this.entriesState.update((entries) =>
@@ -151,6 +164,17 @@ export class GameService {
     this.next();
   }
 
+  /** A letter with enough categories for a round, where the rules ask for one. */
+  private drawLetter(mode: GameMode, categories: Category[]): string | undefined {
+    const min = mode.rules.letterAnswers;
+    if (min === undefined) {
+      return undefined;
+    }
+    const size = mode.rules.pickCategories(categories, new Set(), this.random).length;
+    const letters = viableLetters(categories, min, size);
+    return letters[Math.floor(this.random() * letters.length)];
+  }
+
   private dropUnasked(): void {
     const asked = this.index() + 1;
     this.entriesState.update((entries) => entries.slice(0, asked));
@@ -173,6 +197,7 @@ export class GameService {
       points,
       mode: this.mode().id,
       ...(this.mode().theme ? { theme: this.mode().theme?.id } : {}),
+      ...(this.letter() ? { letter: this.letter() } : {}),
       planetId: this.scoring.destinationFor(points, this.mode().rules.route).id,
       answers: this.entries().map(({ category, result }) => ({
         categoryId: category.id,

@@ -2,7 +2,7 @@ import { RoundRules } from './round-rules';
 import { Theme } from './theme';
 
 /** Saved with every round, so an id must never change once it is in use. */
-export type GameModeId = 'classic' | 'blitz' | 'survival' | 'theme';
+export type GameModeId = 'classic' | 'blitz' | 'survival' | 'theme' | 'letter';
 
 /** A way of playing: its name for the player, its address and its rules. */
 export interface GameMode {

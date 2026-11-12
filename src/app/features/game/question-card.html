@@ -60,4 +60,12 @@
   }
 </div>
 
+@if (letter(); as letter) {
+  <!-- The letter of the round, as a seal on the card for as long as it is played. -->
+  <p class="seal">
+    <span class="sr-only">Respostas com a letra</span>
+    <span class="seal-letter">{{ letter }}</span>
+  </p>
+}
+
 <div class="corner"><ng-content /></div>

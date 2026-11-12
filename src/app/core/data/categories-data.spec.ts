@@ -2,7 +2,9 @@ import categories from '../../../../public/data/categories.json';
 import { Category } from '../models/category';
 import { MIN_THEME_CATEGORIES, THEMES, categoriesOf, isThemeId } from './themes';
 import { RARITIES } from '../models/rarity';
+import { viableLetters } from '../utils/letters';
 import { normalizeAnswer } from '../utils/normalize-answer';
+import { LETTER_ANSWERS, LETTER_CATEGORIES } from './letter-rules';
 
 describe('categories.json', () => {
   const data = categories as Category[];
@@ -67,5 +69,9 @@ describe('categories.json', () => {
         MIN_THEME_CATEGORIES,
       );
     }
+  });
+
+  it('has enough letters for the mode played with a drawn letter', () => {
+    expect(viableLetters(data, LETTER_ANSWERS, LETTER_CATEGORIES).length).toBeGreaterThanOrEqual(8);
   });
 });

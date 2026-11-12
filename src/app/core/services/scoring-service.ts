@@ -4,6 +4,7 @@ import { Answer, Category } from '../models/category';
 import { Planet, Route } from '../models/planet';
 import { RARITIES, Rarity } from '../models/rarity';
 import { editDistance } from '../utils/edit-distance';
+import { startsWithLetter } from '../utils/letters';
 import { normalizeAnswer } from '../utils/normalize-answer';
 import { pickRandom } from '../utils/pick-random';
 import { RANDOM } from '../utils/random';
@@ -21,8 +22,9 @@ export const RARITY_POINTS: Record<Rarity, number> = {
  * - unknown: typed something that is not in the category base
  * - blank: confirmed without typing anything
  * - timeout: time ran out with nothing typed
+ * - wrong-letter: an accepted answer, but not with the letter the round asks for
  */
-export type AnswerOutcome = 'scored' | 'unknown' | 'blank' | 'timeout';
+export type AnswerOutcome = 'scored' | 'unknown' | 'blank' | 'timeout' | 'wrong-letter';
 
 export interface AnswerResult {
   /** What the player typed, trimmed. */
@@ -43,7 +45,11 @@ export class ScoringService {
   private readonly random = inject(RANDOM);
   private readonly lookups = new WeakMap<Category, Map<string, Answer>>();
 
-  score(category: Category, input: string, timedOut = false): AnswerResult {
+  /**
+   * Scores what was typed for a category. In a round played with a letter, only what
+   * begins with it scores: the answer as typed or the answer it stands for.
+   */
+  score(category: Category, input: string, timedOut = false, letter?: string): AnswerResult {
     const trimmed = input.trim();
     const key = normalizeAnswer(trimmed);
 
@@ -52,7 +58,12 @@ export class ScoringService {
     }
 
     const lookup = this.lookupFor(category);
+    const fits = (term: string, answer: Answer) =>
+      !letter || startsWithLetter(term, letter) || startsWithLetter(answer.text, letter);
     const exact = lookup.get(key);
+    if (exact && !fits(key, exact)) {
+      return { input: trimmed, outcome: 'wrong-letter', points: 0 };
+    }
     if (exact) {
       return {
         input: trimmed,
@@ -61,7 +72,7 @@ export class ScoringService {
         match: exact,
       };
     }
-    const corrected = this.closeMatch(lookup, key);
+    const corrected = this.closeMatch(lookup, key, fits);
     if (corrected) {
       return {
         input: trimmed,
@@ -75,13 +86,17 @@ export class ScoringService {
   }
 
   /** The only answer one letter away from the typed text, if there is exactly one. */
-  private closeMatch(lookup: Map<string, Answer>, key: string): Answer | undefined {
+  private closeMatch(
+    lookup: Map<string, Answer>,
+    key: string,
+    fits: (term: string, answer: Answer) => boolean,
+  ): Answer | undefined {
     if (key.length < MIN_CORRECTION_LENGTH) {
       return undefined;
     }
     const candidates = new Set<Answer>();
     for (const [term, answer] of lookup) {
-      if (editDistance(term, key, 1) <= 1) {
+      if (fits(term, answer) && editDistance(term, key, 1) <= 1) {
         candidates.add(answer);
       }
     }
@@ -102,8 +117,10 @@ export class ScoringService {
    * Some of the rarest answers of a category, in random order, to show what
    * else would have scored high. Falls back to less rare answers when needed.
    */
-  rarestAnswers(category: Category, limit = 3, exclude?: Answer): Answer[] {
-    const candidates = category.answers.filter((answer) => answer !== exclude);
+  rarestAnswers(category: Category, limit = 3, exclude?: Answer, letter?: string): Answer[] {
+    const candidates = category.answers.filter(
+      (answer) => answer !== exclude && (!letter || startsWithLetter(answer.text, letter)),
+    );
     return pickRandom(candidates, candidates.length, this.random)
       .sort((a, b) => RARITIES.indexOf(b.rarity) - RARITIES.indexOf(a.rarity))
       .slice(0, limit);

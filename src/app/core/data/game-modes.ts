@@ -1,6 +1,7 @@
 import { GameMode, GameModeId } from '../models/game-mode';
 import { BLITZ_RULES, BLITZ_SECONDS } from './blitz-rules';
 import { CLASSIC_RULES } from './classic-rules';
+import { LETTER_RULES } from './letter-rules';
 import { SURVIVAL_LIVES, SURVIVAL_RULES } from './survival-rules';
 import { themeRules } from './theme-rules';
 import { THEMES } from './themes';
@@ -40,6 +41,14 @@ export const THEME_MODE: GameMode = {
   rules: CLASSIC_RULES,
 };
 
+export const LETTER_MODE: GameMode = {
+  id: 'letter',
+  name: 'Letra sorteada',
+  tagline: 'Uma letra é sorteada e toda resposta tem que começar com ela.',
+  slug: 'letra',
+  rules: LETTER_RULES,
+};
+
 /** The theme mode once for each theme, with rules that only draw its categories. */
 export const THEMED_MODES: readonly GameMode[] = THEMES.map((theme) => ({
   ...THEME_MODE,
@@ -54,6 +63,7 @@ export const GAME_MODES: readonly GameMode[] = [
   BLITZ_MODE,
   SURVIVAL_MODE,
   THEME_MODE,
+  LETTER_MODE,
 ];
 
 /** The main mode opens with the big button on the home screen; the others are extras. */

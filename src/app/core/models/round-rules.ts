@@ -45,6 +45,11 @@ export interface RoundRules {
    * the time runs out. Skipping is allowed when not given.
    */
   readonly canSkip?: boolean;
+  /**
+   * A letter is drawn for the round, and only answers that begin with it score. The
+   * categories are drawn among the ones with at least this many such answers.
+   */
+  readonly letterAnswers?: number;
   /** Stops the rocket can reach. The classic route, up to Pluto, when not given. */
   readonly route?: Route;
   /**

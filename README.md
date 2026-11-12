@@ -67,6 +67,7 @@ Sem cadastro, sem login e sem limite de partidas: é só abrir e jogar.
   - O topo da tela mostra o número da categoria e as vidas, e o botão de pular avisa que custa uma vida.
 
 - **Por tema:** uma partida com as regras do Clássico, só com categorias do tema escolhido. São 6 temas: Natureza, Dia a dia, Ciência e espaço, Mundo, Brasil e Arte e esporte. Cada categoria da base diz a que temas pertence (`themes`, em `categories.json`), e pode estar em mais de um. O recorde é um só para o modo, e o histórico mostra o tema de cada partida.
+- **Letra sorteada:** uma partida com as regras do Clássico em que uma letra é sorteada e toda resposta tem que começar com ela (acento não conta: "Árvore" vale para A). A letra aparece como selo no cartão. Resposta que existe mas começa com outra letra não pontua e não gasta a vez. Só entram letras com pelo menos 7 categorias que tenham 5 respostas ou mais com ela; a conta é feita a partir da base (`core/utils/letters.ts`), então novas letras entram sozinhas quando a base cresce. O histórico mostra a letra de cada partida.
 
 Cada modo tem o seu próprio recorde e o seu próprio gráfico de partidas. O histórico mostra em que modo cada partida foi jogada.
 
@@ -127,7 +128,7 @@ As regras da partida não ficam no motor do jogo: cada modo é um item da lista 
 - `route`: as paradas que o foguete pode alcançar (a rota clássica, até Plutão, ou a estendida);
 - `maxPoints`: a pontuação máxima, quando o modo tem um número fixo de categorias. Sem ela, o gráfico de partidas ajusta a escala à melhor partida.
 
-Hoje existem o Clássico (`core/data/classic-rules.ts`), o Relâmpago (`core/data/blitz-rules.ts`) a Sobrevivência (`core/data/survival-rules.ts`) e o Por tema (`core/data/theme-rules.ts`, com os temas em `core/data/themes.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
+Hoje existem o Clássico (`core/data/classic-rules.ts`), o Relâmpago (`core/data/blitz-rules.ts`) a Sobrevivência (`core/data/survival-rules.ts`), o Por tema (`core/data/theme-rules.ts`, com os temas em `core/data/themes.ts`) e o Letra sorteada (`core/data/letter-rules.ts`). Para criar um modo, basta escrever as regras e acrescentá-lo à lista: ele ganha um endereço próprio (`/jogar/nome-do-modo`), aparece em "Outros modos" na tela inicial e passa a ter recorde, gráfico e histórico separados.
 
 Cada partida salva guarda o modo em que foi jogada. O progresso gravado por versões anteriores do jogo continua sendo lido, como partidas do modo Clássico.
 

@@ -30,6 +30,9 @@ export class HistoryPage {
   protected readonly maxSavedRounds = MAX_SAVED_ROUNDS;
   /** Mode of a round outside the main one, with its theme: "Relâmpago", "Tema Natureza". */
   protected modeLabel(round: RoundRecord): string {
+    if (round.letter) {
+      return `Letra ${round.letter}`;
+    }
     return round.theme ? `Tema ${themeName(round.theme)}` : modeLabel(round.mode);
   }
 
