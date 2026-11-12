@@ -14,6 +14,7 @@ const OUTCOME_LABELS: Record<Exclude<AnswerOutcome, 'scored'>, string> = {
   unknown: 'Fora da base',
   blank: 'Em branco',
   timeout: 'Tempo esgotado',
+  'wrong-letter': 'Letra errada',
 };
 
 /** Solid stickers in the level color, with dark lettering. */

@@ -17,6 +17,8 @@ export interface RoundRecord {
   mode: GameModeId;
   /** Theme of the round, in the mode played by theme. */
   theme?: ThemeId;
+  /** Letter drawn for the round, in the mode played with one. */
+  letter?: string;
   points: number;
   planetId: PlanetId;
   answers: RoundAnswer[];

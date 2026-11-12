@@ -87,6 +87,33 @@ describe('ScoringService', () => {
     expect(scoring.score(category, 'Tobaraa').outcome).toBe('unknown');
   });
 
+  describe('with a letter', () => {
+    it('scores only what begins with the letter', () => {
+      expect(scoring.score(category, 'Foca', false, 'F').points).toBe(25);
+      expect(scoring.score(category, 'Tubarão', false, 'F')).toEqual({
+        input: 'Tubarão',
+        outcome: 'wrong-letter',
+        points: 0,
+      });
+    });
+
+    it('accepts a synonym with the letter, and the answer it stands for', () => {
+      expect(scoring.score(category, 'manati', false, 'M').points).toBe(50);
+      expect(scoring.score(category, 'manati', false, 'P').points).toBe(50);
+    });
+
+    it('only forgives a typo towards an answer with the letter', () => {
+      expect(scoring.score(category, 'Narvau', false, 'N').match?.text).toBe('Narval');
+      expect(scoring.score(category, 'Narvau', false, 'C').outcome).toBe('unknown');
+    });
+
+    it('suggests only answers with the letter', () => {
+      expect(scoring.rarestAnswers(category, 3, undefined, 'C').map((a) => a.text)).toEqual([
+        'Coral',
+      ]);
+    });
+  });
+
   it('keeps the trimmed input', () => {
     expect(scoring.score(category, '  Narval ').input).toBe('Narval');
   });

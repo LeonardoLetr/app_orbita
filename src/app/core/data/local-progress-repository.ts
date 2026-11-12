@@ -147,6 +147,7 @@ function isRoundRecord(value: unknown): value is RoundRecord {
     typeof value['points'] === 'number' &&
     isGameModeId(value['mode']) &&
     (value['theme'] === undefined || isThemeId(value['theme'])) &&
+    (value['letter'] === undefined || typeof value['letter'] === 'string') &&
     PLANET_IDS.has(value['planetId'] as string) &&
     Array.isArray(value['answers'])
   );
