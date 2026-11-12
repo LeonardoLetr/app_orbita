@@ -11,7 +11,7 @@ Próximas funcionalidades, na ordem sugerida de desenvolvimento. Cada item vira 
 | M2     | Modo Sobrevivência      | `feat/survival-mode` | G       | M0                   | Feito    |
 | M3     | Modo Por tema           | `feat/theme-mode`    | M       | M0                   | Feito    |
 | M4     | Modo Letra sorteada     | `feat/letter-mode`   | M       | M0                   | Feito    |
-| G1     | Diário de bordo         | `feat/logbook`       | M       | —                    | A fazer  |
+| G1     | Diário de bordo         | `feat/logbook`       | M       | —                    | Feito    |
 | G2     | Patentes                | `feat/ranks`         | P       | —                    | Feito    |
 | G3     | Álbum de figurinhas     | `feat/sticker-album` | G       | — (cresce com M/G)   | A fazer  |
 | G4     | Foguete personalizável  | `feat/rocket-hangar` | M       | G2 e G3 (em parte)   | A fazer  |
