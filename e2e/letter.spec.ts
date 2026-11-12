@@ -39,7 +39,7 @@ test('plays a round where every answer begins with the drawn letter', async ({ p
   await field.fill(withLetter[0].text);
   await field.press('Enter');
   await expect(page.locator('app-question-card [data-showing="result"]')).toHaveCount(1);
-  await expect(page.locator('header')).not.toContainText(' 0pts');
+  await expect(page.locator('header')).toContainText(/[1-9]\d*\s*pts/);
 });
 
 test('opens a round with a letter from its own address', async ({ page }) => {
