@@ -24,16 +24,6 @@ describe('flightDuration', () => {
     expect(flightDuration(0, 10, 'quick')).toBeLessThan(flightDuration(0, 100, 'quick'));
     expect(flightDuration(0, 600, 'quick')).toBe(1200);
   });
-
-  it('takes its time beside each planet it passes, in calm rounds', () => {
-    const noStop = flightDuration(100, 150);
-    const pastTheMoon = flightDuration(0, 50);
-    const pastTwo = flightDuration(0, 100);
-
-    expect(pastTheMoon - noStop).toBe(750);
-    expect(pastTwo).toBeGreaterThan(flightDuration(100, 179) + 1400);
-    expect(flightDuration(0, 50, 'quick')).toBe(flightDuration(100, 150, 'quick'));
-  });
 });
 
 describe('JourneyScene', () => {
@@ -182,7 +172,7 @@ describe('JourneyScene', () => {
     fixture.componentRef.setInput('route', EXTENDED_ROUTE);
     progress(800, 1);
 
-    vi.advanceTimersByTime(flightDuration(0, 800, 'calm', EXTENDED_ROUTE) + 50);
+    vi.advanceTimersByTime(flightDuration(0, 800) + 50);
     fixture.detectChanges();
     expect(scene().style.getPropertyValue('--pos')).toBe('800');
     expect(stop('Éris').classList).toContain('is-lit');

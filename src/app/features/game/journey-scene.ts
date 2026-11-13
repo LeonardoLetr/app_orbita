@@ -27,8 +27,6 @@ import { StarField } from './star-field';
 const SPUTTER_MS = 700;
 /** How long the banner of a stop just passed stays on screen. */
 const ARRIVE_MS = 1900;
-/** Extra time a calm flight spends beside each stop it passes, so the planet is seen. */
-const PASS_MS = 750;
 /**
  * The route is a map that stands still: every stop sits at the points it takes to reach
  * it, and the rocket travels over the map. This many points fill one stretch of it, and
@@ -61,30 +59,13 @@ export function flightDuration(
   fromPoints: number,
   toPoints: number,
   pace: RoundPace = 'calm',
-  route: Route = PLANETS,
 ): number {
-  const base = plainFlight(fromPoints, toPoints, pace);
-  return base && base + stopsPassed(fromPoints, toPoints, route).length * passTime(pace);
-}
-
-/** The flight with no slow pass by any stop. */
-function plainFlight(fromPoints: number, toPoints: number, pace: RoundPace): number {
   const stretches = (toPoints - fromPoints) / STRETCH_POINTS;
   if (stretches <= 0) {
     return 0;
   }
   const { min, max, perStretch } = FLIGHTS[pace];
   return Math.round(Math.min(max, min + perStretch * Math.sqrt(stretches)));
-}
-
-/** Quick rounds do not slow down for the stops: their flights are too short for it. */
-function passTime(pace: RoundPace): number {
-  return pace === 'calm' ? PASS_MS : 0;
-}
-
-/** Where on the map the stops passed by a flight are, in points. */
-function stopsPassed(fromPoints: number, toPoints: number, route: Route): number[] {
-  return route.map((planet) => planet.minPoints).filter((at) => at > fromPoints && at <= toPoints);
 }
 
 /**
@@ -247,14 +228,7 @@ export class JourneyScene {
       return;
     }
 
-    const path = flightPath(
-      from,
-      points,
-      stopsPassed(from, points, route),
-      plainFlight(from, points, this.pace()),
-      passTime(this.pace()),
-      FLY_EASING,
-    );
+    const path = flightPath(from, points, flightDuration(from, points, this.pace()), FLY_EASING);
     const duration = path.duration;
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
