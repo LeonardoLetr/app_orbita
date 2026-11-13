@@ -69,12 +69,22 @@ export function flightDuration(
 }
 
 /**
- * Things drifting in the long empty stretches of the map, so there is something to fly
- * past between two far planets. Always the same for a route: they are part of the map.
+ * Things adrift in the long empty stretches of the map, so there is something to fly
+ * past between two far planets. They sit at the same heights for a route, as part of the
+ * map, but move on their own: comets cross the screen, rocks tumble and sway.
  */
 function debrisOf(route: Route) {
-  const items: { at: number; x: number; size: number; kind: 'asteroid' | 'comet'; turn: number }[] =
-    [];
+  const items: {
+    at: number;
+    x: number;
+    size: number;
+    kind: 'asteroid' | 'comet';
+    turn: number;
+    /** How long one crossing (comet) or one turn (rock) lasts, in seconds. */
+    period: number;
+    /** Where in that cycle it starts, so no two move in step. */
+    phase: number;
+  }[] = [];
   for (let i = 1; i < route.length; i++) {
     const from = route[i - 1].minPoints;
     const to = route[i].minPoints;
@@ -89,6 +99,8 @@ function debrisOf(route: Route) {
         size: 3 + Math.round(seed * 5),
         kind: other > 0.72 ? 'comet' : 'asteroid',
         turn: Math.round(seed * 360),
+        period: other > 0.72 ? 7 + Math.round(seed * 6) : 16 + Math.round(other * 20),
+        phase: Math.round(other * 100) / 100,
       });
     }
   }

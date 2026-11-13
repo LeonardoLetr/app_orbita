@@ -17,7 +17,7 @@
         <span class="land land-c"></span>
       </div>
 
-      <!-- Rocks and comets adrift where no planet is near. -->
+      <!-- Rocks and comets adrift where no planet is near, moving on their own. -->
       @for (item of debris(); track item.at) {
         <span
           class="debris"
@@ -26,6 +26,8 @@
           [style.--x]="item.x"
           [style.--d]="item.size"
           [style.--turn]="item.turn + 'deg'"
+          [style.--period]="item.period + 's'"
+          [style.--phase]="item.phase"
         ></span>
       }
 
