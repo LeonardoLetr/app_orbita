@@ -3,7 +3,6 @@ import {
   DestroyRef,
   ElementRef,
   WritableSignal,
-  afterNextRender,
   computed,
   effect,
   inject,
@@ -16,31 +15,37 @@ import { PLANETS } from '../../core/data/planets';
 import { PlanetId, Route } from '../../core/models/planet';
 import { RoundPace } from '../../core/models/round-rules';
 import { SoundService } from '../../core/services/sound-service';
-import { formatDistance, reachedIndex, routePosition } from '../../core/utils/journey';
+import { formatDistance, reachedIndex } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
 import { ExhaustPlume } from './exhaust-plume';
-import { LIFTOFF_EASING, MOMENTUM_EASING } from './flight-motion';
+import { FLY_EASING, LIFTOFF_EASING } from './flight-motion';
+import { flightPath } from './flight-path';
 import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
-import { MOMENTUM_SECONDS, RouteDrift } from './route-drift';
 import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
-const ARRIVE_MS = 1400;
+/** How long the banner of a stop just passed stays on screen. */
+const ARRIVE_MS = 1900;
 /**
- * Shortest and longest flight and what each stop on the way adds, in milliseconds.
+ * The route is a map that stands still: every stop sits at the points it takes to reach
+ * it, and the rocket travels over the map. This many points fill one stretch of it, and
+ * a stretch is this many screens tall (as in the CSS): the Moon is two thirds of a
+ * stretch from the Earth, Pluto two whole stretches past Neptune, with nothing but stars
+ * on most of the way.
+ */
+const STRETCH_POINTS = 60;
+const STRETCH_SCREENS = 1.5;
+/**
+ * Shortest and longest flight and what each stretch on the way adds, in milliseconds.
  * Quick rounds keep every flight short.
  */
-const FLIGHTS: Record<RoundPace, { min: number; max: number; perStop: number }> = {
-  calm: { min: 1000, max: 3800, perStop: 1100 },
-  quick: { min: 500, max: 1200, perStop: 500 },
+const FLIGHTS: Record<RoundPace, { min: number; max: number; perStretch: number }> = {
+  calm: { min: 1000, max: 3800, perStretch: 1100 },
+  quick: { min: 500, max: 1200, perStretch: 500 },
 };
 /** The climb off the Earth, after the countdown. */
 const LAUNCH_CLIMB_MS = 2600;
-/** Momentum left by the launch, in stops: about the speed the climb off the Earth ends with. */
-const LAUNCH_KICK = 0.08;
-/** Distance between two stops, in scene units (the --gap of the CSS). */
-const GAP_UNITS = 140;
 /** How far the Earth drops away at launch, in scene units (as in the CSS). */
 const LIFTOFF_UNITS = 40.5;
 /** Width of the rocket in scene units (as in the CSS), used to measure a unit in pixels. */
@@ -54,14 +59,40 @@ export function flightDuration(
   fromPoints: number,
   toPoints: number,
   pace: RoundPace = 'calm',
-  route: Route = PLANETS,
 ): number {
-  const stops = routePosition(toPoints, route) - routePosition(fromPoints, route);
-  if (stops <= 0) {
+  const stretches = (toPoints - fromPoints) / STRETCH_POINTS;
+  if (stretches <= 0) {
     return 0;
   }
-  const { min, max, perStop } = FLIGHTS[pace];
-  return Math.round(Math.min(max, min + perStop * Math.sqrt(stops)));
+  const { min, max, perStretch } = FLIGHTS[pace];
+  return Math.round(Math.min(max, min + perStretch * Math.sqrt(stretches)));
+}
+
+/**
+ * Things drifting in the long empty stretches of the map, so there is something to fly
+ * past between two far planets. Always the same for a route: they are part of the map.
+ */
+function debrisOf(route: Route) {
+  const items: { at: number; x: number; size: number; kind: 'asteroid' | 'comet'; turn: number }[] =
+    [];
+  for (let i = 1; i < route.length; i++) {
+    const from = route[i - 1].minPoints;
+    const to = route[i].minPoints;
+    // Clear of the planets at both ends.
+    for (let at = from + 28; at <= to - 24; at += 22) {
+      // A fixed scramble of the position: no two alike, yet the same every round.
+      const seed = Math.abs(Math.sin(at * 12.9898) * 43758.5453) % 1;
+      const other = Math.abs(Math.sin(at * 78.233) * 12543.123) % 1;
+      items.push({
+        at: at + Math.round(seed * 10),
+        x: 8 + Math.round(other * 84),
+        size: 3 + Math.round(seed * 5),
+        kind: other > 0.72 ? 'comet' : 'asteroid',
+        turn: Math.round(seed * 360),
+      });
+    }
+  }
+  return items;
 }
 
 type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
@@ -90,6 +121,8 @@ function stopsOf(route: Route) {
     .map(({ planet, index }) => ({
       id: planet.id,
       index,
+      /** Where it sits on the map: the points it takes to reach it. */
+      at: planet.minPoints,
       name: planet.name,
       distance: formatDistance(planet.distanceKm),
       ...STOP_LOOKS[planet.id as RouteStop],
@@ -97,9 +130,10 @@ function stopsOf(route: Route) {
 }
 
 /**
- * The journey seen from behind the rocket, used as the game background. After each
- * answer the rocket climbs by the points earned while the planets slide past, or
- * sputters in place when nothing was scored.
+ * The journey seen from behind the rocket, used as the game background. The planets
+ * stand still on the map; after each answer the rocket flies over it by the points
+ * earned, leaving behind what it passes, or sputters in place when nothing was scored.
+ * Between answers nothing on the map moves: only the stars drift by.
  */
 @Component({
   selector: 'app-journey-scene',
@@ -124,23 +158,24 @@ export class JourneyScene {
   protected readonly liftoff = signal(false);
 
   protected readonly stops = computed(() => stopsOf(this.route()));
-  protected readonly position = computed(() => routePosition(this.points(), this.route()));
+  protected readonly debris = computed(() => debrisOf(this.route()));
   protected readonly flying = signal(false);
-  protected readonly flightMs = signal(FLIGHTS.calm.min);
   protected readonly sputtering = signal(false);
   /** Planets light up as the rocket passes them. */
   protected readonly litIndex = signal(0);
   protected readonly arrivingIndex = signal(-1);
+  /** The stop just passed, named on a banner for a moment. */
+  protected readonly arrival = computed(() =>
+    this.stops().find((stop) => stop.index === this.arrivingIndex()),
+  );
 
   private readonly sound = inject(SoundService);
+  private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly starField = viewChild(StarField);
   protected readonly exhaust = viewChild(ExhaustPlume);
   private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
-  private readonly driftLayer = viewChild<ElementRef<HTMLElement>>('drift');
-  private readonly drift = new RouteDrift();
-  private launched = false;
+  private readonly scene = viewChild<ElementRef<HTMLElement>>('scene');
   private frame = 0;
-  private lastFrame = 0;
   private seenAnswers = 0;
   private seenPoints = 0;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -157,8 +192,6 @@ export class JourneyScene {
         clearTimeout(this.timers.get('liftoff'));
         this.liftoff.set(false);
         if (launching) {
-          this.drift.reset();
-          this.showLead();
           this.exhaust()?.ignite(LIFTOFF_MS);
           this.later('liftoff', LIFTOFF_MS, () => {
             this.liftoff.set(true);
@@ -167,20 +200,12 @@ export class JourneyScene {
             this.starField()?.fly(duration, climb, LIFTOFF_EASING);
             this.exhaust()?.fly(duration, climb, LIFTOFF_EASING, true);
           });
-        } else if (this.launched) {
-          // The climb off the Earth does not end in a stop either: it leaves some momentum.
-          this.drift.kick(LAUNCH_KICK);
-          this.streamMomentum(LAUNCH_KICK);
         }
-        this.launched = launching;
       });
     });
-    afterNextRender(() => this.startDrifting());
     inject(DestroyRef).onDestroy(() => {
       this.timers.forEach((timer) => clearTimeout(timer));
-      if (this.frame) {
-        cancelAnimationFrame(this.frame);
-      }
+      this.cancelFlight();
     });
   }
 
@@ -192,11 +217,8 @@ export class JourneyScene {
 
     const route = this.route();
     if (!isNewAnswer) {
-      if (answers === 0) {
-        // A new round: back to where the route starts.
-        this.drift.reset();
-        this.showLead();
-      }
+      this.cancelFlight();
+      this.showPosition(points);
       this.litIndex.set(reachedIndex(points, route));
       return;
     }
@@ -206,26 +228,18 @@ export class JourneyScene {
       return;
     }
 
-    const duration = flightDuration(from, points, this.pace(), route);
-    this.flightMs.set(duration);
-    const tail = this.drift.boost(
-      routePosition(points, route) - routePosition(from, route),
-      duration / 1000,
-    );
-    this.later('momentum', duration, () => this.streamMomentum(tail));
+    const path = flightPath(from, points, flightDuration(from, points, this.pace()), FLY_EASING);
+    const duration = path.duration;
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
-    const distance =
-      (routePosition(points, route) - routePosition(from, route)) * GAP_UNITS * this.unitPx();
+    const distance = ((points - from) / STRETCH_POINTS) * STRETCH_SCREENS * this.screenPx();
     this.starField()?.fly(duration, distance);
     this.exhaust()?.fly(duration, distance);
+    this.follow(path, points);
 
-    // Light each planet roughly when the rocket goes past it.
-    const start = routePosition(from, route);
-    const end = routePosition(points, route);
+    // Each planet lights up, and is named on a banner, as the rocket goes past it.
     for (let index = this.litIndex() + 1; index <= reachedIndex(points, route); index++) {
-      const share = (index - start) / (end - start);
-      this.later(`arrive-${index}`, duration * Math.min(1, 0.25 + share * 0.7), () => {
+      this.later(`arrive-${index}`, path.passes(route[index].minPoints), () => {
         this.litIndex.set(Math.max(this.litIndex(), index));
         this.arrivingIndex.set(index);
         this.sound.play('arrive');
@@ -234,36 +248,43 @@ export class JourneyScene {
     }
   }
 
-  /** The stars go on streaming with the momentum left after a flight, fading with it. */
-  private streamMomentum(stops: number): void {
-    this.starField()?.fly(
-      MOMENTUM_SECONDS * 3000,
-      stops * GAP_UNITS * this.unitPx(),
-      MOMENTUM_EASING,
-    );
-  }
-
-  /** Keeps the route creeping down between answers, unless the player asked for less motion. */
-  private startDrifting(): void {
+  /** Moves the map under the rocket along a flight, frame by frame. */
+  private follow(path: { duration: number; at(ms: number): number }, end: number): void {
+    this.cancelFlight();
     const still = !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (still || typeof requestAnimationFrame !== 'function') {
+      this.showPosition(end);
       return;
     }
+    const start = performance.now();
     const tick = (now: number) => {
-      // A long gap means the page was in the background: the rocket waited too.
-      const seconds = Math.min(0.1, (now - (this.lastFrame || now)) / 1000);
-      this.lastFrame = now;
-      if (!this.launching()) {
-        this.drift.advance(seconds);
-        this.showLead();
+      const ms = now - start;
+      if (ms >= path.duration) {
+        this.frame = 0;
+        this.showPosition(end);
+        return;
       }
+      this.showPosition(path.at(ms));
       this.frame = requestAnimationFrame(tick);
     };
     this.frame = requestAnimationFrame(tick);
   }
 
-  private showLead(): void {
-    this.driftLayer()?.nativeElement.style.setProperty('--lead', this.drift.lead.toFixed(4));
+  private cancelFlight(): void {
+    if (this.frame) {
+      cancelAnimationFrame(this.frame);
+      this.frame = 0;
+    }
+  }
+
+  /** Where the rocket is on the map, in points. */
+  private showPosition(points: number): void {
+    this.scene()?.nativeElement.style.setProperty('--pos', `${Math.round(points * 100) / 100}`);
+  }
+
+  /** Height of the scene in pixels: the screen the map is measured in. */
+  private screenPx(): number {
+    return this.host.nativeElement.offsetHeight;
   }
 
   /** One scene unit in pixels, measured on the rocket (it is ROCKET_UNITS wide). */
