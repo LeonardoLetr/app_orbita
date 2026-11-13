@@ -135,8 +135,9 @@
   opacity: 0.85;
 }
 
-/* A comet: a bright head with a tail fading behind it. */
+/* A comet: a bright head and a tail; it crosses the screen on its own, head first. */
 .debris.is-comet {
+  left: 0;
   width: calc(var(--u) * var(--d) * 0.6);
   aspect-ratio: 1;
   border-radius: 50%;
@@ -144,6 +145,7 @@
   box-shadow: 0 0 calc(var(--u) * 2) var(--color-aurora-400);
   rotate: none;
   opacity: 1;
+  translate: calc(var(--x) * 1cqw) 0;
 }
 
 .debris.is-comet::after {
@@ -156,7 +158,7 @@
   border-radius: 999px;
   background: linear-gradient(to right, rgb(143 243 255 / 0.55), transparent);
   transform-origin: 0 50%;
-  rotate: calc(-40deg + var(--turn) * 0.1);
+  rotate: -12deg;
   translate: 0 -50%;
 }
 
@@ -320,6 +322,17 @@
   .arrival {
     animation: arrival-banner 1.9s ease-out both;
   }
+
+  .debris {
+    animation:
+      tumble var(--period) linear calc(var(--period) * var(--phase) * -1) infinite,
+      sway calc(var(--period) * 0.4) ease-in-out calc(var(--period) * var(--phase) * -1) infinite
+        alternate;
+  }
+
+  .debris.is-comet {
+    animation: comet-cross var(--period) linear calc(var(--period) * var(--phase) * -1) infinite;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -387,6 +400,31 @@
   75% {
     translate: 0.2rem 0;
     rotate: 4deg;
+  }
+}
+
+@keyframes tumble {
+  to {
+    rotate: calc(var(--turn) + 360deg);
+  }
+}
+
+@keyframes sway {
+  from {
+    translate: calc(var(--u) * -3) calc(var(--u) * 1);
+  }
+  to {
+    translate: calc(var(--u) * 3) calc(var(--u) * -1);
+  }
+}
+
+/* From past the right edge to past the left one, dropping a little on the way. */
+@keyframes comet-cross {
+  from {
+    translate: 115cqw -14cqw;
+  }
+  to {
+    translate: -25cqw 16cqw;
   }
 }
 
