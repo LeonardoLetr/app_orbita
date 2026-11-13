@@ -2,22 +2,12 @@
 export type Easing = readonly [number, number, number, number];
 
 /**
- * Easing of the flights along the route, the same as in the scene's CSS. A flight starts
- * from rest, like a boost, but does not end in a stop: it is still moving when it hands
- * over to the momentum that follows.
+ * Easing of the flights along the route, the same as in the scene's CSS: off from rest,
+ * fast through the middle, easing to a stop on arrival.
  */
-export const FLY_EASING: Easing = [0.45, 0, 0.5, 0.82];
+export const FLY_EASING: Easing = [0.45, 0, 0.2, 1];
 /** Easing of the climb off the Earth at launch, the same as in the scene's CSS. */
 export const LIFTOFF_EASING: Easing = [0.45, 0, 0.5, 0.85];
-/** How a boost fades out after its flight: fast at first, then slower and slower. */
-export const MOMENTUM_EASING: Easing = [0.1, 0.4, 0.3, 1];
-
-/** Speed at the very end of an easing, as a share of its average speed. */
-export function endSlope([, , x2, y2]: Easing): number {
-  return (1 - y2) / (1 - x2);
-}
-
-export const FLY_END_SLOPE = endSlope(FLY_EASING);
 
 /** Progress (0 to 1) of a CSS cubic-bezier easing at a time fraction (0 to 1). */
 export function ease([x1, y1, x2, y2]: Easing, x: number): number {

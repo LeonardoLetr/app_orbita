@@ -46,9 +46,8 @@ export function revealDelay(
   pointsBefore: number,
   pointsAfter: number,
   pace: RoundPace = 'calm',
-  route?: Route,
 ): number {
-  const flight = flightDuration(pointsBefore, pointsAfter, pace, route);
+  const flight = flightDuration(pointsBefore, pointsAfter, pace);
   return pace === 'quick'
     ? Math.max(QUICK_REVEAL_MS, flight)
     : Math.max(MIN_REVEAL_MS, flight + 700);
@@ -394,7 +393,7 @@ export class Game {
         this.sound.play(this.game.status() === 'finished' ? 'finish' : 'deal');
         this.beginCategory();
       },
-      revealDelay(before, before + result.points, pace, route),
+      revealDelay(before, before + result.points, pace),
     );
   }
 

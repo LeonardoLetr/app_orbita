@@ -9,8 +9,7 @@
 >
   <app-star-field />
 
-  <!-- The rocket never stands still: between answers the route keeps sliding down, slowly. -->
-  <div #drift class="drift">
+  <div class="drift">
     <!-- Everything on the route moves together, down, as the rocket climbs. -->
     <div class="world">
       <div class="earth">
@@ -25,7 +24,7 @@
           [class.is-right]="stop.side === 'right'"
           [class.is-lit]="stop.index <= litIndex()"
           [class.is-arriving]="stop.index === arrivingIndex()"
-          [style.--i]="stop.index"
+          [style.--at]="stop.at"
           [style.--d]="stop.size"
         >
           <app-planet-art class="stop-art" [planet]="stop.id" />

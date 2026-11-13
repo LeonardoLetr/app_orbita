@@ -1,4 +1,4 @@
-import { FLY_EASING, FLY_END_SLOPE, FlightMotion, ease, endSlope } from './flight-motion';
+import { FLY_EASING, FlightMotion, ease } from './flight-motion';
 
 describe('ease', () => {
   it('goes from 0 to 1 like the CSS easing', () => {
@@ -7,16 +7,9 @@ describe('ease', () => {
     expect(ease([0, 0, 1, 1], 0.3)).toBeCloseTo(0.3, 3);
   });
 
-  it('starts a flight from rest and ends it still moving', () => {
+  it('starts a flight from rest and eases it to a stop', () => {
     expect(ease(FLY_EASING, 0.02)).toBeLessThan(0.005);
-    expect(1 - ease(FLY_EASING, 0.98)).toBeGreaterThan(0.005);
-    expect(FLY_END_SLOPE).toBeGreaterThan(0.2);
-    expect(FLY_END_SLOPE).toBeLessThan(1);
-  });
-
-  it('knows the speed an easing ends with', () => {
-    expect(endSlope([0.25, 0.25, 0.75, 0.75])).toBe(1);
-    expect(endSlope([0.5, 0, 0.12, 1])).toBe(0);
+    expect(1 - ease(FLY_EASING, 0.98)).toBeLessThan(0.005);
   });
 });
 

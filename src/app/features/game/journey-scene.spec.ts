@@ -74,7 +74,7 @@ describe('JourneyScene', () => {
     progress(50, 1);
 
     expect(scene().classList).toContain('is-flying');
-    expect(Number(scene().style.getPropertyValue('--pos'))).toBeCloseTo(1.17, 2);
+    expect(scene().style.getPropertyValue('--pos')).toBe('50');
     expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50)}ms`);
   });
 
@@ -104,7 +104,7 @@ describe('JourneyScene', () => {
     progress(10, 2);
 
     expect(scene().classList).toContain('is-sputtering');
-    expect(scene().style.getPropertyValue('--pos')).toBe('0.25');
+    expect(scene().style.getPropertyValue('--pos')).toBe('10');
   });
 
   it('takes off from the launch pad after the countdown', () => {
@@ -140,48 +140,22 @@ describe('JourneyScene', () => {
     fixture.componentRef.setInput('route', EXTENDED_ROUTE);
     progress(800, 1);
 
-    expect(Number(scene().style.getPropertyValue('--pos'))).toBe(8);
-    vi.advanceTimersByTime(flightDuration(0, 800, 'calm', EXTENDED_ROUTE));
+    expect(scene().style.getPropertyValue('--pos')).toBe('800');
+    vi.advanceTimersByTime(flightDuration(0, 800));
     fixture.detectChanges();
     expect(stop('Éris').classList).toContain('is-lit');
   });
 
-  describe('between answers', () => {
-    const lead = () =>
-      Number(element().querySelector<HTMLElement>('.drift')!.style.getPropertyValue('--lead'));
+  it('keeps every stop where its points put it on the map', () => {
+    expect(stop('Lua').style.getPropertyValue('--at')).toBe('40');
+    expect(stop('Plutão').style.getPropertyValue('--at')).toBe('600');
+  });
 
-    /** Lets the animation frames of some seconds run. */
-    function fly(seconds: number) {
-      vi.advanceTimersByTime(seconds * 1000);
-    }
+  it('leaves the map still between answers', () => {
+    progress(50, 1);
+    vi.advanceTimersByTime(flightDuration(0, 50) + 8000);
+    fixture.detectChanges();
 
-    it('keeps the route creeping down, so the planets never stand still', () => {
-      fly(1);
-      const early = lead();
-      fly(4);
-
-      expect(early).toBeGreaterThan(0);
-      expect(lead()).toBeGreaterThan(early);
-      expect(element().querySelector('.drift .world .stop')).not.toBeNull();
-    });
-
-    it('waits on the launch pad', () => {
-      fixture.componentRef.setInput('launching', true);
-      fixture.detectChanges();
-      fly(3);
-
-      expect(lead()).toBe(0);
-    });
-
-    it('starts over with a new round', () => {
-      fly(5);
-      progress(50, 1);
-      fly(5);
-      expect(lead()).toBeGreaterThan(0);
-
-      progress(0, 0);
-
-      expect(lead()).toBe(0);
-    });
+    expect(scene().style.getPropertyValue('--pos')).toBe('50');
   });
 });
