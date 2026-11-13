@@ -1,11 +1,10 @@
 <div
+  #scene
   class="scene"
   [class.is-flying]="flying()"
   [class.is-sputtering]="sputtering()"
   [class.is-launching]="launching()"
   [class.is-liftoff]="liftoff()"
-  [style.--pos]="position()"
-  [style.--flight]="flightMs() + 'ms'"
 >
   <app-star-field />
 
@@ -17,6 +16,18 @@
         <span class="land land-b"></span>
         <span class="land land-c"></span>
       </div>
+
+      <!-- Rocks and comets adrift where no planet is near. -->
+      @for (item of debris(); track item.at) {
+        <span
+          class="debris"
+          [class.is-comet]="item.kind === 'comet'"
+          [style.--at]="item.at"
+          [style.--x]="item.x"
+          [style.--d]="item.size"
+          [style.--turn]="item.turn + 'deg'"
+        ></span>
+      }
 
       @for (stop of stops(); track stop.id) {
         <div
@@ -39,6 +50,17 @@
 
   @if (launching()) {
     <app-launch-layers />
+  }
+
+  @if (arrival(); as stop) {
+    <!-- The planet just passed, said out loud for a moment: a fast flight leaves little time to see it. -->
+    <p class="arrival">
+      <app-planet-art class="arrival-art" [planet]="stop.id" />
+      <span
+        >Você passou por <b>{{ stop.name }}</b
+        >!</span
+      >
+    </p>
   }
 
   <app-exhaust-plume [anchor]="rocketTilt" />

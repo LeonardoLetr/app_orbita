@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { EXTENDED_ROUTE } from '../../core/data/planets';
+import { EXTENDED_ROUTE, PLANETS } from '../../core/data/planets';
 import { STORAGE, createMemoryStore } from '../../core/utils/storage';
 import { JourneyScene, flightDuration } from './journey-scene';
 import { LIFTOFF_MS } from './launch-layers';
@@ -15,7 +15,7 @@ describe('flightDuration', () => {
 
     expect(short).toBeGreaterThanOrEqual(1000);
     expect(long).toBeGreaterThan(short);
-    expect(flightDuration(0, 150)).toBeLessThanOrEqual(3800);
+    expect(flightDuration(0, 30)).toBeLessThanOrEqual(3800);
   });
 
   it('is short in quick rounds, whatever the distance', () => {
@@ -23,6 +23,16 @@ describe('flightDuration', () => {
     expect(flightDuration(0, 10, 'quick')).toBeLessThan(flightDuration(0, 10));
     expect(flightDuration(0, 10, 'quick')).toBeLessThan(flightDuration(0, 100, 'quick'));
     expect(flightDuration(0, 600, 'quick')).toBe(1200);
+  });
+
+  it('takes its time beside each planet it passes, in calm rounds', () => {
+    const noStop = flightDuration(100, 150);
+    const pastTheMoon = flightDuration(0, 50);
+    const pastTwo = flightDuration(0, 100);
+
+    expect(pastTheMoon - noStop).toBe(750);
+    expect(pastTwo).toBeGreaterThan(flightDuration(100, 179) + 1400);
+    expect(flightDuration(0, 50, 'quick')).toBe(flightDuration(100, 150, 'quick'));
   });
 });
 
@@ -74,16 +84,47 @@ describe('JourneyScene', () => {
     progress(50, 1);
 
     expect(scene().classList).toContain('is-flying');
+    vi.advanceTimersByTime(flightDuration(0, 50) / 2);
+    const halfway = Number(scene().style.getPropertyValue('--pos'));
+    expect(halfway).toBeGreaterThan(0);
+    expect(halfway).toBeLessThan(50);
+
+    vi.advanceTimersByTime(flightDuration(0, 50));
     expect(scene().style.getPropertyValue('--pos')).toBe('50');
-    expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50)}ms`);
+  });
+
+  it('names the planet it passes on a banner, for a moment', () => {
+    progress(50, 1);
+    expect(element().querySelector('.arrival')).toBeNull();
+
+    vi.advanceTimersByTime(flightDuration(0, 50));
+    fixture.detectChanges();
+    expect(element().querySelector('.arrival')?.textContent).toContain('Você passou por Lua!');
+
+    vi.advanceTimersByTime(2000);
+    fixture.detectChanges();
+    expect(element().querySelector('.arrival')).toBeNull();
+  });
+
+  it('has rocks and comets adrift in the long stretches, the same every time', () => {
+    const places = () =>
+      [...element().querySelectorAll<HTMLElement>('.debris')].map((item) =>
+        item.style.getPropertyValue('--at'),
+      );
+    const first = places();
+
+    expect(first.length).toBeGreaterThan(10);
+    expect(element().querySelector('.debris.is-comet')).not.toBeNull();
+    fixture.componentRef.setInput('route', [...PLANETS]);
+    fixture.detectChanges();
+    expect(places()).toEqual(first);
   });
 
   it('flies faster in quick rounds', () => {
     fixture.componentRef.setInput('pace', 'quick');
     progress(50, 1);
 
-    expect(scene().style.getPropertyValue('--flight')).toBe(`${flightDuration(0, 50, 'quick')}ms`);
-
+    expect(flightDuration(0, 50, 'quick')).toBeLessThan(flightDuration(0, 50));
     vi.advanceTimersByTime(flightDuration(0, 50, 'quick'));
     fixture.detectChanges();
     expect(scene().classList).not.toContain('is-flying');
@@ -101,6 +142,7 @@ describe('JourneyScene', () => {
 
   it('sputters in place when an answer scores nothing', () => {
     progress(10, 1);
+    vi.advanceTimersByTime(flightDuration(0, 10) + 50);
     progress(10, 2);
 
     expect(scene().classList).toContain('is-sputtering');
@@ -140,9 +182,9 @@ describe('JourneyScene', () => {
     fixture.componentRef.setInput('route', EXTENDED_ROUTE);
     progress(800, 1);
 
-    expect(scene().style.getPropertyValue('--pos')).toBe('800');
-    vi.advanceTimersByTime(flightDuration(0, 800));
+    vi.advanceTimersByTime(flightDuration(0, 800, 'calm', EXTENDED_ROUTE) + 50);
     fixture.detectChanges();
+    expect(scene().style.getPropertyValue('--pos')).toBe('800');
     expect(stop('Éris').classList).toContain('is-lit');
   });
 

@@ -19,12 +19,16 @@ import { formatDistance, reachedIndex } from '../../core/utils/journey';
 import { PlanetArt } from '../../shared/components/planet-art';
 import { RocketArt } from '../../shared/components/rocket-art';
 import { ExhaustPlume } from './exhaust-plume';
-import { LIFTOFF_EASING } from './flight-motion';
+import { FLY_EASING, LIFTOFF_EASING } from './flight-motion';
+import { flightPath } from './flight-path';
 import { LIFTOFF_MS, LaunchLayers } from './launch-layers';
 import { StarField } from './star-field';
 
 const SPUTTER_MS = 700;
-const ARRIVE_MS = 1400;
+/** How long the banner of a stop just passed stays on screen. */
+const ARRIVE_MS = 1900;
+/** Extra time a calm flight spends beside each stop it passes, so the planet is seen. */
+const PASS_MS = 750;
 /**
  * The route is a map that stands still: every stop sits at the points it takes to reach
  * it, and the rocket travels over the map. This many points fill one stretch of it, and
@@ -57,13 +61,57 @@ export function flightDuration(
   fromPoints: number,
   toPoints: number,
   pace: RoundPace = 'calm',
+  route: Route = PLANETS,
 ): number {
+  const base = plainFlight(fromPoints, toPoints, pace);
+  return base && base + stopsPassed(fromPoints, toPoints, route).length * passTime(pace);
+}
+
+/** The flight with no slow pass by any stop. */
+function plainFlight(fromPoints: number, toPoints: number, pace: RoundPace): number {
   const stretches = (toPoints - fromPoints) / STRETCH_POINTS;
   if (stretches <= 0) {
     return 0;
   }
   const { min, max, perStretch } = FLIGHTS[pace];
   return Math.round(Math.min(max, min + perStretch * Math.sqrt(stretches)));
+}
+
+/** Quick rounds do not slow down for the stops: their flights are too short for it. */
+function passTime(pace: RoundPace): number {
+  return pace === 'calm' ? PASS_MS : 0;
+}
+
+/** Where on the map the stops passed by a flight are, in points. */
+function stopsPassed(fromPoints: number, toPoints: number, route: Route): number[] {
+  return route.map((planet) => planet.minPoints).filter((at) => at > fromPoints && at <= toPoints);
+}
+
+/**
+ * Things drifting in the long empty stretches of the map, so there is something to fly
+ * past between two far planets. Always the same for a route: they are part of the map.
+ */
+function debrisOf(route: Route) {
+  const items: { at: number; x: number; size: number; kind: 'asteroid' | 'comet'; turn: number }[] =
+    [];
+  for (let i = 1; i < route.length; i++) {
+    const from = route[i - 1].minPoints;
+    const to = route[i].minPoints;
+    // Clear of the planets at both ends.
+    for (let at = from + 28; at <= to - 24; at += 22) {
+      // A fixed scramble of the position: no two alike, yet the same every round.
+      const seed = Math.abs(Math.sin(at * 12.9898) * 43758.5453) % 1;
+      const other = Math.abs(Math.sin(at * 78.233) * 12543.123) % 1;
+      items.push({
+        at: at + Math.round(seed * 10),
+        x: 8 + Math.round(other * 84),
+        size: 3 + Math.round(seed * 5),
+        kind: other > 0.72 ? 'comet' : 'asteroid',
+        turn: Math.round(seed * 360),
+      });
+    }
+  }
+  return items;
 }
 
 type RouteStop = Exclude<PlanetId, 'earth-orbit'>;
@@ -129,20 +177,24 @@ export class JourneyScene {
   protected readonly liftoff = signal(false);
 
   protected readonly stops = computed(() => stopsOf(this.route()));
-  /** Where the rocket is on the map, in points. */
-  protected readonly position = computed(() => this.points());
+  protected readonly debris = computed(() => debrisOf(this.route()));
   protected readonly flying = signal(false);
-  protected readonly flightMs = signal(FLIGHTS.calm.min);
   protected readonly sputtering = signal(false);
   /** Planets light up as the rocket passes them. */
   protected readonly litIndex = signal(0);
   protected readonly arrivingIndex = signal(-1);
+  /** The stop just passed, named on a banner for a moment. */
+  protected readonly arrival = computed(() =>
+    this.stops().find((stop) => stop.index === this.arrivingIndex()),
+  );
 
   private readonly sound = inject(SoundService);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
   private readonly starField = viewChild(StarField);
   protected readonly exhaust = viewChild(ExhaustPlume);
   private readonly rocketTilt = viewChild<ElementRef<HTMLElement>>('rocketTilt');
+  private readonly scene = viewChild<ElementRef<HTMLElement>>('scene');
+  private frame = 0;
   private seenAnswers = 0;
   private seenPoints = 0;
   private readonly timers = new Map<string, ReturnType<typeof setTimeout>>();
@@ -170,7 +222,10 @@ export class JourneyScene {
         }
       });
     });
-    inject(DestroyRef).onDestroy(() => this.timers.forEach((timer) => clearTimeout(timer)));
+    inject(DestroyRef).onDestroy(() => {
+      this.timers.forEach((timer) => clearTimeout(timer));
+      this.cancelFlight();
+    });
   }
 
   private react(answers: number, points: number): void {
@@ -181,6 +236,8 @@ export class JourneyScene {
 
     const route = this.route();
     if (!isNewAnswer) {
+      this.cancelFlight();
+      this.showPosition(points);
       this.litIndex.set(reachedIndex(points, route));
       return;
     }
@@ -190,24 +247,65 @@ export class JourneyScene {
       return;
     }
 
-    const duration = flightDuration(from, points, this.pace());
-    this.flightMs.set(duration);
+    const path = flightPath(
+      from,
+      points,
+      stopsPassed(from, points, route),
+      plainFlight(from, points, this.pace()),
+      passTime(this.pace()),
+      FLY_EASING,
+    );
+    const duration = path.duration;
     this.flag(this.flying, 'fly', duration);
     this.sound.play('thrust', duration / 1000);
     const distance = ((points - from) / STRETCH_POINTS) * STRETCH_SCREENS * this.screenPx();
     this.starField()?.fly(duration, distance);
     this.exhaust()?.fly(duration, distance);
+    this.follow(path, points);
 
-    // Light each planet roughly when the rocket goes past it.
+    // Each planet lights up, and is named on a banner, as the rocket goes past it.
     for (let index = this.litIndex() + 1; index <= reachedIndex(points, route); index++) {
-      const share = (route[index].minPoints - from) / (points - from);
-      this.later(`arrive-${index}`, duration * Math.min(1, 0.25 + share * 0.7), () => {
+      this.later(`arrive-${index}`, path.passes(route[index].minPoints), () => {
         this.litIndex.set(Math.max(this.litIndex(), index));
         this.arrivingIndex.set(index);
         this.sound.play('arrive');
         this.later('arrived', ARRIVE_MS, () => this.arrivingIndex.set(-1));
       });
     }
+  }
+
+  /** Moves the map under the rocket along a flight, frame by frame. */
+  private follow(path: { duration: number; at(ms: number): number }, end: number): void {
+    this.cancelFlight();
+    const still = !!globalThis.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (still || typeof requestAnimationFrame !== 'function') {
+      this.showPosition(end);
+      return;
+    }
+    const start = performance.now();
+    const tick = (now: number) => {
+      const ms = now - start;
+      if (ms >= path.duration) {
+        this.frame = 0;
+        this.showPosition(end);
+        return;
+      }
+      this.showPosition(path.at(ms));
+      this.frame = requestAnimationFrame(tick);
+    };
+    this.frame = requestAnimationFrame(tick);
+  }
+
+  private cancelFlight(): void {
+    if (this.frame) {
+      cancelAnimationFrame(this.frame);
+      this.frame = 0;
+    }
+  }
+
+  /** Where the rocket is on the map, in points. */
+  private showPosition(points: number): void {
+    this.scene()?.nativeElement.style.setProperty('--pos', `${Math.round(points * 100) / 100}`);
   }
 
   /** Height of the scene in pixels: the screen the map is measured in. */
